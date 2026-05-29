@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="aurora">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,8 +7,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="scanlines" aria-hidden="true"></div>
+
   <header class="app-header">
-    <h1 id="app-title">My Workout Routine</h1>
+    <div class="header-top">
+      <h1 id="app-title">My Workout Routine</h1>
+      <button id="theme-btn" class="theme-btn" title="Change theme">
+        <span class="theme-dot"></span><span id="theme-name">Aurora</span>
+      </button>
+    </div>
     <nav class="tabs">
       <button class="tab active" data-view="routine">Routine</button>
       <button class="tab" data-view="track">Track</button>
@@ -17,13 +24,8 @@
   </header>
 
   <main id="main">
-    <!-- ROUTINE VIEW -->
     <section id="view-routine" class="view active"></section>
-
-    <!-- TRACK VIEW -->
     <section id="view-track" class="view"></section>
-
-    <!-- PROGRESS VIEW -->
     <section id="view-progress" class="view"></section>
   </main>
 
@@ -33,6 +35,15 @@
     <button id="import-btn" class="link-btn">Import data</button>
     <input id="import-file" type="file" accept="application/json" hidden />
   </footer>
+
+  <!-- Exercise detail modal -->
+  <div id="modal-root" class="modal-root" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- Floating rest timer -->
+  <div id="rest-timer" class="rest-timer" hidden></div>
 
   <script src="routine.js"></script>
   <script src="app.js"></script>

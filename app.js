@@ -1,10 +1,13 @@
 /* =============================================================
-   Workout app logic: routine display, tracking, progress charts.
-   Stores all logged workouts in localStorage (key: "workoutLog").
-   No external libraries — runs by just opening index.html.
+   Workout app logic: routine display, exercise detail, tracking,
+   rest timer, progress charts, and theme switching.
+   Stores logged workouts + theme in localStorage. No libraries.
    ============================================================= */
 
 const STORAGE_KEY = "workoutLog";
+const THEME_KEY = "workoutTheme";
+const THEMES = ["aurora", "solar", "matrix", "vapor"];
+const THEME_LABELS = { aurora: "Aurora", solar: "Solar", matrix: "Matrix", vapor: "Vapor" };
 
 /* ---------- storage ---------- */
 function loadLog() {
@@ -18,9 +21,6 @@ function saveLog(log) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
 }
 
-/* A logged workout:
-   { id, date, day, entries: [ { name, sets: [ {weight, reps} ] } ] } */
-
 /* ---------- helpers ---------- */
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -29,10 +29,25 @@ function fmtDate(iso) {
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
-// Estimated 1-rep max (Epley formula)
 function e1rm(weight, reps) {
   if (!weight || !reps) return 0;
   return weight * (1 + reps / 30);
+}
+function parseRest(str) {
+  if (!str) return 60;
+  const m = String(str).match(/\d+/);
+  return m ? parseInt(m[0], 10) : 60;
+}
+function findExercise(name) {
+  for (const day of ROUTINE.days) {
+    const ex = day.exercises.find((e) => e.name === name);
+    if (ex) return ex;
+  }
+  return null;
+}
+function ytSearchUrl(ex) {
+  const q = "how to " + (ex.video || ex.name).replace(/\(.*?\)/g, "").trim();
+  return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
 }
 function toast(msg) {
   let t = document.querySelector(".toast");
@@ -46,8 +61,10 @@ function toast(msg) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove("show"), 1800);
 }
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
-// Most recent logged sets for a given exercise (for "last time" hints)
 function lastEntryFor(name) {
   const log = loadLog();
   for (let i = log.length - 1; i >= 0; i--) {
@@ -57,11 +74,30 @@ function lastEntryFor(name) {
   return null;
 }
 
+/* ---------- theme ---------- */
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const nameEl = document.getElementById("theme-name");
+  if (nameEl) nameEl.textContent = THEME_LABELS[theme] || theme;
+  localStorage.setItem(THEME_KEY, theme);
+  // repaint chart if visible so its colors match the theme
+  if (document.getElementById("view-progress").classList.contains("active")) {
+    const sel = document.querySelector(".exercise-select");
+    if (sel) renderProgressBody(sel.value);
+  }
+}
+function cycleTheme() {
+  const cur = localStorage.getItem(THEME_KEY) || "aurora";
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+  applyTheme(next);
+  toast(THEME_LABELS[next] + " theme");
+}
+
 /* ---------- routine view ---------- */
 function exMeta(ex) {
   const bits = [];
-  if (ex.rest) bits.push(`rest ${ex.rest}`);
-  if (ex.rir && ex.rir !== "—") bits.push(`RIR ${ex.rir}`);
+  if (ex.rest) bits.push("rest " + ex.rest);
+  if (ex.rir && ex.rir !== "—") bits.push("RIR " + ex.rir);
   if (ex.note) bits.push(ex.note);
   return bits.join(" · ");
 }
@@ -75,7 +111,7 @@ function renderRoutine() {
           .map(
             (p) =>
               `<div class="exercise-row">
-                 <span><span class="name">${p.name}</span><span class="note">Weeks ${p.weeks} · ${p.focus}</span></span>
+                 <span class="left"><span><span class="name">${p.name}</span><span class="note">Weeks ${p.weeks} · ${p.focus}</span></span></span>
                  <span class="scheme">${p.sets} · RIR ${p.rir}</span>
                </div>`
           )
@@ -95,12 +131,15 @@ function renderRoutine() {
           .map((ex) => {
             const meta = exMeta(ex);
             return `
-          <div class="exercise-row">
-            <span>
-              <span class="name">${ex.name}</span>
-              ${meta ? `<span class="note">${meta}</span>` : ""}
+          <div class="exercise-row clickable" data-ex="${encodeURIComponent(ex.name)}">
+            <span class="left">
+              <span>
+                <span class="name">${ex.name}</span>
+                ${meta ? `<span class="note">${meta}</span>` : ""}
+              </span>
             </span>
             <span class="scheme">${ex.sets} × ${ex.reps}</span>
+            <span class="chev">›</span>
           </div>`;
           })
           .join("")}
@@ -109,6 +148,146 @@ function renderRoutine() {
       .join("") +
     phases;
 }
+
+/* ---------- exercise detail modal ---------- */
+function openExercise(name) {
+  const ex = findExercise(name);
+  if (!ex) return;
+  const root = document.getElementById("modal-root");
+  const modal = root.querySelector(".modal");
+  const cues = (ex.cues || []).map((c) => `<li>${c}</li>`).join("");
+  modal.innerHTML = `
+    <div class="grip"></div>
+    <button class="modal-close" aria-label="Close">✕</button>
+    <h2>${ex.name}</h2>
+    ${ex.muscles ? `<div class="muscle-chips">${ex.muscles.split(",").map((m) => `<span class="chip">${m.trim()}</span>`).join("")}</div>` : ""}
+    <div class="meta-grid">
+      <div class="meta-box"><div class="v">${ex.sets} × ${ex.reps}</div><div class="l">Sets × Reps</div></div>
+      <div class="meta-box"><div class="v">${ex.rest || "—"}</div><div class="l">Rest</div></div>
+      <div class="meta-box"><div class="v">${ex.rir || "—"}</div><div class="l">RIR</div></div>
+    </div>
+    ${cues ? `<div class="how-title">How to do it</div><ol class="cue-list">${cues}</ol>` : ""}
+    <a class="yt-btn" href="${ytSearchUrl(ex)}" target="_blank" rel="noopener">
+      <span class="yt-play">▶</span> Watch how-to on YouTube
+    </a>
+  `;
+  root.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+function closeModal() {
+  const root = document.getElementById("modal-root");
+  root.hidden = true;
+  document.body.style.overflow = "";
+}
+
+/* ---------- rest timer ---------- */
+const RestTimer = {
+  total: 0,
+  left: 0,
+  paused: false,
+  interval: null,
+  R: 28, // ring radius
+  start(seconds, label) {
+    this.stop(true);
+    this.total = seconds;
+    this.left = seconds;
+    this.paused = false;
+    this.render(label);
+    this.interval = setInterval(() => this.tick(), 1000);
+  },
+  tick() {
+    if (this.paused) return;
+    this.left--;
+    this.update();
+    if (this.left <= 0) this.finish();
+  },
+  adjust(delta) {
+    this.left = Math.max(1, this.left + delta);
+    this.total = Math.max(this.total, this.left);
+    this.update();
+  },
+  togglePause() {
+    this.paused = !this.paused;
+    const btn = document.querySelector("#rest-timer .pause");
+    if (btn) btn.textContent = this.paused ? "▶" : "⏸";
+  },
+  finish() {
+    clearInterval(this.interval);
+    this.interval = null;
+    const el = document.getElementById("rest-timer");
+    el.classList.add("done");
+    const num = el.querySelector(".ring-num");
+    if (num) num.textContent = "GO";
+    this.beep();
+    setTimeout(() => this.stop(), 2200);
+  },
+  stop(silent) {
+    clearInterval(this.interval);
+    this.interval = null;
+    const el = document.getElementById("rest-timer");
+    el.hidden = true;
+    el.classList.remove("done");
+  },
+  beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.18].forEach((t) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.frequency.value = 880;
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.15);
+        o.start(ctx.currentTime + t);
+        o.stop(ctx.currentTime + t + 0.16);
+      });
+    } catch (e) {}
+  },
+  render(label) {
+    const el = document.getElementById("rest-timer");
+    const C = 2 * Math.PI * this.R;
+    el.classList.remove("done");
+    el.innerHTML = `
+      <div class="ring-wrap">
+        <svg width="66" height="66" viewBox="0 0 66 66">
+          <defs>
+            <linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="rgb(${cssVar("--c1-rgb")})"/>
+              <stop offset="100%" stop-color="rgb(${cssVar("--c2-rgb")})"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="33" cy="33" r="${this.R}" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="33" cy="33" r="${this.R}" fill="none" stroke-width="6"
+                  stroke-dasharray="${C}" stroke-dashoffset="0"/>
+        </svg>
+        <div class="ring-num">${this.left}</div>
+      </div>
+      <div class="rest-mid">
+        <div class="rest-label">Rest</div>
+        <div class="rest-ex">${label || "Recover"}</div>
+      </div>
+      <div class="rest-controls">
+        <button class="adj" data-d="-15">-15</button>
+        <button class="pause">⏸</button>
+        <button class="adj" data-d="15">+15</button>
+        <button class="skip">Skip</button>
+      </div>`;
+    el.hidden = false;
+    this.update();
+  },
+  update() {
+    const el = document.getElementById("rest-timer");
+    const fg = el.querySelector(".ring-fg");
+    const num = el.querySelector(".ring-num");
+    if (!fg) return;
+    const C = 2 * Math.PI * this.R;
+    const frac = Math.max(0, this.left) / this.total;
+    fg.style.strokeDashoffset = C * (1 - frac);
+    if (this.left > 0) num.textContent = this.left;
+  },
+};
 
 /* ---------- track view ---------- */
 let trackState = { dayIndex: 0, data: {} };
@@ -135,11 +314,17 @@ function renderTrack() {
         )
         .join("")}
     </div>
+    <div class="day-progress-wrap">
+      <div class="day-progress-label"><span>Session progress</span><span id="dp-count">0 / 0</span></div>
+      <div class="day-progress-track"><div class="day-progress-fill" id="dp-fill"></div></div>
+    </div>
     ${day.exercises
       .map((ex) => {
         const last = lastEntryFor(ex.name);
         const lastTxt = last
-          ? `Last (${fmtDate(last.date)}): ` +
+          ? "Last (" +
+            fmtDate(last.date) +
+            "): " +
             last.entry.sets
               .filter((s) => s.weight || s.reps)
               .map((s) => `${s.weight || "–"}×${s.reps || "–"}`)
@@ -148,12 +333,13 @@ function renderTrack() {
         const sets = trackState.data[ex.name];
         return `
         <div class="card">
-          <h2 style="font-size:1.05rem">${ex.name}</h2>
-          <div class="focus">Target: ${ex.sets} × ${ex.reps}</div>
-          <div class="last-time">${lastTxt}</div>
-          <div class="set-head">
-            <span>Set</span><span>Weight</span><span>Reps</span><span></span>
+          <div class="track-ex-head" data-ex="${encodeURIComponent(ex.name)}">
+            <h2 style="font-size:1.05rem">${ex.name}</h2>
+            <span class="info-pill">How-to ›</span>
           </div>
+          <div class="focus">Target: ${ex.sets} × ${ex.reps}${ex.rest ? " · rest " + ex.rest : ""}</div>
+          <div class="last-time">${lastTxt}</div>
+          <div class="set-head"><span>Set</span><span>Weight</span><span>Reps</span><span></span></div>
           ${sets
             .map(
               (s, i) => `
@@ -170,6 +356,22 @@ function renderTrack() {
       .join("")}
     <button id="save-workout" class="btn full">Save workout</button>
   `;
+  updateDayProgress();
+}
+
+function updateDayProgress() {
+  let done = 0,
+    total = 0;
+  Object.values(trackState.data).forEach((sets) =>
+    sets.forEach((s) => {
+      total++;
+      if (s.done) done++;
+    })
+  );
+  const fill = document.getElementById("dp-fill");
+  const count = document.getElementById("dp-count");
+  if (fill) fill.style.width = (total ? (done / total) * 100 : 0) + "%";
+  if (count) count.textContent = done + " / " + total;
 }
 
 function handleTrackInput(e) {
@@ -182,6 +384,12 @@ function handleTrackInput(e) {
 }
 
 function handleTrackClick(e) {
+  // open exercise detail
+  const head = e.target.closest(".track-ex-head");
+  if (head) {
+    openExercise(decodeURIComponent(head.dataset.ex));
+    return;
+  }
   // day switch
   const chip = e.target.closest(".day-chip");
   if (chip) {
@@ -190,16 +398,21 @@ function handleTrackClick(e) {
     renderTrack();
     return;
   }
-  // check off a set
+  // check off a set -> start rest timer
   if (e.target.classList.contains("check")) {
     const grid = e.target.closest(".set-grid");
-    const ex = decodeURIComponent(grid.dataset.ex);
+    const exName = decodeURIComponent(grid.dataset.ex);
     const i = +grid.dataset.set;
-    trackState.data[ex][i].done = !trackState.data[ex][i].done;
+    const nowDone = !trackState.data[exName][i].done;
+    trackState.data[exName][i].done = nowDone;
     e.target.classList.toggle("done");
+    updateDayProgress();
+    if (nowDone) {
+      const ex = findExercise(exName);
+      RestTimer.start(parseRest(ex && ex.rest), exName);
+    }
     return;
   }
-  // save
   if (e.target.id === "save-workout") saveWorkout();
 }
 
@@ -220,6 +433,7 @@ function saveWorkout() {
   log.push({ id: Date.now(), date: todayISO(), day: day.name, entries });
   saveLog(log);
   trackState.data = initTrackData(day);
+  RestTimer.stop();
   renderTrack();
   toast("Workout saved 💪");
 }
@@ -232,7 +446,6 @@ function allExerciseNames() {
 }
 
 function seriesFor(name) {
-  // one point per workout date: best estimated 1RM that day
   const log = loadLog();
   const points = [];
   log.forEach((w) => {
@@ -261,21 +474,18 @@ function renderProgress() {
   const names = allExerciseNames();
   const saved = el.querySelector(".exercise-select")?.value;
   const selected = saved || names[0];
-
   el.innerHTML = `
     <select class="exercise-select">
       ${names.map((n) => `<option ${n === selected ? "selected" : ""}>${n}</option>`).join("")}
     </select>
-    <div id="progress-body"></div>
-  `;
+    <div id="progress-body"></div>`;
   renderProgressBody(selected);
-  el.querySelector(".exercise-select").addEventListener("change", (e) =>
-    renderProgressBody(e.target.value)
-  );
+  el.querySelector(".exercise-select").addEventListener("change", (e) => renderProgressBody(e.target.value));
 }
 
 function renderProgressBody(name) {
   const body = document.getElementById("progress-body");
+  if (!body) return;
   const pts = seriesFor(name);
   if (pts.length === 0) {
     body.innerHTML = `<div class="empty">No logged sets for ${name} yet.</div>`;
@@ -283,9 +493,7 @@ function renderProgressBody(name) {
   }
   const best = Math.max(...pts.map((p) => p.e1rm));
   const latest = pts[pts.length - 1];
-  const first = pts[0];
-  const change = latest.e1rm - first.e1rm;
-
+  const change = latest.e1rm - pts[0].e1rm;
   body.innerHTML = `
     <div class="stat-row">
       <div class="stat"><div class="value">${latest.e1rm}</div><div class="label">Est. 1RM</div></div>
@@ -306,12 +514,11 @@ function renderProgressBody(name) {
             `<div class="history-item"><span class="date">${fmtDate(p.date)}</span><span>top ${p.topWeight} · e1RM ${p.e1rm} · vol ${Math.round(p.volume)}</span></div>`
         )
         .join("")}
-    </div>
-  `;
+    </div>`;
   drawChart(pts.map((p) => ({ date: p.date, value: p.e1rm })));
 }
 
-/* ---------- simple canvas line chart (no libraries) ---------- */
+/* ---------- theme-aware canvas chart ---------- */
 function drawChart(points) {
   const canvas = document.getElementById("chart");
   if (!canvas) return;
@@ -319,9 +526,10 @@ function drawChart(points) {
   const W = canvas.width,
     H = canvas.height;
   const pad = { l: 44, r: 16, t: 16, b: 28 };
+  const c1 = cssVar("--c1-rgb") || "34,224,255";
+  const c2 = cssVar("--c2-rgb") || "157,107,255";
   ctx.clearRect(0, 0, W, H);
 
-  const xs = points.map((_, i) => i);
   const ys = points.map((p) => p.value);
   let minY = Math.min(...ys),
     maxY = Math.max(...ys);
@@ -354,27 +562,21 @@ function drawChart(points) {
     ctx.fillText(Math.round(v), 6, y + 4);
   }
 
-  // x labels (first, mid, last)
+  // x labels
   ctx.textAlign = "center";
   const labelIdx = points.length <= 1 ? [0] : [0, Math.floor((points.length - 1) / 2), points.length - 1];
   [...new Set(labelIdx)].forEach((i) => {
     const d = new Date(points[i].date + "T00:00:00");
-    ctx.fillText(
-      d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-      xAt(i),
-      H - 8
-    );
+    ctx.fillText(d.toLocaleDateString(undefined, { month: "short", day: "numeric" }), xAt(i), H - 8);
   });
   ctx.textAlign = "left";
 
-  // neon gradient line for the stroke
+  // gradient line with glow
   const grad = ctx.createLinearGradient(pad.l, 0, W - pad.r, 0);
-  grad.addColorStop(0, "#22e0ff");
-  grad.addColorStop(1, "#9d6bff");
-
-  // line (with glow)
+  grad.addColorStop(0, `rgb(${c1})`);
+  grad.addColorStop(1, `rgb(${c2})`);
   ctx.save();
-  ctx.shadowColor = "rgba(34,224,255,0.7)";
+  ctx.shadowColor = `rgba(${c1},0.7)`;
   ctx.shadowBlur = 12;
   ctx.strokeStyle = grad;
   ctx.lineWidth = 2.5;
@@ -399,12 +601,12 @@ function drawChart(points) {
   ctx.lineTo(xAt(0), pad.t + plotH);
   ctx.closePath();
   const fill = ctx.createLinearGradient(0, pad.t, 0, pad.t + plotH);
-  fill.addColorStop(0, "rgba(34,224,255,0.28)");
-  fill.addColorStop(1, "rgba(157,107,255,0.02)");
+  fill.addColorStop(0, `rgba(${c1},0.28)`);
+  fill.addColorStop(1, `rgba(${c2},0.02)`);
   ctx.fillStyle = fill;
   ctx.fill();
 
-  // dots (glowing)
+  // glowing dots
   points.forEach((p, i) => {
     const x = xAt(i),
       y = yAt(p.value);
@@ -413,8 +615,8 @@ function drawChart(points) {
     ctx.fillStyle = "#04070f";
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#22e0ff";
-    ctx.shadowColor = "rgba(34,224,255,0.9)";
+    ctx.strokeStyle = `rgb(${c1})`;
+    ctx.shadowColor = `rgba(${c1},0.9)`;
     ctx.shadowBlur = 10;
     ctx.stroke();
     ctx.shadowBlur = 0;
@@ -457,16 +659,41 @@ function switchView(name) {
 }
 
 function init() {
+  applyTheme(localStorage.getItem(THEME_KEY) || "aurora");
+
   document.getElementById("app-title").textContent = ROUTINE.title || "My Workout Routine";
   document.title = ROUTINE.title || "Workout";
 
   document.querySelectorAll(".tab").forEach((t) =>
     t.addEventListener("click", () => switchView(t.dataset.view))
   );
+  document.getElementById("theme-btn").addEventListener("click", cycleTheme);
+
+  // routine: open exercise detail
+  document.getElementById("view-routine").addEventListener("click", (e) => {
+    const row = e.target.closest(".exercise-row.clickable");
+    if (row && row.dataset.ex) openExercise(decodeURIComponent(row.dataset.ex));
+  });
 
   const track = document.getElementById("view-track");
   track.addEventListener("input", handleTrackInput);
   track.addEventListener("click", handleTrackClick);
+
+  // modal close interactions
+  const modalRoot = document.getElementById("modal-root");
+  modalRoot.addEventListener("click", (e) => {
+    if (e.target.classList.contains("modal-backdrop") || e.target.closest(".modal-close")) closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+
+  // rest timer controls (delegated)
+  document.getElementById("rest-timer").addEventListener("click", (e) => {
+    if (e.target.classList.contains("skip")) RestTimer.stop();
+    else if (e.target.classList.contains("pause")) RestTimer.togglePause();
+    else if (e.target.classList.contains("adj")) RestTimer.adjust(+e.target.dataset.d);
+  });
 
   document.getElementById("export-btn").addEventListener("click", exportData);
   document.getElementById("import-btn").addEventListener("click", () =>

@@ -19,11 +19,23 @@ python3 -m http.server 8000
 ## What it does
 
 - **Routine** — your full program: every day, exercise, sets × reps, rest,
-  RIR target, and cues, plus the 3-phase progression table.
+  RIR target, and cues, plus the 3-phase progression table. **Tap any
+  exercise** for a detail card: target muscles, sets/reps/rest/RIR,
+  step-by-step form cues, and a one-tap link to how-to videos on YouTube.
 - **Track** — pick a day, log weight + reps for each set, check sets off, and
-  save the session. It shows what you did last time for each exercise.
+  save the session. A live progress bar fills as you complete sets, and a
+  **glowing rest timer** auto-starts (with the right rest length) every time
+  you check off a set — with skip / pause / ±15s controls and a finish beep.
+  Tap an exercise title to open its how-to detail.
 - **Progress** — pick any exercise to see your estimated 1-rep-max trend
   (Epley formula), best ever, change since you started, and full history.
+
+## Themes
+
+Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,
+**Matrix**, and **Vapor**. Your choice is remembered. The whole UI (including
+the progress chart) retints to match. Animations respect
+`prefers-reduced-motion`.
 
 ## Your data
 
