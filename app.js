@@ -269,27 +269,53 @@ function renderTodayCard() {
   </div>`;
 }
 
-/* ---------- rolling tickers ---------- */
-let _rollers = [];
+/* ---------- rolling tickers (one shared clock so they fade in sync) ---------- */
+const ROLL_BASE = 1600; // ms per tick; periods below are in ticks
+let _rollerItems = [];
+let _rollerClock = null;
+let _rollerTick = 0;
 function stopRollers() {
-  _rollers.forEach(clearInterval);
-  _rollers = [];
+  if (_rollerClock) {
+    clearInterval(_rollerClock);
+    _rollerClock = null;
+  }
+  _rollerItems = [];
+  _rollerTick = 0;
 }
-function rollEl(el, items, ms) {
+function advanceRoller(r, fadeMs) {
+  if (r.items.length < 2) return;
+  r.el.style.opacity = 0;
+  setTimeout(() => {
+    r.el.innerHTML = r.items[r.i];
+    r.el.style.opacity = 1;
+  }, fadeMs);
+}
+function rollEl(el, items, periodTicks) {
   if (!el || !items || !items.length) return;
-  let i = Math.floor(Math.random() * items.length);
-  el.innerHTML = items[i];
-  if (items.length < 2) return;
-  _rollers.push(
-    setInterval(() => {
-      i = (i + 1) % items.length;
-      el.style.opacity = 0;
-      setTimeout(() => {
-        el.innerHTML = items[i];
-        el.style.opacity = 1;
-      }, 260);
-    }, ms)
-  );
+  const r = { el, items, i: Math.floor(Math.random() * items.length), period: periodTicks || 4 };
+  el.innerHTML = items[r.i];
+  _rollerItems.push(r);
+  if (!_rollerClock) {
+    _rollerClock = setInterval(() => {
+      _rollerTick++;
+      _rollerItems.forEach((rr) => {
+        if (rr.items.length < 2 || _rollerTick % rr.period !== 0) return;
+        rr.i = (rr.i + 1) % rr.items.length;
+        advanceRoller(rr, 260);
+      });
+    }, ROLL_BASE);
+  }
+}
+// tap a ticker to jump to a fresh item immediately
+function shuffleRoller(el) {
+  const r = _rollerItems.find((x) => x.el === el);
+  if (!r || r.items.length < 2) return;
+  let n;
+  do {
+    n = Math.floor(Math.random() * r.items.length);
+  } while (n === r.i);
+  r.i = n;
+  advanceRoller(r, 120);
 }
 function fuelQuoteItems() {
   return typeof FUEL_QUOTES !== "undefined"
@@ -298,8 +324,8 @@ function fuelQuoteItems() {
 }
 function attachFuelRollers(scope, kind) {
   if (!scope || typeof FUEL === "undefined" || !FUEL[kind]) return;
-  rollEl(scope.querySelector(".fuel-idea"), FUEL[kind].ideas, 3200);
-  rollEl(scope.querySelector(".fuel-quote"), fuelQuoteItems(), 5400);
+  rollEl(scope.querySelector(".fuel-idea"), FUEL[kind].ideas, 2); // ~3.2s
+  rollEl(scope.querySelector(".fuel-quote"), fuelQuoteItems(), 4); // ~6.4s, in sync with the workout quote
 }
 
 /* ---------- fuel (pre/post workout nutrition) ---------- */
@@ -513,7 +539,7 @@ function quoteItems() {
 }
 function attachQuoteRollers(scope) {
   if (!scope) return;
-  scope.querySelectorAll(".workout-quote, .focus-quote").forEach((el) => rollEl(el, quoteItems(), 6000));
+  scope.querySelectorAll(".workout-quote, .focus-quote").forEach((el) => rollEl(el, quoteItems(), 4)); // ~6.4s
 }
 function quoteCard() {
   if (typeof QUOTES === "undefined" || !QUOTES.length) return "";
@@ -1773,6 +1799,12 @@ async function init() {
     t.addEventListener("click", () => switchView(t.dataset.view))
   );
   document.getElementById("theme-btn").addEventListener("click", cycleTheme);
+
+  // tap any ticker (quote / food idea) to shuffle to a fresh one
+  document.addEventListener("click", (e) => {
+    const r = e.target.closest(".roller");
+    if (r) shuffleRoller(r);
+  });
 
   // routine: today CTA + reminders + open exercise detail
   document.getElementById("view-routine").addEventListener("click", (e) => {

@@ -506,7 +506,14 @@ canvas { max-width: 100%; }
 .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
 /* ---------- workout quote ---------- */
-.quote-card { text-align: center; border: 1px solid rgba(var(--c2-rgb), 0.28); }
+.quote-card { text-align: center; border: 1px solid rgba(var(--c2-rgb), 0.28); position: relative; overflow: hidden; }
+.quote-card::after {
+  content: "\201C"; /* ❝ */
+  position: absolute; top: -18px; left: 12px;
+  font-family: Georgia, "Times New Roman", serif; font-size: 5.5rem; line-height: 1;
+  color: rgba(var(--c2-rgb), 0.16); pointer-events: none;
+}
+.quote-card .workout-quote { position: relative; z-index: 1; }
 .workout-quote { font-style: italic; line-height: 1.5; min-height: 1.6em; }
 .quote-card .workout-quote { font-size: 1.05rem; min-height: 3.2em; display: flex; flex-direction: column; justify-content: center; }
 .quote-card .wq-a {
@@ -557,7 +564,8 @@ canvas { max-width: 100%; }
 .fuel-emoji { font-size: 1.7rem; }
 .fuel-title { font-weight: 800; font-size: 1.05rem; letter-spacing: 0.02em; }
 .fuel-tip { color: var(--text); opacity: 0.9; font-size: 0.9rem; line-height: 1.55; margin: 0 0 12px; }
-.roller { transition: opacity 0.26s ease; }
+.roller { transition: opacity 0.26s ease; cursor: pointer; }
+.roller:active { opacity: 0.6; }
 .fuel-roll {
   display: flex; align-items: center; gap: 10px;
   background: rgba(var(--c3-rgb), 0.08); border: 1px solid rgba(var(--c3-rgb), 0.28);
