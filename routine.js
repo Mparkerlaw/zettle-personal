@@ -140,6 +140,10 @@ const FUEL = {
       "Rice cakes + honey + Greek yogurt",
       "Toast + eggs + a piece of fruit",
       "Smoothie: banana, oats, whey, milk",
+      "Bagel + peanut butter + honey",
+      "Greek yogurt + granola + berries",
+      "Cream of rice + protein + cinnamon",
+      "Apple + handful of nuts + jerky",
     ],
   },
   post: {
@@ -151,6 +155,10 @@ const FUEL = {
       "Protein shake + banana right now",
       "Eggs + potatoes + toast",
       "Greek yogurt + granola + berries",
+      "Salmon + sweet potato + greens",
+      "Turkey + pasta + olive oil",
+      "Cottage cheese + pineapple + honey",
+      "Burrito bowl: rice, beans, chicken, cheese",
     ],
   },
 };
@@ -181,4 +189,18 @@ const FINAL_HYPE = [
   "Finish strong 💪",
   "One more — leave nothing 🔥",
   "This is the one that grows 🌱",
+];
+
+/* Inspiring food / nutrition quotes, rotated on the fuel cards. Edit freely. */
+const FUEL_QUOTES = [
+  { q: "Let food be thy medicine and medicine be thy food.", a: "Hippocrates" },
+  { q: "Tell me what you eat, and I will tell you what you are.", a: "Brillat-Savarin" },
+  { q: "To eat is a necessity, but to eat intelligently is an art.", a: "La Rochefoucauld" },
+  { q: "A healthy outside starts from the inside.", a: "Robert Urich" },
+  { q: "Your diet is a bank account. Good food choices are good investments.", a: "Bethenny Frankel" },
+  { q: "If you keep good food in your fridge, you will eat good food.", a: "Errick McAdams" },
+  { q: "First we eat, then we do everything else.", a: "M.F.K. Fisher" },
+  { q: "One cannot think well, love well, sleep well, if one has not dined well.", a: "Virginia Woolf" },
+  { q: "The greatest wealth is health.", a: "Virgil" },
+  { q: "Eat breakfast like a king, lunch like a prince, dinner like a pauper.", a: "Adelle Davis" },
 ];

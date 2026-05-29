@@ -104,10 +104,11 @@ Home Screen for the most reliable alerts.
 
 ## Fuel reminders
 
-The **Track** tab shows a **pre-workout fuel card** (Window 1/2 timing + food
-ideas) before you lift, and after you save a session a **post-workout refuel
-reminder** pops up (Window 3, within 60 min, protein first). Edit the
-suggestions in the `FUEL` block at the bottom of `routine.js`.
+The **Track** tab shows a **pre-workout fuel card** before you lift, and after
+you save a session a **post-workout refuel reminder** pops up (Window 3, within
+60 min, protein first). The food ideas **auto-rotate** and an inspiring
+nutrition quote rolls alongside them. Edit the suggestions in `FUEL` and the
+quotes in `FUEL_QUOTES` at the bottom of `routine.js`.
 
 ## Themes
 

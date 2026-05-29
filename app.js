@@ -269,6 +269,39 @@ function renderTodayCard() {
   </div>`;
 }
 
+/* ---------- rolling tickers ---------- */
+let _rollers = [];
+function stopRollers() {
+  _rollers.forEach(clearInterval);
+  _rollers = [];
+}
+function rollEl(el, items, ms) {
+  if (!el || !items || !items.length) return;
+  let i = Math.floor(Math.random() * items.length);
+  el.innerHTML = items[i];
+  if (items.length < 2) return;
+  _rollers.push(
+    setInterval(() => {
+      i = (i + 1) % items.length;
+      el.style.opacity = 0;
+      setTimeout(() => {
+        el.innerHTML = items[i];
+        el.style.opacity = 1;
+      }, 260);
+    }, ms)
+  );
+}
+function fuelQuoteItems() {
+  return typeof FUEL_QUOTES !== "undefined"
+    ? FUEL_QUOTES.map((x) => `“${x.q}” <span class="fq-a">— ${x.a}</span>`)
+    : [];
+}
+function attachFuelRollers(scope, kind) {
+  if (!scope || typeof FUEL === "undefined" || !FUEL[kind]) return;
+  rollEl(scope.querySelector(".fuel-idea"), FUEL[kind].ideas, 3200);
+  rollEl(scope.querySelector(".fuel-quote"), fuelQuoteItems(), 5400);
+}
+
 /* ---------- fuel (pre/post workout nutrition) ---------- */
 function fuelCard(kind) {
   const f = typeof FUEL !== "undefined" && FUEL[kind];
@@ -279,7 +312,8 @@ function fuelCard(kind) {
       <div><div class="fuel-title">${f.title}</div><div class="focus" style="margin:0">${f.timing}</div></div>
     </div>
     <div class="fuel-tip">${f.tip}</div>
-    <div class="fuel-ideas">${f.ideas.map((i) => `<span class="fuel-chip">${i}</span>`).join("")}</div>
+    <div class="fuel-roll"><span class="fuel-roll-label">Try</span><span class="fuel-idea roller"></span></div>
+    <div class="fuel-quote roller"></div>
   </div>`;
 }
 function openFuel(kind) {
@@ -293,11 +327,14 @@ function openFuel(kind) {
     <h2>${kind === "pre" ? "🍳 " : "🥩 "}${f.title}</h2>
     <div class="muscle-chips"><span class="chip">${f.timing}</span></div>
     <p class="fuel-tip">${f.tip}</p>
-    <div class="how-title">Quick ideas</div>
+    <div class="fuel-roll"><span class="fuel-roll-label">Try</span><span class="fuel-idea roller"></span></div>
+    <div class="how-title">More ideas</div>
     <ol class="cue-list">${f.ideas.map((i) => `<li>${i}</li>`).join("")}</ol>
+    <div class="fuel-quote roller" style="margin-bottom:18px"></div>
     <button class="btn full modal-close">Got it 👍</button>`;
   root.hidden = false;
   document.body.style.overflow = "hidden";
+  attachFuelRollers(modal, kind);
 }
 
 /* ---------- exercise detail modal ---------- */
@@ -339,6 +376,10 @@ function closeModal() {
   const root = document.getElementById("modal-root");
   root.hidden = true;
   document.body.style.overflow = "";
+  stopRollers();
+  // keep the Track tab's pre-workout roller alive if we're returning to it
+  const track = document.getElementById("view-track");
+  if (track.classList.contains("active")) attachFuelRollers(track, "pre");
 }
 
 /* ---------- rest timer ---------- */
@@ -595,6 +636,8 @@ function renderTrack() {
     <button id="save-workout" class="btn full">Save workout</button>
   `;
   updateDayProgress();
+  stopRollers();
+  attachFuelRollers(el, "pre");
 }
 
 function updateDayProgress() {
@@ -1704,6 +1747,7 @@ function handleReminderChange(e) {
 
 /* ---------- view switching + init ---------- */
 function switchView(name) {
+  stopRollers();
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === name));
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + name));
   if (name === "routine") renderRoutine();
