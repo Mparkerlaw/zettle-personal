@@ -505,6 +505,22 @@ canvas { max-width: 100%; }
 }
 .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+/* ---------- reminders card ---------- */
+.reminders-card .rem-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-top: 1px solid var(--border); cursor: pointer;
+}
+.reminders-card .rem-row:first-of-type { border-top: none; }
+.rem-label { flex: 1; font-weight: 600; }
+.reminders-card input[type="checkbox"] { width: 20px; height: 20px; accent-color: rgb(var(--c1-rgb)); cursor: pointer; flex: 0 0 auto; }
+.reminders-card input[type="time"],
+.reminders-card .rem-min input {
+  background: var(--surface-solid); border: 1px solid var(--border); color: var(--text);
+  padding: 7px 10px; border-radius: 9px; font-family: inherit; font-size: 0.85rem;
+}
+.rem-min { color: var(--muted); font-size: 0.82rem; white-space: nowrap; }
+.rem-min input { width: 56px; text-align: center; }
+
 /* ---------- fuel card ---------- */
 .fuel-card { border: 1px solid rgba(var(--c3-rgb), 0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 22px rgba(var(--c3-rgb), 0.14); }
 .fuel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }

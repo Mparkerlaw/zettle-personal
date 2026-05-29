@@ -83,6 +83,18 @@ not just the lifts.
 When you save a workout you can tag **how it felt** (😫→🔥) and jot a note.
 Recent sessions show up as a journal on the **Progress** tab.
 
+## Timed notifications
+
+On the **Routine** tab, a 🔔 **Reminders** card lets you turn on:
+- a **daily training reminder** at a time you pick (only on training days), and
+- a **post-workout refuel alert** N minutes after you finish.
+
+Where the browser supports the **Notification Triggers API** (Chromium /
+installed PWA), these fire even when the app is closed. Elsewhere (incl. iOS),
+they fire while the app is open or recently active, and the daily one nudges
+you on open if it's past time and you haven't trained — so add the app to your
+Home Screen for the most reliable alerts.
+
 ## Fuel reminders
 
 The **Track** tab shows a **pre-workout fuel card** (Window 1/2 timing + food

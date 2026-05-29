@@ -210,6 +210,7 @@ function renderRoutine() {
 
   el.innerHTML =
     renderTodayCard() +
+    renderRemindersCard() +
     (ROUTINE.subtitle ? `<p class="focus" style="margin-top:-4px">${ROUTINE.subtitle}</p>` : "") +
     ROUTINE.days
       .map(
@@ -693,7 +694,9 @@ function saveWorkout() {
   renderTrack();
   if (prs.length) celebrate(prs);
   else toast("Workout saved 💪");
-  openFuel("post"); // post-workout refuel reminder (under any celebration overlay)
+  openFuel("post"); // in-app post-workout refuel reminder (under any celebration)
+  schedulePostWorkout(); // timed notification, if enabled
+  cancelTodaysTrainingReminder(); // no need to nag once you've trained
 }
 
 /* ---------- personal records ---------- */
@@ -1499,6 +1502,186 @@ function logBodyweight() {
   toast("Bodyweight logged");
 }
 
+/* =============================================================
+   REMINDERS / timed notifications
+   Uses the Notification Triggers API (TimestampTrigger) for alerts
+   that fire even when the app is closed (Chromium / installed PWA).
+   Falls back to in-app timers + catch-up nudges elsewhere.
+   ============================================================= */
+const RM = {
+  daily: "remindDaily",
+  dailyTime: "remindDailyTime",
+  post: "remindPost",
+  postMin: "remindPostMin",
+  lastDaily: "remindLastDaily",
+};
+function notifPerm() {
+  return typeof Notification !== "undefined" ? Notification.permission : "unsupported";
+}
+function triggersSupported() {
+  return typeof Notification !== "undefined" && "showTrigger" in Notification.prototype && typeof TimestampTrigger !== "undefined";
+}
+async function swReg() {
+  return "serviceWorker" in navigator ? navigator.serviceWorker.ready : null;
+}
+async function notify(title, body, tag, at) {
+  const opts = { body, tag, icon: "icon-192.png", badge: "icon-192.png", renotify: true };
+  const reg = await swReg();
+  if (at && triggersSupported() && reg) {
+    try {
+      await reg.showNotification(title, { ...opts, showTrigger: new TimestampTrigger(at) });
+      return "scheduled";
+    } catch (e) {}
+  }
+  if (at) {
+    // fallback: only fires while the page/SW is still alive
+    const delay = at - Date.now();
+    if (delay > 0 && delay < 6 * 3600 * 1000)
+      setTimeout(() => (reg ? reg.showNotification(title, opts) : new Notification(title, opts)), delay);
+    return "timer";
+  }
+  if (reg) reg.showNotification(title, opts);
+  else if (notifPerm() === "granted") new Notification(title, opts);
+  return "now";
+}
+
+async function scheduleDailyReminders() {
+  if (localStorage.getItem(RM.daily) !== "1" || notifPerm() !== "granted" || !triggersSupported()) return;
+  const reg = await swReg();
+  if (!reg) return;
+  const [h, m] = (localStorage.getItem(RM.dailyTime) || "17:00").split(":").map(Number);
+  const now = Date.now();
+  // top up the next two weeks of training-day reminders (tags make this idempotent)
+  for (let i = 0; i < 14; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    d.setHours(h, m, 0, 0);
+    if (SCHEDULE[d.getDay()] == null || d.getTime() <= now) continue;
+    const di = SCHEDULE[d.getDay()];
+    const iso = d.toISOString().slice(0, 10);
+    try {
+      await reg.showNotification("🏋️ Time to train", {
+        body: `Today is ${ROUTINE.days[di].name}. Let's build.`,
+        tag: "train-" + iso,
+        icon: "icon-192.png",
+        badge: "icon-192.png",
+        showTrigger: new TimestampTrigger(d.getTime()),
+      });
+    } catch (e) {}
+  }
+}
+
+// fallback for browsers without Triggers: nudge on app open / via a timer
+function dailyCatchUp() {
+  if (localStorage.getItem(RM.daily) !== "1" || notifPerm() !== "granted" || triggersSupported()) return;
+  const di = todaysDayIndex();
+  if (di == null) return;
+  if (loadLog().some((w) => w.date === todayISO())) return; // already trained today
+  const [h, m] = (localStorage.getItem(RM.dailyTime) || "17:00").split(":").map(Number);
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+  if (now >= target) {
+    if (localStorage.getItem(RM.lastDaily) !== todayISO()) {
+      localStorage.setItem(RM.lastDaily, todayISO());
+      notify("🏋️ Time to train", `Today is ${ROUTINE.days[di].name}. Let's build.`, "train-" + todayISO());
+    }
+  } else {
+    const delay = target - now;
+    if (delay < 12 * 3600 * 1000)
+      setTimeout(() => {
+        if (!loadLog().some((w) => w.date === todayISO()))
+          notify("🏋️ Time to train", `Today is ${ROUTINE.days[di].name}.`, "train-" + todayISO());
+      }, delay);
+  }
+}
+
+async function cancelTodaysTrainingReminder() {
+  const reg = await swReg();
+  if (!reg || !reg.getNotifications) return;
+  try {
+    const ns = await reg.getNotifications({ tag: "train-" + todayISO(), includeTriggered: true });
+    ns.forEach((n) => n.close());
+  } catch (e) {}
+}
+
+function schedulePostWorkout() {
+  if (localStorage.getItem(RM.post) !== "1" || notifPerm() !== "granted") return;
+  const min = parseInt(localStorage.getItem(RM.postMin) || "45", 10);
+  notify("🥩 Refuel window", "Eat within the hour — protein first, then carbs.", "refuel", Date.now() + min * 60000);
+}
+
+async function enableNotifications() {
+  if (typeof Notification === "undefined") {
+    toast("Notifications not supported here");
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm === "granted") {
+    // sensible defaults on first enable
+    if (localStorage.getItem(RM.daily) === null) localStorage.setItem(RM.daily, "1");
+    if (localStorage.getItem(RM.dailyTime) === null) localStorage.setItem(RM.dailyTime, "17:00");
+    if (localStorage.getItem(RM.post) === null) localStorage.setItem(RM.post, "1");
+    if (localStorage.getItem(RM.postMin) === null) localStorage.setItem(RM.postMin, "45");
+    await scheduleDailyReminders();
+    dailyCatchUp();
+    toast("Reminders on 🔔");
+  } else {
+    toast("Notifications blocked");
+  }
+  renderRoutine();
+}
+
+function renderRemindersCard() {
+  const perm = notifPerm();
+  const support = triggersSupported()
+    ? "Scheduled alerts fire even when the app is closed."
+    : "Alerts fire while the app is open or recently active. Add to your Home Screen for the best results.";
+  if (perm === "unsupported")
+    return `<div class="card reminders-card"><h2 style="font-size:1.05rem">🔔 Reminders</h2><div class="focus">This browser doesn't support notifications.</div></div>`;
+  if (perm !== "granted")
+    return `<div class="card reminders-card">
+      <h2 style="font-size:1.05rem">🔔 Reminders</h2>
+      <div class="focus" style="margin-bottom:12px">Get a nudge to train and to refuel after lifting.</div>
+      <button id="notif-enable" class="btn full">Enable notifications</button>
+      <div class="focus" style="margin-top:10px">${support}</div>
+    </div>`;
+  const dailyOn = localStorage.getItem(RM.daily) === "1";
+  const dailyTime = localStorage.getItem(RM.dailyTime) || "17:00";
+  const postOn = localStorage.getItem(RM.post) === "1";
+  const postMin = localStorage.getItem(RM.postMin) || "45";
+  return `<div class="card reminders-card">
+    <h2 style="font-size:1.05rem">🔔 Reminders</h2>
+    <label class="rem-row">
+      <input type="checkbox" id="rem-daily" ${dailyOn ? "checked" : ""}/>
+      <span class="rem-label">Daily training reminder</span>
+      <input type="time" id="rem-daily-time" value="${dailyTime}" />
+    </label>
+    <label class="rem-row">
+      <input type="checkbox" id="rem-post" ${postOn ? "checked" : ""}/>
+      <span class="rem-label">Post-workout refuel alert</span>
+      <span class="rem-min"><input type="number" id="rem-post-min" value="${postMin}" min="5" max="120"/> min</span>
+    </label>
+    <div class="focus" style="margin-top:10px">${support}</div>
+  </div>`;
+}
+
+function handleReminderChange(e) {
+  const id = e.target.id;
+  if (id === "rem-daily") {
+    localStorage.setItem(RM.daily, e.target.checked ? "1" : "0");
+    scheduleDailyReminders();
+    dailyCatchUp();
+  } else if (id === "rem-daily-time") {
+    localStorage.setItem(RM.dailyTime, e.target.value || "17:00");
+    scheduleDailyReminders();
+  } else if (id === "rem-post") {
+    localStorage.setItem(RM.post, e.target.checked ? "1" : "0");
+  } else if (id === "rem-post-min") {
+    localStorage.setItem(RM.postMin, String(Math.min(120, Math.max(5, parseInt(e.target.value, 10) || 45))));
+  }
+}
+
 /* ---------- view switching + init ---------- */
 function switchView(name) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === name));
@@ -1523,8 +1706,12 @@ async function init() {
   );
   document.getElementById("theme-btn").addEventListener("click", cycleTheme);
 
-  // routine: today CTA + open exercise detail
+  // routine: today CTA + reminders + open exercise detail
   document.getElementById("view-routine").addEventListener("click", (e) => {
+    if (e.target.id === "notif-enable") {
+      enableNotifications();
+      return;
+    }
     const start = e.target.closest(".today-start");
     if (start) {
       trackState.dayIndex = +start.dataset.day;
@@ -1535,6 +1722,7 @@ async function init() {
     const row = e.target.closest(".exercise-row.clickable");
     if (row && row.dataset.ex) openExercise(decodeURIComponent(row.dataset.ex));
   });
+  document.getElementById("view-routine").addEventListener("change", handleReminderChange);
 
   const track = document.getElementById("view-track");
   track.addEventListener("input", handleTrackInput);
@@ -1610,6 +1798,12 @@ async function init() {
   // PWA service worker (needs https; GitHub Pages qualifies)
   if ("serviceWorker" in navigator && location.protocol === "https:") {
     navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+
+  // refresh scheduled reminders for this device
+  if (notifPerm() === "granted") {
+    scheduleDailyReminders();
+    dailyCatchUp();
   }
 
   document.getElementById("export-btn").addEventListener("click", exportData);
