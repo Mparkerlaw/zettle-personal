@@ -10,6 +10,15 @@ const WEEK_KEY = "programWeek";
 const THEMES = ["aurora", "solar", "matrix", "vapor"];
 const THEME_LABELS = { aurora: "Aurora", solar: "Solar", matrix: "Matrix", vapor: "Vapor" };
 
+// ----- backup / durability -----
+const SCHEMA_VERSION = 1;
+const BACKUP_DATE_KEY = "lastBackupDate"; // YYYY-MM-DD, drives the Sunday nudge
+const LAST_BACKUP_AT = "lastBackupAt"; // ISO, any backup -> footer "X ago"
+const ICLOUD_KEY = "lastICloudBackup"; // ISO, iCloud specifically
+const SNOOZE_KEY = "backupSnoozeUntil"; // epoch ms
+const NUDGE_SHOWN_KEY = "backupNudgeShownDate"; // YYYY-MM-DD, once per day
+let pendingRestoreToast = false;
+
 /* ---------- program week / phase ---------- */
 // Stored week: 1..8 for the program, or 0 for a deload week.
 function getWeek() {
@@ -18,6 +27,7 @@ function getWeek() {
 }
 function setWeek(w) {
   localStorage.setItem(WEEK_KEY, w);
+  mirrorToIDB();
 }
 function phaseForWeek(w) {
   if (w === 0) return { name: "Deload", rir: "keep it easy (3–4)", idx: -1, deload: true };
@@ -52,6 +62,7 @@ function loadLog() {
 }
 function saveLog(log) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+  mirrorToIDB(); // layer 1: keep the IndexedDB backup in sync on every write
 }
 
 /* ---------- helpers ---------- */
@@ -113,6 +124,7 @@ function applyTheme(theme) {
   const nameEl = document.getElementById("theme-name");
   if (nameEl) nameEl.textContent = THEME_LABELS[theme] || theme;
   localStorage.setItem(THEME_KEY, theme);
+  mirrorToIDB();
   // repaint chart if visible so its colors match the theme
   if (document.getElementById("view-progress").classList.contains("active")) {
     const sel = document.querySelector(".exercise-select");
@@ -760,23 +772,225 @@ function drawChart(points) {
   });
 }
 
-/* ---------- export / import ---------- */
-function exportData() {
-  const blob = new Blob([JSON.stringify(loadLog(), null, 2)], { type: "application/json" });
+/* =============================================================
+   BACKUP & DURABILITY  (3 layers + schema versioning)
+   ============================================================= */
+
+/* ----- IndexedDB key/value helpers (layer 1) ----- */
+let _dbPromise = null;
+function idb() {
+  if (_dbPromise) return _dbPromise;
+  _dbPromise = new Promise((resolve, reject) => {
+    if (!("indexedDB" in window)) return reject(new Error("no idb"));
+    const req = indexedDB.open("zettleFitness", 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("kv");
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return _dbPromise;
+}
+async function idbSet(key, val) {
+  const db = await idb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("kv", "readwrite");
+    tx.objectStore("kv").put(val, key);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+async function idbGet(key) {
+  const db = await idb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("kv", "readonly");
+    const r = tx.objectStore("kv").get(key);
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+
+/* ----- the versioned export envelope (single source of truth) ----- */
+function buildExport() {
+  return {
+    schema_version: SCHEMA_VERSION,
+    exported_at: new Date().toISOString(),
+    log: loadLog(),
+    settings: {
+      theme: localStorage.getItem(THEME_KEY) || "aurora",
+      programWeek: getWeek(),
+      lastBackupDate: localStorage.getItem(BACKUP_DATE_KEY) || null,
+      lastBackupAt: localStorage.getItem(LAST_BACKUP_AT) || null,
+      lastICloudBackup: localStorage.getItem(ICLOUD_KEY) || null,
+    },
+  };
+}
+function mirrorToIDB() {
+  try {
+    idbSet("state", buildExport()).catch(() => {});
+  } catch (e) {}
+}
+
+/* restore silently if localStorage was cleared but IndexedDB survived */
+async function maybeRestoreFromIDB() {
+  try {
+    if (loadLog().length > 0) return; // localStorage intact, nothing to do
+    const snap = await idbGet("state");
+    if (snap && Array.isArray(snap.log) && snap.log.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snap.log));
+      const s = snap.settings || {};
+      if (s.theme) localStorage.setItem(THEME_KEY, s.theme);
+      if (s.programWeek != null) localStorage.setItem(WEEK_KEY, String(s.programWeek));
+      if (s.lastBackupDate) localStorage.setItem(BACKUP_DATE_KEY, s.lastBackupDate);
+      if (s.lastBackupAt) localStorage.setItem(LAST_BACKUP_AT, s.lastBackupAt);
+      if (s.lastICloudBackup) localStorage.setItem(ICLOUD_KEY, s.lastICloudBackup);
+      pendingRestoreToast = true;
+    }
+  } catch (e) {}
+}
+
+/* ----- filenames + helpers ----- */
+function buildFilename() {
+  const wk = getWeek();
+  const tag = wk === 0 ? "deload" : "week" + wk;
+  return `zettle-fitness-${todayISO()}-${tag}.json`;
+}
+function downloadJSON(text, filename) {
+  const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `workout-log-${todayISO()}.json`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
 }
+function relativeAgo(iso) {
+  if (!iso) return null;
+  const ms = Date.now() - new Date(iso).getTime();
+  if (ms < 0) return "just now";
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return min + (min === 1 ? " minute ago" : " minutes ago");
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return hr + (hr === 1 ? " hour ago" : " hours ago");
+  const d = Math.floor(hr / 24);
+  return d + (d === 1 ? " day ago" : " days ago");
+}
+function markBackup() {
+  localStorage.setItem(BACKUP_DATE_KEY, todayISO());
+  localStorage.setItem(LAST_BACKUP_AT, new Date().toISOString());
+  mirrorToIDB();
+  renderLastBackup();
+}
+function markICloudBackup() {
+  localStorage.setItem(ICLOUD_KEY, new Date().toISOString());
+  markBackup();
+}
+function renderLastBackup() {
+  const el = document.getElementById("last-backup");
+  if (!el) return;
+  const rel = relativeAgo(localStorage.getItem(LAST_BACKUP_AT));
+  el.textContent = rel ? "Last backup: " + rel : "No backup yet — try Save to iCloud";
+}
+
+/* ----- layer 2: weekly Sunday nudge ----- */
+function maybeShowBackupNudge() {
+  const now = new Date();
+  if (now.getDay() !== 0) return; // Sundays only
+  if (localStorage.getItem(BACKUP_DATE_KEY) === todayISO()) return; // already backed up today
+  if (Date.now() < parseInt(localStorage.getItem(SNOOZE_KEY) || "0", 10)) return; // snoozed
+  if (localStorage.getItem(NUDGE_SHOWN_KEY) === todayISO()) return; // only first open of the day
+  localStorage.setItem(NUDGE_SHOWN_KEY, todayISO());
+  const el = document.getElementById("nudge-banner");
+  el.innerHTML = `
+    <span class="nudge-text">📦 Back up this week's data?</span>
+    <div class="nudge-actions">
+      <button class="btn nudge-backup">Back up now</button>
+      <button class="link-btn nudge-snooze">Snooze 24h</button>
+    </div>`;
+  el.hidden = false;
+}
+
+/* ----- layer 3 + manual: export / iCloud / import ----- */
+function exportData() {
+  downloadJSON(JSON.stringify(buildExport(), null, 2), buildFilename());
+  markBackup();
+  toast("Backup downloaded");
+}
+
+async function saveToICloud() {
+  const text = JSON.stringify(buildExport(), null, 2);
+  const filename = buildFilename();
+
+  // Desktop / Android Chromium: File System Access API -> durable handle
+  if (window.showSaveFilePicker) {
+    try {
+      let handle = await idbGet("icloudHandle").catch(() => null);
+      if (handle && !(await verifyPermission(handle))) handle = null;
+      if (!handle) {
+        handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: "JSON backup", accept: { "application/json": [".json"] } }],
+        });
+        await idbSet("icloudHandle", handle).catch(() => {});
+      }
+      const writable = await handle.createWritable();
+      await writable.write(text);
+      await writable.close();
+      markICloudBackup();
+      toast("Saved to iCloud ☁️");
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // user cancelled the picker
+      toast("iCloud save failed");
+    }
+    return;
+  }
+
+  // iOS Safari etc: no FSA API -> share sheet (Save to Files -> iCloud Drive)
+  try {
+    const file = new File([text], filename, { type: "application/json" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Zettle Fitness backup" });
+      markICloudBackup();
+      return;
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return;
+  }
+  // last resort: plain download (iOS lets you "Save to Files" -> iCloud Drive)
+  downloadJSON(text, filename);
+  markICloudBackup();
+  toast("Use Share → Save to Files → iCloud Drive");
+}
+
+async function verifyPermission(handle) {
+  try {
+    const opts = { mode: "readwrite" };
+    if (handle.queryPermission && (await handle.queryPermission(opts)) === "granted") return true;
+    if (handle.requestPermission && (await handle.requestPermission(opts)) === "granted") return true;
+    return !handle.queryPermission; // API missing -> optimistically allow the write to try
+  } catch (e) {
+    return false;
+  }
+}
+
 function importData(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const data = JSON.parse(reader.result);
-      if (!Array.isArray(data)) throw new Error("bad format");
-      saveLog(data);
+      let log, settings;
+      if (Array.isArray(data)) {
+        log = data; // legacy: a bare array of workouts
+      } else if (data && Array.isArray(data.log)) {
+        log = data.log; // versioned envelope
+        settings = data.settings;
+      } else {
+        throw new Error("bad format");
+      }
+      saveLog(log);
+      if (settings) {
+        if (settings.theme) applyTheme(settings.theme);
+        if (settings.programWeek != null) setWeek(settings.programWeek);
+      }
       toast("Data imported");
       switchView("progress");
     } catch (e) {
@@ -795,7 +1009,8 @@ function switchView(name) {
   if (name === "progress") renderProgress();
 }
 
-function init() {
+async function init() {
+  await maybeRestoreFromIDB(); // layer 1: recover if localStorage was wiped
   applyTheme(localStorage.getItem(THEME_KEY) || "aurora");
 
   document.getElementById("app-title").textContent = ROUTINE.title || "My Workout Routine";
@@ -840,12 +1055,28 @@ function init() {
   });
 
   document.getElementById("export-btn").addEventListener("click", exportData);
+  document.getElementById("icloud-btn").addEventListener("click", saveToICloud);
   document.getElementById("import-btn").addEventListener("click", () =>
     document.getElementById("import-file").click()
   );
   document.getElementById("import-file").addEventListener("change", (e) => {
     if (e.target.files[0]) importData(e.target.files[0]);
   });
+
+  // Sunday backup nudge (layer 2)
+  document.getElementById("nudge-banner").addEventListener("click", (e) => {
+    if (e.target.classList.contains("nudge-backup")) {
+      exportData();
+      document.getElementById("nudge-banner").hidden = true;
+    } else if (e.target.classList.contains("nudge-snooze")) {
+      localStorage.setItem(SNOOZE_KEY, String(Date.now() + 24 * 60 * 60 * 1000));
+      document.getElementById("nudge-banner").hidden = true;
+    }
+  });
+
+  renderLastBackup();
+  maybeShowBackupNudge();
+  if (pendingRestoreToast) toast("Restored from backup");
 
   renderRoutine();
 }

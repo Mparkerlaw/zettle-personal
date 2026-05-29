@@ -23,6 +23,8 @@
     </nav>
   </header>
 
+  <div id="nudge-banner" class="nudge-banner" hidden></div>
+
   <main id="main">
     <section id="view-routine" class="view active"></section>
     <section id="view-track" class="view"></section>
@@ -30,9 +32,12 @@
   </main>
 
   <footer class="app-footer">
-    <span>Data is saved in your browser only.</span>
-    <button id="export-btn" class="link-btn">Export data</button>
-    <button id="import-btn" class="link-btn">Import data</button>
+    <span id="last-backup" class="last-backup-note"></span>
+    <div class="footer-actions">
+      <button id="icloud-btn" class="link-btn">☁️ Save to iCloud</button>
+      <button id="export-btn" class="link-btn">Export data</button>
+      <button id="import-btn" class="link-btn">Import data</button>
+    </div>
     <input id="import-file" type="file" accept="application/json" hidden />
   </footer>
 

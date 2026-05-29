@@ -545,6 +545,35 @@ canvas { max-width: 100%; }
 .cal-cell.fut { opacity: 0.35; }
 .cal-cell.on:hover { transform: scale(1.12); }
 
+/* ---------- backup nudge banner ---------- */
+.nudge-banner {
+  position: relative;
+  z-index: 9;
+  max-width: 760px;
+  margin: 16px auto 0;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, rgba(var(--c1-rgb), 0.14), rgba(var(--c2-rgb), 0.14));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 24px rgba(var(--c1-rgb), 0.2);
+  animation: fadeUp 0.4s ease both;
+}
+.nudge-banner[hidden] { display: none; }
+.nudge-text { font-weight: 700; letter-spacing: 0.02em; }
+.nudge-actions { display: flex; align-items: center; gap: 16px; }
+.nudge-banner .btn { padding: 9px 14px; }
+
+/* ---------- footer backup status ---------- */
+.footer-actions { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+.last-backup-note { color: var(--muted); }
+
 /* respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   body::before, .scanlines, .view.active, .modal, .rest-timer { animation: none; }

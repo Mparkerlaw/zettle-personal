@@ -49,11 +49,28 @@ Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,
 the progress chart) retints to match. Animations respect
 `prefers-reduced-motion`.
 
-## Your data
+## Your data & backups
 
-Everything you log is stored **only in your browser** (localStorage) — nothing
-is uploaded anywhere. Use **Export data** in the footer to download a backup
-JSON file, and **Import data** to restore it (e.g. on another device/browser).
+Your log lives in the browser (localStorage), with three layers of defense so a
+cleared cache never loses your history:
+
+1. **Auto-backup to IndexedDB** — every save is mirrored into IndexedDB (which
+   browsers clear far less aggressively than localStorage). If localStorage is
+   ever wiped, the app restores silently on next load and shows a
+   "Restored from backup" toast.
+2. **Weekly Sunday nudge** — the first time you open the app on a Sunday, a
+   banner offers a one-tap export (or snooze 24h). It won't pester once you've
+   backed up that day.
+3. **Save to iCloud** — the footer button writes a backup to a file you choose
+   (point it at `iCloud Drive/ZETTLE A- PERSONAL/Fitness Backups/` once and it
+   reuses that file silently after). On iOS Safari it falls back to the share
+   sheet so you can Save to Files → iCloud Drive.
+
+Exports are versioned (`"schema_version": 1`) and named with the date and
+program week, e.g. `zettle-fitness-2026-05-29-week3.json`. The footer shows
+**"Last backup: N days ago"** so the system is visible, not invisible-until-it-
+fails. **Import data** accepts both the new versioned files and older plain
+exports. Nothing is uploaded to any server.
 
 ## Editing your routine
 
