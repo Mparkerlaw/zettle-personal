@@ -491,6 +491,60 @@ canvas { max-width: 100%; }
   .rest-ex { font-size: 0.8rem; }
 }
 
+/* ---------- video embed ---------- */
+.video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  background: #000;
+  box-shadow: 0 0 24px rgba(var(--c1-rgb), 0.18);
+}
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ---------- phase / week card ---------- */
+.phase-card { padding: 16px 18px; }
+.phase-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.phase-name {
+  font-size: 1.15rem; font-weight: 800; letter-spacing: 0.02em;
+  background: linear-gradient(90deg, var(--cyan), var(--violet));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.week-select {
+  background: var(--surface-solid); border: 1px solid var(--border); color: var(--text);
+  padding: 10px 12px; border-radius: 10px; font-size: 0.85rem; font-family: inherit;
+  font-weight: 700; letter-spacing: 0.04em; cursor: pointer; flex: 0 0 auto;
+}
+.week-select:focus { outline: none; border-color: var(--cyan); box-shadow: var(--glow-cyan); }
+
+.exercise-row.phase-active .name { color: var(--cyan); text-shadow: var(--glow-cyan); }
+.exercise-row.phase-active { background: linear-gradient(90deg, rgba(var(--c1-rgb), 0.08), transparent); border-radius: 8px; }
+
+/* ---------- training calendar ---------- */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.cal-head { text-align: center; color: var(--muted); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+.cal-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  background: rgba(5, 9, 20, 0.6);
+  border: 1px solid var(--border);
+  transition: transform 0.15s;
+}
+.cal-cell.on {
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  border-color: transparent;
+  box-shadow: 0 0 12px rgba(var(--c1-rgb), 0.6);
+}
+.cal-cell.fut { opacity: 0.35; }
+.cal-cell.on:hover { transform: scale(1.12); }
+
 /* respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   body::before, .scanlines, .view.active, .modal, .rest-timer { animation: none; }

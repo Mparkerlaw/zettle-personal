@@ -6,8 +6,41 @@
 
 const STORAGE_KEY = "workoutLog";
 const THEME_KEY = "workoutTheme";
+const WEEK_KEY = "programWeek";
 const THEMES = ["aurora", "solar", "matrix", "vapor"];
 const THEME_LABELS = { aurora: "Aurora", solar: "Solar", matrix: "Matrix", vapor: "Vapor" };
+
+/* ---------- program week / phase ---------- */
+// Stored week: 1..8 for the program, or 0 for a deload week.
+function getWeek() {
+  const w = parseInt(localStorage.getItem(WEEK_KEY), 10);
+  return isNaN(w) ? 1 : w;
+}
+function setWeek(w) {
+  localStorage.setItem(WEEK_KEY, w);
+}
+function phaseForWeek(w) {
+  if (w === 0) return { name: "Deload", rir: "keep it easy (3–4)", idx: -1, deload: true };
+  if (w <= 3) return { name: "Foundation", rir: "3–4", idx: 0 };
+  if (w <= 6) return { name: "Volume", rir: "2–3", idx: 1 };
+  return { name: "Intensity", rir: "1–2", idx: 2 };
+}
+// Sets scale by phase: Foundation caps at 3; Volume/Intensity use the routine's
+// set count (4 for compounds, 3 for accessories); deload halves the volume.
+function effectiveSets(ex, w) {
+  const base = ex.sets;
+  const ph = phaseForWeek(w);
+  if (ph.deload) return Math.max(1, Math.round(Math.min(base, 3) / 2));
+  if (ph.name === "Foundation") return Math.min(base, 3);
+  return base;
+}
+function weekStartMonday(d) {
+  const x = new Date(d);
+  const dow = (x.getDay() + 6) % 7; // Mon=0
+  x.setDate(x.getDate() - dow);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
 
 /* ---------- storage ---------- */
 function loadLog() {
@@ -104,14 +137,15 @@ function exMeta(ex) {
 
 function renderRoutine() {
   const el = document.getElementById("view-routine");
+  const activeIdx = phaseForWeek(getWeek()).idx;
   const phases = ROUTINE.phases
     ? `<div class="card">
         <h2 style="font-size:1.05rem">Progression Phases</h2>
         ${ROUTINE.phases
           .map(
-            (p) =>
-              `<div class="exercise-row">
-                 <span class="left"><span><span class="name">${p.name}</span><span class="note">Weeks ${p.weeks} · ${p.focus}</span></span></span>
+            (p, i) =>
+              `<div class="exercise-row ${i === activeIdx ? "phase-active" : ""}">
+                 <span class="left"><span><span class="name">${p.name}${i === activeIdx ? " ← you are here" : ""}</span><span class="note">Weeks ${p.weeks} · ${p.focus}</span></span></span>
                  <span class="scheme">${p.sets} · RIR ${p.rir}</span>
                </div>`
           )
@@ -167,8 +201,18 @@ function openExercise(name) {
       <div class="meta-box"><div class="v">${ex.rir || "—"}</div><div class="l">RIR</div></div>
     </div>
     ${cues ? `<div class="how-title">How to do it</div><ol class="cue-list">${cues}</ol>` : ""}
+    ${
+      ex.videoId
+        ? `<div class="how-title">Video tutorial</div>
+           <div class="video-wrap">
+             <iframe src="https://www.youtube.com/embed/${ex.videoId}" title="${ex.name} tutorial"
+                     loading="lazy" allowfullscreen
+                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+           </div>`
+        : ""
+    }
     <a class="yt-btn" href="${ytSearchUrl(ex)}" target="_blank" rel="noopener">
-      <span class="yt-play">▶</span> Watch how-to on YouTube
+      <span class="yt-play">▶</span> ${ex.videoId ? "Find more tutorials" : "Watch how-to on YouTube"}
     </a>
   `;
   root.hidden = false;
@@ -293,9 +337,20 @@ const RestTimer = {
 let trackState = { dayIndex: 0, data: {} };
 
 function initTrackData(day) {
+  const w = getWeek();
   const data = {};
   day.exercises.forEach((ex) => {
-    data[ex.name] = Array.from({ length: ex.sets }, () => ({ weight: "", reps: "", done: false }));
+    const last = lastEntryFor(ex.name);
+    const n = effectiveSets(ex, w);
+    data[ex.name] = Array.from({ length: n }, (_, i) => {
+      const ls = last && last.entry.sets[i];
+      return {
+        weight: ls && ls.weight ? String(ls.weight) : "", // pre-fill weight from last time
+        reps: "",
+        done: false,
+        phReps: ls && ls.reps ? ls.reps : "", // last reps -> placeholder hint
+      };
+    });
   });
   return data;
 }
@@ -305,7 +360,27 @@ function renderTrack() {
   const day = ROUTINE.days[trackState.dayIndex];
   if (Object.keys(trackState.data).length === 0) trackState.data = initTrackData(day);
 
+  const wk = getWeek();
+  const ph = phaseForWeek(wk);
+  const weekOpts =
+    `<option value="0" ${wk === 0 ? "selected" : ""}>Deload week</option>` +
+    [1, 2, 3, 4, 5, 6, 7, 8]
+      .map((n) => `<option value="${n}" ${wk === n ? "selected" : ""}>Week ${n}</option>`)
+      .join("");
+
   el.innerHTML = `
+    <div class="card phase-card">
+      <div class="phase-top">
+        <div>
+          <div class="rest-label">Program ${wk === 0 ? "" : "· Week " + wk}</div>
+          <div class="phase-name">${ph.name} phase</div>
+        </div>
+        <select id="week-select" class="week-select">${weekOpts}</select>
+      </div>
+      <div class="focus" style="margin:10px 0 0">Target RIR this phase: <b style="color:var(--cyan)">${ph.rir}</b>${
+        ph.deload ? " · half the sets, same weight" : ""
+      } · sets adjust automatically below</div>
+    </div>
     <div class="day-picker">
       ${ROUTINE.days
         .map(
@@ -337,7 +412,7 @@ function renderTrack() {
             <h2 style="font-size:1.05rem">${ex.name}</h2>
             <span class="info-pill">How-to ›</span>
           </div>
-          <div class="focus">Target: ${ex.sets} × ${ex.reps}${ex.rest ? " · rest " + ex.rest : ""}</div>
+          <div class="focus">Target: ${effectiveSets(ex, wk)} × ${ex.reps}${ex.rest ? " · rest " + ex.rest : ""}</div>
           <div class="last-time">${lastTxt}</div>
           <div class="set-head"><span>Set</span><span>Weight</span><span>Reps</span><span></span></div>
           ${sets
@@ -346,7 +421,7 @@ function renderTrack() {
             <div class="set-grid" data-ex="${encodeURIComponent(ex.name)}" data-set="${i}">
               <span class="set-num">${i + 1}</span>
               <input type="number" inputmode="decimal" class="w" placeholder="0" value="${s.weight}" />
-              <input type="number" inputmode="numeric" class="r" placeholder="0" value="${s.reps}" />
+              <input type="number" inputmode="numeric" class="r" placeholder="${s.phReps || "0"}" value="${s.reps}" />
               <button class="check ${s.done ? "done" : ""}">✓</button>
             </div>`
             )
@@ -420,8 +495,10 @@ function saveWorkout() {
   const day = ROUTINE.days[trackState.dayIndex];
   const entries = day.exercises.map((ex) => ({
     name: ex.name,
+    // a set counts as performed once you enter reps for it (weight is pre-filled,
+    // so we key on reps to avoid logging untouched sets)
     sets: trackState.data[ex.name]
-      .filter((s) => s.weight !== "" || s.reps !== "")
+      .filter((s) => s.reps !== "")
       .map((s) => ({ weight: parseFloat(s.weight) || 0, reps: parseInt(s.reps) || 0 })),
   }));
   const hasData = entries.some((e) => e.sets.length > 0);
@@ -464,6 +541,64 @@ function seriesFor(name) {
   return points.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function renderOverview() {
+  const log = loadLog();
+  const dates = new Set(log.map((w) => w.date));
+  const total = log.length;
+
+  const hasWeek = (ws) => {
+    const we = new Date(ws);
+    we.setDate(we.getDate() + 7);
+    return [...dates].some((ds) => {
+      const d = new Date(ds + "T00:00:00");
+      return d >= ws && d < we;
+    });
+  };
+
+  const monday = weekStartMonday(new Date());
+  let thisWeek = 0;
+  log.forEach((w) => {
+    if (new Date(w.date + "T00:00:00") >= monday) thisWeek++;
+  });
+
+  // consecutive-week streak (current week counts as in-progress, not a breaker)
+  let cursor = new Date(monday);
+  if (!hasWeek(cursor)) cursor.setDate(cursor.getDate() - 7);
+  let streak = 0;
+  while (hasWeek(cursor) && streak < 520) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 7);
+  }
+
+  // calendar: last 9 weeks
+  const WEEKS = 9;
+  const start = weekStartMonday(new Date());
+  start.setDate(start.getDate() - 7 * (WEEKS - 1));
+  const now = new Date();
+  let cells = "";
+  for (let wi = 0; wi < WEEKS; wi++) {
+    for (let di = 0; di < 7; di++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + wi * 7 + di);
+      const iso = d.toISOString().slice(0, 10);
+      const future = d > now;
+      cells += `<div class="cal-cell ${dates.has(iso) ? "on" : ""} ${future ? "fut" : ""}" title="${iso}"></div>`;
+    }
+  }
+  const dayHeads = ["M", "T", "W", "T", "F", "S", "S"].map((h) => `<div class="cal-head">${h}</div>`).join("");
+
+  return `
+    <div class="stat-row">
+      <div class="stat"><div class="value">${streak}</div><div class="label">Week streak</div></div>
+      <div class="stat"><div class="value">${thisWeek}</div><div class="label">This week</div></div>
+      <div class="stat"><div class="value">${total}</div><div class="label">Total sessions</div></div>
+    </div>
+    <div class="card">
+      <div class="focus">Training calendar · last ${WEEKS} weeks</div>
+      <div class="cal-grid">${dayHeads}${cells}</div>
+    </div>`;
+}
+
 function renderProgress() {
   const el = document.getElementById("view-progress");
   const log = loadLog();
@@ -475,6 +610,8 @@ function renderProgress() {
   const saved = el.querySelector(".exercise-select")?.value;
   const selected = saved || names[0];
   el.innerHTML = `
+    ${renderOverview()}
+    <div class="focus" style="margin-bottom:8px">Per-exercise progress</div>
     <select class="exercise-select">
       ${names.map((n) => `<option ${n === selected ? "selected" : ""}>${n}</option>`).join("")}
     </select>
@@ -678,6 +815,13 @@ function init() {
   const track = document.getElementById("view-track");
   track.addEventListener("input", handleTrackInput);
   track.addEventListener("click", handleTrackClick);
+  track.addEventListener("change", (e) => {
+    if (e.target.id === "week-select") {
+      setWeek(parseInt(e.target.value, 10));
+      trackState.data = initTrackData(ROUTINE.days[trackState.dayIndex]);
+      renderTrack();
+    }
+  });
 
   // modal close interactions
   const modalRoot = document.getElementById("modal-root");

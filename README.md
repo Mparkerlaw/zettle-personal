@@ -22,13 +22,25 @@ python3 -m http.server 8000
   RIR target, and cues, plus the 3-phase progression table. **Tap any
   exercise** for a detail card: target muscles, sets/reps/rest/RIR,
   step-by-step form cues, and a one-tap link to how-to videos on YouTube.
-- **Track** — pick a day, log weight + reps for each set, check sets off, and
-  save the session. A live progress bar fills as you complete sets, and a
-  **glowing rest timer** auto-starts (with the right rest length) every time
-  you check off a set — with skip / pause / ±15s controls and a finish beep.
-  Tap an exercise title to open its how-to detail.
-- **Progress** — pick any exercise to see your estimated 1-rep-max trend
-  (Epley formula), best ever, change since you started, and full history.
+  exercise, and a one-tap link to how-to videos on YouTube. Most exercises
+  also **embed a video tutorial** right in the card.
+- **Track** — pick your **program week** (1–8 or Deload) and the set counts +
+  target RIR adjust automatically to the right phase. Pick a day, log weight +
+  reps for each set, check sets off, and save. Weights are **pre-filled from
+  your last session** (last reps show as a hint). A live progress bar fills as
+  you complete sets, and a **glowing rest timer** auto-starts every time you
+  check off a set — with skip / pause / ±15s controls and a finish beep.
+- **Progress** — a **week-streak / this-week / total** summary and a
+  **training calendar** of the last 9 weeks, plus per-exercise estimated
+  1-rep-max trend (Epley), best ever, change since you started, and history.
+
+### A note on the embedded videos
+
+The tutorial videos were auto-sourced. If any one is the wrong exercise or
+unavailable, just open `routine.js` and change that exercise's `videoId` to a
+different YouTube ID (the part after `watch?v=`), or remove the field to fall
+back to the "search YouTube" button. There's a "Find more tutorials" link in
+every exercise card too.
 
 ## Themes
 
