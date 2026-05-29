@@ -961,43 +961,79 @@ async function saveToICloud() {
   toast("Use Share → Save to Files → iCloud Drive");
 }
 
-async function verifyPermission(handle) {
+async function verifyPermission(handle, mode) {
   try {
-    const opts = { mode: "readwrite" };
+    const opts = { mode: mode || "readwrite" };
     if (handle.queryPermission && (await handle.queryPermission(opts)) === "granted") return true;
     if (handle.requestPermission && (await handle.requestPermission(opts)) === "granted") return true;
-    return !handle.queryPermission; // API missing -> optimistically allow the write to try
+    return !handle.queryPermission; // API missing -> optimistically allow the attempt
   } catch (e) {
     return false;
   }
+}
+
+// shared parse + apply for both file import and iCloud restore.
+// accepts the new versioned envelope and the legacy bare-array format.
+function applyImport(text) {
+  const data = JSON.parse(text);
+  let log, settings;
+  if (Array.isArray(data)) {
+    log = data;
+  } else if (data && Array.isArray(data.log)) {
+    log = data.log;
+    settings = data.settings;
+  } else {
+    throw new Error("bad format");
+  }
+  saveLog(log);
+  if (settings) {
+    if (settings.theme) applyTheme(settings.theme);
+    if (settings.programWeek != null) setWeek(settings.programWeek);
+  }
+  return log.length;
 }
 
 function importData(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const data = JSON.parse(reader.result);
-      let log, settings;
-      if (Array.isArray(data)) {
-        log = data; // legacy: a bare array of workouts
-      } else if (data && Array.isArray(data.log)) {
-        log = data.log; // versioned envelope
-        settings = data.settings;
-      } else {
-        throw new Error("bad format");
-      }
-      saveLog(log);
-      if (settings) {
-        if (settings.theme) applyTheme(settings.theme);
-        if (settings.programWeek != null) setWeek(settings.programWeek);
-      }
-      toast("Data imported");
+      const n = applyImport(reader.result);
+      toast("Imported " + n + " sessions");
       switchView("progress");
     } catch (e) {
       toast("Could not import file");
     }
   };
   reader.readAsText(file);
+}
+
+async function restoreFromICloud() {
+  // guard against clobbering local data with a possibly-older backup
+  if (loadLog().length && !confirm("Replace your current workout log with the iCloud backup?")) return;
+
+  if (window.showOpenFilePicker || window.showSaveFilePicker) {
+    try {
+      let handle = await idbGet("icloudHandle").catch(() => null);
+      if (handle && !(await verifyPermission(handle, "read"))) handle = null;
+      if (!handle) {
+        if (!window.showOpenFilePicker) throw new Error("no open picker");
+        [handle] = await window.showOpenFilePicker({
+          types: [{ description: "JSON backup", accept: { "application/json": [".json"] } }],
+        });
+        await idbSet("icloudHandle", handle).catch(() => {});
+      }
+      const file = await handle.getFile();
+      const n = applyImport(await file.text());
+      toast("Restored " + n + " sessions ☁️");
+      switchView("progress");
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // user cancelled
+      // otherwise fall through to the plain file picker
+    }
+  }
+  // iOS Safari / unsupported: open the file picker (lets you reach iCloud Drive Files)
+  document.getElementById("import-file").click();
 }
 
 /* ---------- view switching + init ---------- */
@@ -1056,6 +1092,7 @@ async function init() {
 
   document.getElementById("export-btn").addEventListener("click", exportData);
   document.getElementById("icloud-btn").addEventListener("click", saveToICloud);
+  document.getElementById("icloud-restore-btn").addEventListener("click", restoreFromICloud);
   document.getElementById("import-btn").addEventListener("click", () =>
     document.getElementById("import-file").click()
   );

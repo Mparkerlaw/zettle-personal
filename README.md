@@ -61,10 +61,12 @@ cleared cache never loses your history:
 2. **Weekly Sunday nudge** — the first time you open the app on a Sunday, a
    banner offers a one-tap export (or snooze 24h). It won't pester once you've
    backed up that day.
-3. **Save to iCloud** — the footer button writes a backup to a file you choose
-   (point it at `iCloud Drive/ZETTLE A- PERSONAL/Fitness Backups/` once and it
-   reuses that file silently after). On iOS Safari it falls back to the share
-   sheet so you can Save to Files → iCloud Drive.
+3. **Save to iCloud / Restore from iCloud** — the footer buttons write and read
+   a backup file you choose (point it at
+   `iCloud Drive/ZETTLE A- PERSONAL/Fitness Backups/` once and both reuse that
+   same file). **Restore from iCloud** reads it back in one tap (asking before
+   it overwrites existing data). On iOS Safari, save falls back to the share
+   sheet (Save to Files → iCloud Drive) and restore opens the file picker.
 
 Exports are versioned (`"schema_version": 1`) and named with the date and
 program week, e.g. `zettle-fitness-2026-05-29-week3.json`. The footer shows
