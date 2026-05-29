@@ -7,8 +7,19 @@
 const STORAGE_KEY = "workoutLog";
 const THEME_KEY = "workoutTheme";
 const WEEK_KEY = "programWeek";
+const BODY_KEY = "bodyLog";
+const START_KEY = "programStart"; // ISO date the program began
+const WEEKMODE_KEY = "weekMode"; // "auto" (by date) | "manual"
 const THEMES = ["aurora", "solar", "matrix", "vapor"];
 const THEME_LABELS = { aurora: "Aurora", solar: "Solar", matrix: "Matrix", vapor: "Vapor" };
+
+// Weekly schedule: JS getDay() (Sun=0..Sat=6) -> day index in ROUTINE.days
+const SCHEDULE = { 1: 0, 2: 1, 4: 2, 5: 3 }; // Mon→Upper A, Tue→Lower A, Thu→Upper B, Fri→Lower B
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+function todaysDayIndex() {
+  const d = SCHEDULE[new Date().getDay()];
+  return d == null ? null : d;
+}
 
 // ----- backup / durability -----
 const SCHEMA_VERSION = 1;
@@ -21,12 +32,44 @@ let pendingRestoreToast = false;
 
 /* ---------- program week / phase ---------- */
 // Stored week: 1..8 for the program, or 0 for a deload week.
+// Auto mode computes the week from the start date on a 9-week cycle
+// (8 program weeks + 1 deload), so it loops cleanly. 0 = deload week.
+function computeWeekFromStart(startISO) {
+  const start = new Date(startISO + "T00:00:00");
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const days = Math.floor((now - start) / 86400000);
+  if (isNaN(days) || days < 0) return 1;
+  const idx = Math.floor(days / 7) % 9;
+  return idx < 8 ? idx + 1 : 0;
+}
 function getWeek() {
+  if (localStorage.getItem(WEEKMODE_KEY) === "auto") {
+    const start = localStorage.getItem(START_KEY);
+    if (start) return computeWeekFromStart(start);
+  }
   const w = parseInt(localStorage.getItem(WEEK_KEY), 10);
   return isNaN(w) ? 1 : w;
 }
 function setWeek(w) {
   localStorage.setItem(WEEK_KEY, w);
+  localStorage.setItem(WEEKMODE_KEY, "manual"); // a manual pick turns off auto
+  mirrorToIDB();
+}
+function setProgramStart(iso) {
+  localStorage.setItem(START_KEY, iso);
+  localStorage.setItem(WEEKMODE_KEY, "auto");
+  mirrorToIDB();
+}
+function loadBody() {
+  try {
+    return JSON.parse(localStorage.getItem(BODY_KEY)) || [];
+  } catch (e) {
+    return [];
+  }
+}
+function saveBody(arr) {
+  localStorage.setItem(BODY_KEY, JSON.stringify(arr));
   mirrorToIDB();
 }
 function phaseForWeek(w) {
@@ -166,6 +209,7 @@ function renderRoutine() {
     : "";
 
   el.innerHTML =
+    renderTodayCard() +
     (ROUTINE.subtitle ? `<p class="focus" style="margin-top:-4px">${ROUTINE.subtitle}</p>` : "") +
     ROUTINE.days
       .map(
@@ -193,6 +237,32 @@ function renderRoutine() {
       )
       .join("") +
     phases;
+}
+
+function renderTodayCard() {
+  const dow = new Date().getDay();
+  const di = todaysDayIndex();
+  const wk = getWeek();
+  const ph = phaseForWeek(wk);
+  const weekLabel = wk === 0 ? "Deload week" : "Week " + wk + " · " + ph.name;
+  let body;
+  if (di != null) {
+    const day = ROUTINE.days[di];
+    body = `<div class="today-day">${day.name}</div>
+            <div class="focus">${day.focus || ""}</div>
+            <button class="btn today-start" data-day="${di}">Start today's workout ▶</button>`;
+  } else {
+    const rest =
+      dow === 3
+        ? "Mobility flow — hips, shoulders, deep squat hold, foam rolling."
+        : "Full recovery. Eat. Sleep. Stack your fuel windows.";
+    body = `<div class="today-day">${dow === 3 ? "Mobility & Recovery" : "Rest Day"}</div>
+            <div class="focus">${rest}</div>`;
+  }
+  return `<div class="card today-card">
+    <div class="today-top"><span class="today-label">Today · ${WEEKDAYS[dow]}</span><span class="today-week">${weekLabel}</span></div>
+    ${body}
+  </div>`;
 }
 
 /* ---------- exercise detail modal ---------- */
@@ -346,7 +416,18 @@ const RestTimer = {
 };
 
 /* ---------- track view ---------- */
-let trackState = { dayIndex: 0, data: {} };
+const ENERGY_EMOJI = ["😫", "😐", "🙂", "💪", "🔥"];
+const MEAS = [
+  { k: "waist", label: "Waist" },
+  { k: "arms", label: "Arms" },
+  { k: "chest", label: "Chest" },
+  { k: "thighs", label: "Thighs" },
+];
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+let trackState = { dayIndex: 0, data: {}, note: "", energy: 0 };
 
 function initTrackData(day) {
   const w = getWeek();
@@ -374,6 +455,8 @@ function renderTrack() {
 
   const wk = getWeek();
   const ph = phaseForWeek(wk);
+  const auto = localStorage.getItem(WEEKMODE_KEY) === "auto";
+  const startDate = localStorage.getItem(START_KEY) || "";
   const weekOpts =
     `<option value="0" ${wk === 0 ? "selected" : ""}>Deload week</option>` +
     [1, 2, 3, 4, 5, 6, 7, 8]
@@ -387,11 +470,15 @@ function renderTrack() {
           <div class="rest-label">Program ${wk === 0 ? "" : "· Week " + wk}</div>
           <div class="phase-name">${ph.name} phase</div>
         </div>
-        <select id="week-select" class="week-select">${weekOpts}</select>
+        <select id="week-select" class="week-select" ${auto ? "disabled" : ""}>${weekOpts}</select>
       </div>
       <div class="focus" style="margin:10px 0 0">Target RIR this phase: <b style="color:var(--cyan)">${ph.rir}</b>${
         ph.deload ? " · half the sets, same weight" : ""
-      } · sets adjust automatically below</div>
+      }</div>
+      <label class="auto-week">
+        <input type="checkbox" id="auto-week" ${auto ? "checked" : ""}/> <span>Auto-advance by date</span>
+        <input type="date" id="start-date" value="${startDate}" ${auto ? "" : "disabled"} />
+      </label>
     </div>
     <div class="day-picker">
       ${ROUTINE.days
@@ -442,6 +529,19 @@ function renderTrack() {
         </div>`;
       })
       .join("")}
+    <div class="card journal-card">
+      <h2 style="font-size:1.05rem">Session journal</h2>
+      <div class="focus">How did it feel?</div>
+      <div class="energy-row">
+        ${[1, 2, 3, 4, 5]
+          .map(
+            (n) =>
+              `<button class="energy-btn ${trackState.energy === n ? "sel" : ""}" data-energy="${n}">${ENERGY_EMOJI[n - 1]}</button>`
+          )
+          .join("")}
+      </div>
+      <textarea id="session-note" class="session-note" placeholder="Notes, PRs, tweaks, how the lifts moved...">${escapeHtml(trackState.note || "")}</textarea>
+    </div>
     <button id="save-workout" class="btn full">Save workout</button>
   `;
   updateDayProgress();
@@ -463,6 +563,10 @@ function updateDayProgress() {
 }
 
 function handleTrackInput(e) {
+  if (e.target.id === "session-note") {
+    trackState.note = e.target.value;
+    return;
+  }
   const grid = e.target.closest(".set-grid");
   if (!grid) return;
   const ex = decodeURIComponent(grid.dataset.ex);
@@ -472,6 +576,12 @@ function handleTrackInput(e) {
 }
 
 function handleTrackClick(e) {
+  // energy rating
+  if (e.target.classList.contains("energy-btn")) {
+    trackState.energy = +e.target.dataset.energy;
+    document.querySelectorAll(".energy-btn").forEach((b) => b.classList.toggle("sel", b === e.target));
+    return;
+  }
   // open exercise detail
   const head = e.target.closest(".track-ex-head");
   if (head) {
@@ -535,9 +645,18 @@ function saveWorkout() {
   });
 
   const log = prior;
-  log.push({ id: Date.now(), date: todayISO(), day: day.name, entries });
+  log.push({
+    id: Date.now(),
+    date: todayISO(),
+    day: day.name,
+    entries,
+    note: trackState.note || "",
+    energy: trackState.energy || 0,
+  });
   saveLog(log);
   trackState.data = initTrackData(day);
+  trackState.note = "";
+  trackState.energy = 0;
   RestTimer.stop();
   renderTrack();
   if (prs.length) celebrate(prs);
@@ -812,6 +931,27 @@ function renderOverview() {
       </div>`
     : "";
 
+  // session journal (notes + how it felt)
+  const journal = log
+    .slice()
+    .reverse()
+    .filter((w) => w.note || w.energy)
+    .slice(0, 12);
+  const journalCard = journal.length
+    ? `<div class="card">
+        <div class="focus">📓 Recent sessions</div>
+        ${journal
+          .map(
+            (w) =>
+              `<div class="journal-item">
+                 <div class="j-head"><span>${fmtDate(w.date)} · ${w.day}</span><span class="j-energy">${w.energy ? ENERGY_EMOJI[w.energy - 1] : ""}</span></div>
+                 ${w.note ? `<div class="j-note">${escapeHtml(w.note)}</div>` : ""}
+               </div>`
+          )
+          .join("")}
+      </div>`
+    : "";
+
   return `
     <div class="stat-row">
       <div class="stat"><div class="value">${streak}</div><div class="label">Week streak</div></div>
@@ -822,7 +962,8 @@ function renderOverview() {
       <div class="focus">Training calendar · last ${WEEKS} weeks</div>
       <div class="cal-grid">${dayHeads}${cells}</div>
     </div>
-    ${recsCard}`;
+    ${recsCard}
+    ${journalCard}`;
 }
 
 function renderProgress() {
@@ -882,8 +1023,8 @@ function renderProgressBody(name) {
 }
 
 /* ---------- theme-aware canvas chart ---------- */
-function drawChart(points) {
-  const canvas = document.getElementById("chart");
+function drawChart(points, canvasId) {
+  const canvas = document.getElementById(canvasId || "chart");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const W = canvas.width,
@@ -1028,9 +1169,12 @@ function buildExport() {
     schema_version: SCHEMA_VERSION,
     exported_at: new Date().toISOString(),
     log: loadLog(),
+    body: loadBody(),
     settings: {
       theme: localStorage.getItem(THEME_KEY) || "aurora",
-      programWeek: getWeek(),
+      programWeek: parseInt(localStorage.getItem(WEEK_KEY), 10) || 1,
+      programStart: localStorage.getItem(START_KEY) || null,
+      weekMode: localStorage.getItem(WEEKMODE_KEY) || "manual",
       lastBackupDate: localStorage.getItem(BACKUP_DATE_KEY) || null,
       lastBackupAt: localStorage.getItem(LAST_BACKUP_AT) || null,
       lastICloudBackup: localStorage.getItem(ICLOUD_KEY) || null,
@@ -1048,11 +1192,14 @@ async function maybeRestoreFromIDB() {
   try {
     if (loadLog().length > 0) return; // localStorage intact, nothing to do
     const snap = await idbGet("state");
-    if (snap && Array.isArray(snap.log) && snap.log.length) {
+    if (snap && Array.isArray(snap.log) && (snap.log.length || (snap.body && snap.body.length))) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(snap.log));
+      if (Array.isArray(snap.body)) localStorage.setItem(BODY_KEY, JSON.stringify(snap.body));
       const s = snap.settings || {};
       if (s.theme) localStorage.setItem(THEME_KEY, s.theme);
       if (s.programWeek != null) localStorage.setItem(WEEK_KEY, String(s.programWeek));
+      if (s.programStart) localStorage.setItem(START_KEY, s.programStart);
+      if (s.weekMode) localStorage.setItem(WEEKMODE_KEY, s.weekMode);
       if (s.lastBackupDate) localStorage.setItem(BACKUP_DATE_KEY, s.lastBackupDate);
       if (s.lastBackupAt) localStorage.setItem(LAST_BACKUP_AT, s.lastBackupAt);
       if (s.lastICloudBackup) localStorage.setItem(ICLOUD_KEY, s.lastICloudBackup);
@@ -1200,9 +1347,15 @@ function applyImport(text) {
     throw new Error("bad format");
   }
   saveLog(log);
+  if (data && Array.isArray(data.body)) saveBody(data.body);
   if (settings) {
     if (settings.theme) applyTheme(settings.theme);
-    if (settings.programWeek != null) setWeek(settings.programWeek);
+    if (settings.programStart) {
+      localStorage.setItem(START_KEY, settings.programStart);
+      localStorage.setItem(WEEKMODE_KEY, settings.weekMode || "manual");
+    } else if (settings.programWeek != null) {
+      setWeek(settings.programWeek);
+    }
   }
   return log.length;
 }
@@ -1250,6 +1403,69 @@ async function restoreFromICloud() {
   document.getElementById("import-file").click();
 }
 
+/* ---------- body / measurements ---------- */
+function measSummary(b) {
+  const parts = MEAS.filter((m) => b[m.k]).map((m) => `${m.label.toLowerCase()} ${b[m.k]}`);
+  return parts.length ? " · " + parts.join(", ") : "";
+}
+function renderBody() {
+  const el = document.getElementById("view-body");
+  const body = loadBody().slice().sort((a, b) => a.date.localeCompare(b.date));
+  const latest = body[body.length - 1];
+  const first = body[0];
+  const change = latest && first ? Math.round((latest.weight - first.weight) * 10) / 10 : 0;
+  el.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:1.05rem">Log today's bodyweight</h2>
+      <div class="body-input-row">
+        <input type="number" inputmode="decimal" id="bw-input" placeholder="${latest ? latest.weight : "lbs"}" />
+        <button id="bw-save" class="btn">Log</button>
+      </div>
+      <div class="focus" style="margin-top:12px">Optional measurements (in)</div>
+      <div class="meas-row">
+        ${MEAS.map(
+          (m) =>
+            `<label>${m.label}<input type="number" inputmode="decimal" class="meas" data-k="${m.k}" placeholder="${latest && latest[m.k] ? latest[m.k] : "—"}"/></label>`
+        ).join("")}
+      </div>
+    </div>
+    ${
+      body.length
+        ? `<div class="stat-row">
+            <div class="stat"><div class="value">${latest.weight}</div><div class="label">Latest · lbs</div></div>
+            <div class="stat"><div class="value">${change >= 0 ? "+" : ""}${change}</div><div class="label">Since start</div></div>
+            <div class="stat"><div class="value">${body.length}</div><div class="label">Entries</div></div>
+          </div>
+          <div class="card"><div class="focus">Bodyweight over time</div><div class="chart-wrap"><canvas id="body-chart" width="700" height="280"></canvas></div></div>
+          <div class="card"><h2 style="font-size:1.05rem">History</h2>
+            ${body
+              .slice()
+              .reverse()
+              .map((b) => `<div class="history-item"><span class="date">${fmtDate(b.date)}</span><span>${b.weight} lbs${measSummary(b)}</span></div>`)
+              .join("")}
+          </div>`
+        : `<div class="empty">No bodyweight logged yet.<br>You're training to grow — track the goal here.</div>`
+    }`;
+  if (body.length) drawChart(body.map((b) => ({ date: b.date, value: b.weight })), "body-chart");
+}
+function logBodyweight() {
+  const w = parseFloat(document.getElementById("bw-input").value);
+  if (!w) {
+    toast("Enter a weight first");
+    return;
+  }
+  const entry = { date: todayISO(), weight: w };
+  document.querySelectorAll("#view-body .meas").forEach((inp) => {
+    const v = parseFloat(inp.value);
+    if (v) entry[inp.dataset.k] = v;
+  });
+  const arr = loadBody().filter((b) => b.date !== entry.date); // one entry per day
+  arr.push(entry);
+  saveBody(arr);
+  renderBody();
+  toast("Bodyweight logged");
+}
+
 /* ---------- view switching + init ---------- */
 function switchView(name) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === name));
@@ -1257,11 +1473,14 @@ function switchView(name) {
   if (name === "routine") renderRoutine();
   if (name === "track") renderTrack();
   if (name === "progress") renderProgress();
+  if (name === "body") renderBody();
 }
 
 async function init() {
   await maybeRestoreFromIDB(); // layer 1: recover if localStorage was wiped
   applyTheme(localStorage.getItem(THEME_KEY) || "aurora");
+  const todayDi = todaysDayIndex();
+  if (todayDi != null) trackState.dayIndex = todayDi; // default Track to today's workout
 
   document.getElementById("app-title").textContent = ROUTINE.title || "My Workout Routine";
   document.title = ROUTINE.title || "Workout";
@@ -1271,8 +1490,15 @@ async function init() {
   );
   document.getElementById("theme-btn").addEventListener("click", cycleTheme);
 
-  // routine: open exercise detail
+  // routine: today CTA + open exercise detail
   document.getElementById("view-routine").addEventListener("click", (e) => {
+    const start = e.target.closest(".today-start");
+    if (start) {
+      trackState.dayIndex = +start.dataset.day;
+      trackState.data = initTrackData(ROUTINE.days[trackState.dayIndex]);
+      switchView("track");
+      return;
+    }
     const row = e.target.closest(".exercise-row.clickable");
     if (row && row.dataset.ex) openExercise(decodeURIComponent(row.dataset.ex));
   });
@@ -1283,9 +1509,19 @@ async function init() {
   track.addEventListener("change", (e) => {
     if (e.target.id === "week-select") {
       setWeek(parseInt(e.target.value, 10));
-      trackState.data = initTrackData(ROUTINE.days[trackState.dayIndex]);
-      renderTrack();
+    } else if (e.target.id === "auto-week") {
+      if (e.target.checked) setProgramStart(localStorage.getItem(START_KEY) || todayISO());
+      else {
+        localStorage.setItem(WEEKMODE_KEY, "manual");
+        mirrorToIDB();
+      }
+    } else if (e.target.id === "start-date") {
+      if (e.target.value) setProgramStart(e.target.value);
+    } else {
+      return;
     }
+    trackState.data = initTrackData(ROUTINE.days[trackState.dayIndex]);
+    renderTrack();
   });
 
   // modal close interactions
@@ -1325,6 +1561,11 @@ async function init() {
         box.innerHTML = "";
       }
     }
+  });
+
+  // body tab: log bodyweight
+  document.getElementById("view-body").addEventListener("click", (e) => {
+    if (e.target.id === "bw-save") logBodyweight();
   });
 
   // celebration dismiss

@@ -63,6 +63,26 @@ Beat a previous best estimated-1RM or top weight on any lift and you get a
 confetti celebration on save. The **Progress** tab also shows a 🏆 records wall
 of your best est. 1RM per exercise.
 
+## Today + auto week
+
+The **Routine** tab opens with a "Today" card that knows the schedule
+(Mon Upper A · Tue Lower A · Wed mobility · Thu Upper B · Fri Lower B · weekend
+rest) and offers a one-tap **Start today's workout**. On the **Track** tab you
+can flip on **Auto-advance by date**: set your program start and the week +
+phase compute themselves on a 9-week cycle (8 weeks + a deload), so you never
+set the week manually again.
+
+## Body tab
+
+Log your **bodyweight** (plus optional waist/arms/chest/thighs) with a trend
+chart, latest/change stats, and history — so you're tracking the actual goal,
+not just the lifts.
+
+## Session journal
+
+When you save a workout you can tag **how it felt** (😫→🔥) and jot a note.
+Recent sessions show up as a journal on the **Progress** tab.
+
 ## Themes
 
 Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,
