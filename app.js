@@ -1091,6 +1091,13 @@ async function init() {
   });
 
   document.getElementById("export-btn").addEventListener("click", exportData);
+  document.getElementById("more-toggle").addEventListener("click", (e) => {
+    const actions = document.getElementById("footer-actions");
+    const open = actions.hidden;
+    actions.hidden = !open;
+    e.currentTarget.setAttribute("aria-expanded", String(open));
+    e.currentTarget.textContent = open ? "Backup & data ✕" : "Backup & data ⋯";
+  });
   document.getElementById("icloud-btn").addEventListener("click", saveToICloud);
   document.getElementById("icloud-restore-btn").addEventListener("click", restoreFromICloud);
   document.getElementById("import-btn").addEventListener("click", () =>
