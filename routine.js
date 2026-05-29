@@ -173,3 +173,12 @@ const QUOTES = [
   { q: "A year from now you may wish you had started today.", a: "Karen Lamb" },
   { q: "The successful warrior is the average man, with laser-like focus.", a: "Bruce Lee" },
 ];
+
+/* Short hype lines flashed on the final set of Focus Mode. Edit freely. */
+const FINAL_HYPE = [
+  "Last set — make it count 🔥",
+  "Empty the tank 💥",
+  "Finish strong 💪",
+  "One more — leave nothing 🔥",
+  "This is the one that grows 🌱",
+];

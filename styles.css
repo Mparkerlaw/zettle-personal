@@ -515,6 +515,22 @@ canvas { max-width: 100%; }
 }
 .focus-quote { font-style: italic; color: var(--muted); font-size: 0.92rem; line-height: 1.45; margin-bottom: 14px; }
 .focus-quote span { display: block; margin-top: 4px; font-style: normal; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); }
+.today-quote { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-style: italic; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+.today-quote span { font-style: normal; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); font-weight: 700; }
+
+/* final-set hype */
+.focus-hype {
+  display: inline-block; margin-bottom: 12px; padding: 8px 16px; border-radius: 999px;
+  font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.82rem; color: #04070f;
+  background: linear-gradient(135deg, var(--magenta), var(--cyan));
+  box-shadow: 0 0 22px rgba(var(--c3-rgb), 0.5);
+  animation: hypeFlash 1.1s ease-in-out infinite;
+}
+@keyframes hypeFlash {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 18px rgba(var(--c3-rgb), 0.45); }
+  50% { transform: scale(1.04); box-shadow: 0 0 30px rgba(var(--c3-rgb), 0.8); }
+}
+@media (prefers-reduced-motion: reduce) { .focus-hype { animation: none; } }
 
 /* ---------- reminders card ---------- */
 .reminders-card .rem-row {

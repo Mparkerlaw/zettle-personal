@@ -260,9 +260,12 @@ function renderTodayCard() {
     body = `<div class="today-day">${dow === 3 ? "Mobility & Recovery" : "Rest Day"}</div>
             <div class="focus">${rest}</div>`;
   }
+  const q = getQuote();
+  const quote = q ? `<div class="today-quote">“${q.q}” <span>— ${q.a}</span></div>` : "";
   return `<div class="card today-card">
     <div class="today-top"><span class="today-label">Today · ${WEEKDAYS[dow]}</span><span class="today-week">${weekLabel}</span></div>
     ${body}
+    ${quote}
   </div>`;
 }
 
@@ -878,6 +881,7 @@ const FocusMode = {
       <div class="focus-track"><div class="focus-fill" style="width:${(this.i / this.steps.length) * 100}%"></div></div>
       <div class="focus-body">
         ${this.i === 0 ? (() => { const q = getQuote(); return q ? `<div class="focus-quote">“${q.q}” <span>— ${q.a}</span></div>` : ""; })() : ""}
+        ${isLast && typeof FINAL_HYPE !== "undefined" && FINAL_HYPE.length ? `<div class="focus-hype">${FINAL_HYPE[Math.floor(Math.random() * FINAL_HYPE.length)]}</div>` : ""}
         <h2 class="focus-name">${ex.name}</h2>
         <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${ex.reps} · rest ${ex.rest || "—"} · RIR ${ex.rir || "—"}</div>
         ${cues ? `<ol class="cue-list focus-cues">${cues}</ol>` : ""}
