@@ -125,3 +125,32 @@ const ROUTINE = {
     { name: "Intensity", weeks: "7–8", sets: "4 sets", rir: "1–2", focus: "Push closer to failure, add tempo/pauses, heavier loads" },
   ],
 };
+
+/* =============================================================
+   FUEL  —  what to eat before & after training.
+   Edit freely: title, timing, tip, and the list of quick ideas.
+   ============================================================= */
+const FUEL = {
+  pre: {
+    title: "Fuel up before you train",
+    timing: "Window 1 or 2 · ~60–90 min before",
+    tip: "Carbs for energy + some protein. Don't lift fasted at 133 lbs — pre-load if today is a fasting day.",
+    ideas: [
+      "Oats + banana + scoop of whey",
+      "Rice cakes + honey + Greek yogurt",
+      "Toast + eggs + a piece of fruit",
+      "Smoothie: banana, oats, whey, milk",
+    ],
+  },
+  post: {
+    title: "Refuel — within 60 minutes",
+    timing: "Window 3 · protein first, then carbs",
+    tip: "Hit protein right away, then carbs to refill the tank. This is where the growth happens — aim toward your 2,800+ day.",
+    ideas: [
+      "Chicken or beef + rice + veg",
+      "Protein shake + banana right now",
+      "Eggs + potatoes + toast",
+      "Greek yogurt + granola + berries",
+    ],
+  },
+};

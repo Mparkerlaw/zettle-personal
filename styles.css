@@ -505,6 +505,20 @@ canvas { max-width: 100%; }
 }
 .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+/* ---------- fuel card ---------- */
+.fuel-card { border: 1px solid rgba(var(--c3-rgb), 0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 22px rgba(var(--c3-rgb), 0.14); }
+.fuel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.fuel-emoji { font-size: 1.7rem; }
+.fuel-title { font-weight: 800; font-size: 1.05rem; letter-spacing: 0.02em; }
+.fuel-tip { color: var(--text); opacity: 0.9; font-size: 0.9rem; line-height: 1.55; margin: 0 0 12px; }
+.fuel-ideas { display: flex; flex-wrap: wrap; gap: 8px; }
+.fuel-chip {
+  font-size: 0.78rem; padding: 7px 12px; border-radius: 999px; line-height: 1.2;
+  color: var(--text);
+  background: rgba(var(--c3-rgb), 0.1);
+  border: 1px solid rgba(var(--c3-rgb), 0.32);
+}
+
 /* ---------- Today card ---------- */
 .today-card { border: 1px solid rgba(var(--c1-rgb), 0.35); box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 26px rgba(var(--c1-rgb), 0.18); }
 .today-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }

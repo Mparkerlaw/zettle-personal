@@ -83,6 +83,13 @@ not just the lifts.
 When you save a workout you can tag **how it felt** (😫→🔥) and jot a note.
 Recent sessions show up as a journal on the **Progress** tab.
 
+## Fuel reminders
+
+The **Track** tab shows a **pre-workout fuel card** (Window 1/2 timing + food
+ideas) before you lift, and after you save a session a **post-workout refuel
+reminder** pops up (Window 3, within 60 min, protein first). Edit the
+suggestions in the `FUEL` block at the bottom of `routine.js`.
+
 ## Themes
 
 Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,

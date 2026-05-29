@@ -265,6 +265,37 @@ function renderTodayCard() {
   </div>`;
 }
 
+/* ---------- fuel (pre/post workout nutrition) ---------- */
+function fuelCard(kind) {
+  const f = typeof FUEL !== "undefined" && FUEL[kind];
+  if (!f) return "";
+  return `<div class="card fuel-card">
+    <div class="fuel-head">
+      <span class="fuel-emoji">${kind === "pre" ? "🍳" : "🥩"}</span>
+      <div><div class="fuel-title">${f.title}</div><div class="focus" style="margin:0">${f.timing}</div></div>
+    </div>
+    <div class="fuel-tip">${f.tip}</div>
+    <div class="fuel-ideas">${f.ideas.map((i) => `<span class="fuel-chip">${i}</span>`).join("")}</div>
+  </div>`;
+}
+function openFuel(kind) {
+  const f = typeof FUEL !== "undefined" && FUEL[kind];
+  if (!f) return;
+  const root = document.getElementById("modal-root");
+  const modal = root.querySelector(".modal");
+  modal.innerHTML = `
+    <div class="grip"></div>
+    <button class="modal-close" aria-label="Close">✕</button>
+    <h2>${kind === "pre" ? "🍳 " : "🥩 "}${f.title}</h2>
+    <div class="muscle-chips"><span class="chip">${f.timing}</span></div>
+    <p class="fuel-tip">${f.tip}</p>
+    <div class="how-title">Quick ideas</div>
+    <ol class="cue-list">${f.ideas.map((i) => `<li>${i}</li>`).join("")}</ol>
+    <button class="btn full modal-close">Got it 👍</button>`;
+  root.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
 /* ---------- exercise detail modal ---------- */
 function openExercise(name) {
   const ex = findExercise(name);
@@ -480,6 +511,7 @@ function renderTrack() {
         <input type="date" id="start-date" value="${startDate}" ${auto ? "" : "disabled"} />
       </label>
     </div>
+    ${fuelCard("pre")}
     <div class="day-picker">
       ${ROUTINE.days
         .map(
@@ -661,6 +693,7 @@ function saveWorkout() {
   renderTrack();
   if (prs.length) celebrate(prs);
   else toast("Workout saved 💪");
+  openFuel("post"); // post-workout refuel reminder (under any celebration overlay)
 }
 
 /* ---------- personal records ---------- */
