@@ -154,3 +154,22 @@ const FUEL = {
     ],
   },
 };
+
+/* =============================================================
+   QUOTES  —  shown when you start a workout. Add your own freely.
+   ============================================================= */
+const QUOTES = [
+  { q: "Whether you think you can, or you think you can't — you're right.", a: "Henry Ford" },
+  { q: "Strength does not come from physical capacity. It comes from an indomitable will.", a: "Mahatma Gandhi" },
+  { q: "Take care of your body. It's the only place you have to live.", a: "Jim Rohn" },
+  { q: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a: "Will Durant" },
+  { q: "Success isn't always about greatness. It's about consistency.", a: "Dwayne Johnson" },
+  { q: "The last three or four reps is what makes the muscle grow.", a: "Arnold Schwarzenegger" },
+  { q: "What hurts today makes you stronger tomorrow.", a: "Jay Cutler" },
+  { q: "There is no shortcut to anywhere worth going.", a: "Beverly Sills" },
+  { q: "Energy and persistence conquer all things.", a: "Benjamin Franklin" },
+  { q: "Don't count the days, make the days count.", a: "Muhammad Ali" },
+  { q: "Motivation is what gets you started. Habit is what keeps you going.", a: "Jim Ryun" },
+  { q: "A year from now you may wish you had started today.", a: "Karen Lamb" },
+  { q: "The successful warrior is the average man, with laser-like focus.", a: "Bruce Lee" },
+];

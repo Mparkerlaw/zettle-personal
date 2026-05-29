@@ -83,6 +83,13 @@ not just the lifts.
 When you save a workout you can tag **how it felt** (😫→🔥) and jot a note.
 Recent sessions show up as a journal on the **Progress** tab.
 
+## Workout quote
+
+Each session starts with a famous quote + author (top of the **Track** tab and
+the first screen of **Focus Mode**). It stays put through the session and
+re-rolls after you save. Edit or add your own in the `QUOTES` block at the
+bottom of `routine.js`.
+
 ## Timed notifications
 
 On the **Routine** tab, a 🔔 **Reminders** card lets you turn on:

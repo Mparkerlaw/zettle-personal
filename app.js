@@ -461,6 +461,19 @@ function escapeHtml(s) {
 
 let trackState = { dayIndex: 0, data: {}, note: "", energy: 0 };
 
+/* a motivational quote, picked once per session and re-rolled after each save */
+let workoutQuote = null;
+function getQuote() {
+  if (!workoutQuote && typeof QUOTES !== "undefined" && QUOTES.length)
+    workoutQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  return workoutQuote;
+}
+function quoteCard() {
+  const q = getQuote();
+  if (!q) return "";
+  return `<div class="card quote-card"><div class="quote-q">“${q.q}”</div><div class="quote-a">— ${q.a}</div></div>`;
+}
+
 function initTrackData(day) {
   const w = getWeek();
   const data = {};
@@ -496,6 +509,7 @@ function renderTrack() {
       .join("");
 
   el.innerHTML = `
+    ${quoteCard()}
     <div class="card phase-card">
       <div class="phase-top">
         <div>
@@ -690,6 +704,7 @@ function saveWorkout() {
   trackState.data = initTrackData(day);
   trackState.note = "";
   trackState.energy = 0;
+  workoutQuote = null; // fresh quote for the next session
   RestTimer.stop();
   renderTrack();
   if (prs.length) celebrate(prs);
@@ -862,6 +877,7 @@ const FocusMode = {
       </div>
       <div class="focus-track"><div class="focus-fill" style="width:${(this.i / this.steps.length) * 100}%"></div></div>
       <div class="focus-body">
+        ${this.i === 0 ? (() => { const q = getQuote(); return q ? `<div class="focus-quote">“${q.q}” <span>— ${q.a}</span></div>` : ""; })() : ""}
         <h2 class="focus-name">${ex.name}</h2>
         <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${ex.reps} · rest ${ex.rest || "—"} · RIR ${ex.rir || "—"}</div>
         ${cues ? `<ol class="cue-list focus-cues">${cues}</ol>` : ""}
