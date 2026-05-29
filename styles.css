@@ -507,12 +507,15 @@ canvas { max-width: 100%; }
 
 /* ---------- workout quote ---------- */
 .quote-card { text-align: center; border: 1px solid rgba(var(--c2-rgb), 0.28); }
-.quote-q { font-style: italic; font-size: 1.05rem; line-height: 1.5; }
-.quote-a {
-  margin-top: 8px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+.workout-quote { font-style: italic; line-height: 1.5; min-height: 1.6em; }
+.quote-card .workout-quote { font-size: 1.05rem; min-height: 3.2em; display: flex; flex-direction: column; justify-content: center; }
+.quote-card .wq-a {
+  display: block; margin-top: 8px; font-style: normal; font-size: 0.78rem;
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
   background: linear-gradient(90deg, var(--cyan), var(--violet));
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
+.today-quote .wq-a { font-style: normal; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); font-weight: 700; }
 .focus-quote { font-style: italic; color: var(--muted); font-size: 0.92rem; line-height: 1.45; margin-bottom: 14px; }
 .focus-quote span { display: block; margin-top: 4px; font-style: normal; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); }
 .today-quote { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-style: italic; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }

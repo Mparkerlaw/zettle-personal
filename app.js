@@ -238,6 +238,7 @@ function renderRoutine() {
       )
       .join("") +
     phases;
+  attachQuoteRollers(el);
 }
 
 function renderTodayCard() {
@@ -260,8 +261,7 @@ function renderTodayCard() {
     body = `<div class="today-day">${dow === 3 ? "Mobility & Recovery" : "Rest Day"}</div>
             <div class="focus">${rest}</div>`;
   }
-  const q = getQuote();
-  const quote = q ? `<div class="today-quote">“${q.q}” <span>— ${q.a}</span></div>` : "";
+  const quote = typeof QUOTES !== "undefined" && QUOTES.length ? `<div class="today-quote workout-quote roller"></div>` : "";
   return `<div class="card today-card">
     <div class="today-top"><span class="today-label">Today · ${WEEKDAYS[dow]}</span><span class="today-week">${weekLabel}</span></div>
     ${body}
@@ -505,17 +505,19 @@ function escapeHtml(s) {
 
 let trackState = { dayIndex: 0, data: {}, note: "", energy: 0 };
 
-/* a motivational quote, picked once per session and re-rolled after each save */
-let workoutQuote = null;
-function getQuote() {
-  if (!workoutQuote && typeof QUOTES !== "undefined" && QUOTES.length)
-    workoutQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-  return workoutQuote;
+/* motivational quotes that auto-roll through the list */
+function quoteItems() {
+  return typeof QUOTES !== "undefined"
+    ? QUOTES.map((x) => `“${x.q}” <span class="wq-a">— ${x.a}</span>`)
+    : [];
+}
+function attachQuoteRollers(scope) {
+  if (!scope) return;
+  scope.querySelectorAll(".workout-quote, .focus-quote").forEach((el) => rollEl(el, quoteItems(), 6000));
 }
 function quoteCard() {
-  const q = getQuote();
-  if (!q) return "";
-  return `<div class="card quote-card"><div class="quote-q">“${q.q}”</div><div class="quote-a">— ${q.a}</div></div>`;
+  if (typeof QUOTES === "undefined" || !QUOTES.length) return "";
+  return `<div class="card quote-card"><div class="workout-quote roller"></div></div>`;
 }
 
 function initTrackData(day) {
@@ -638,6 +640,7 @@ function renderTrack() {
   updateDayProgress();
   stopRollers();
   attachFuelRollers(el, "pre");
+  attachQuoteRollers(el);
 }
 
 function updateDayProgress() {
@@ -750,7 +753,6 @@ function saveWorkout() {
   trackState.data = initTrackData(day);
   trackState.note = "";
   trackState.energy = 0;
-  workoutQuote = null; // fresh quote for the next session
   RestTimer.stop();
   renderTrack();
   if (prs.length) celebrate(prs);
@@ -923,7 +925,7 @@ const FocusMode = {
       </div>
       <div class="focus-track"><div class="focus-fill" style="width:${(this.i / this.steps.length) * 100}%"></div></div>
       <div class="focus-body">
-        ${this.i === 0 ? (() => { const q = getQuote(); return q ? `<div class="focus-quote">“${q.q}” <span>— ${q.a}</span></div>` : ""; })() : ""}
+        ${this.i === 0 && typeof QUOTES !== "undefined" && QUOTES.length ? `<div class="focus-quote roller"></div>` : ""}
         ${isLast && typeof FINAL_HYPE !== "undefined" && FINAL_HYPE.length ? `<div class="focus-hype">${FINAL_HYPE[Math.floor(Math.random() * FINAL_HYPE.length)]}</div>` : ""}
         <h2 class="focus-name">${ex.name}</h2>
         <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${ex.reps} · rest ${ex.rest || "—"} · RIR ${ex.rir || "—"}</div>
@@ -938,6 +940,8 @@ const FocusMode = {
         <button class="btn secondary focus-prev" ${this.i === 0 ? "disabled" : ""}>‹ Prev</button>
         <button class="btn focus-next">${isLast ? "Finish & Save 🏁" : "Log set ›"}</button>
       </div>`;
+    stopRollers();
+    attachQuoteRollers(root);
   },
 };
 
