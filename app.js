@@ -401,6 +401,7 @@ function renderTrack() {
         )
         .join("")}
     </div>
+    <button id="focus-start" class="btn full focus-cta">▶ Start Focus Mode</button>
     <div class="day-progress-wrap">
       <div class="day-progress-label"><span>Session progress</span><span id="dp-count">0 / 0</span></div>
       <div class="day-progress-track"><div class="day-progress-fill" id="dp-fill"></div></div>
@@ -500,6 +501,10 @@ function handleTrackClick(e) {
     }
     return;
   }
+  if (e.target.id === "focus-start") {
+    FocusMode.open();
+    return;
+  }
   if (e.target.id === "save-workout") saveWorkout();
 }
 
@@ -518,14 +523,205 @@ function saveWorkout() {
     toast("Log at least one set first");
     return;
   }
-  const log = loadLog();
+  // detect PRs against history BEFORE this session is added
+  const prior = loadLog();
+  const prs = [];
+  entries.forEach((en) => {
+    if (!en.sets.length) return;
+    const pb = bestFromLog(en.name, prior);
+    const sb = sessionBest(en);
+    if (pb.e > 0 && sb.e > pb.e) prs.push({ name: en.name, kind: "est. 1RM", value: sb.e, prev: pb.e });
+    else if (pb.top > 0 && sb.top > pb.top) prs.push({ name: en.name, kind: "top weight", value: sb.top, prev: pb.top });
+  });
+
+  const log = prior;
   log.push({ id: Date.now(), date: todayISO(), day: day.name, entries });
   saveLog(log);
   trackState.data = initTrackData(day);
   RestTimer.stop();
   renderTrack();
-  toast("Workout saved 💪");
+  if (prs.length) celebrate(prs);
+  else toast("Workout saved 💪");
 }
+
+/* ---------- personal records ---------- */
+function bestFromLog(name, log) {
+  let e = 0,
+    top = 0;
+  log.forEach((w) => {
+    const en = w.entries.find((x) => x.name === name);
+    if (!en) return;
+    en.sets.forEach((s) => {
+      e = Math.max(e, e1rm(s.weight, s.reps));
+      top = Math.max(top, s.weight);
+    });
+  });
+  return { e: Math.round(e), top };
+}
+function sessionBest(entry) {
+  let e = 0,
+    top = 0;
+  entry.sets.forEach((s) => {
+    e = Math.max(e, e1rm(s.weight, s.reps));
+    top = Math.max(top, s.weight);
+  });
+  return { e: Math.round(e), top };
+}
+
+function celebrate(prs) {
+  const root = document.getElementById("celebrate-root");
+  root.innerHTML = `
+    <div class="celebrate-card">
+      <div class="trophy">🏆</div>
+      <h2>New Personal Record${prs.length > 1 ? "s" : ""}!</h2>
+      <div class="pr-list">
+        ${prs
+          .map(
+            (p) =>
+              `<div class="pr-item"><span class="pr-name">${p.name}</span><span class="pr-val">${p.value} <small>${p.kind}</small><br><span class="pr-prev">prev ${p.prev}</span></span></div>`
+          )
+          .join("")}
+      </div>
+      <button class="btn celebrate-close">Let's go 🔥</button>
+    </div>`;
+  root.hidden = false;
+  fireConfetti();
+}
+
+/* lightweight canvas confetti — no libraries */
+function fireConfetti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  canvas.hidden = false;
+  const colors = ["--c1-rgb", "--c2-rgb", "--c3-rgb", "--ok-rgb"].map((v) => `rgb(${cssVar(v) || "255,255,255"})`);
+  const N = 140;
+  const parts = Array.from({ length: N }, () => ({
+    x: innerWidth / 2 + (Math.random() - 0.5) * 120,
+    y: innerHeight / 2,
+    vx: (Math.random() - 0.5) * 14,
+    vy: Math.random() * -16 - 4,
+    s: 4 + Math.random() * 6,
+    rot: Math.random() * Math.PI,
+    vr: (Math.random() - 0.5) * 0.3,
+    c: colors[(Math.random() * colors.length) | 0],
+    life: 1,
+  }));
+  const start = performance.now();
+  function frame(t) {
+    const dt = Math.min(32, t - (frame._last || t));
+    frame._last = t;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    parts.forEach((p) => {
+      p.vy += 0.4; // gravity
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.5);
+      ctx.restore();
+    });
+    if (t - start < 2600) requestAnimationFrame(frame);
+    else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.hidden = true;
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Focus Mode (guided full-screen workout) ---------- */
+const FocusMode = {
+  steps: [],
+  i: 0,
+  open() {
+    const day = ROUTINE.days[trackState.dayIndex];
+    if (Object.keys(trackState.data).length === 0) trackState.data = initTrackData(day);
+    this.steps = [];
+    day.exercises.forEach((ex, ei) => {
+      const sets = trackState.data[ex.name];
+      sets.forEach((_, si) => this.steps.push({ ei, name: ex.name, si, total: sets.length }));
+    });
+    if (!this.steps.length) return;
+    this.i = 0;
+    document.body.style.overflow = "hidden";
+    document.getElementById("focus-root").hidden = false;
+    this.render();
+  },
+  close() {
+    document.getElementById("focus-root").hidden = true;
+    document.body.style.overflow = "";
+    renderTrack();
+  },
+  go(delta) {
+    this.i = Math.max(0, Math.min(this.steps.length - 1, this.i + delta));
+    this.render();
+  },
+  current() {
+    return this.steps[this.i];
+  },
+  saveInputs() {
+    const root = document.getElementById("focus-root");
+    const w = root.querySelector(".f-weight");
+    const r = root.querySelector(".f-reps");
+    const st = this.current();
+    if (!st) return;
+    const set = trackState.data[st.name][st.si];
+    if (w) set.weight = w.value;
+    if (r) set.reps = r.value;
+  },
+  logAndNext() {
+    this.saveInputs();
+    const st = this.current();
+    const set = trackState.data[st.name][st.si];
+    if (set.reps !== "") set.done = true;
+    const ex = findExercise(st.name);
+    RestTimer.start(parseRest(ex && ex.rest), st.name);
+    if (this.i >= this.steps.length - 1) this.finish();
+    else this.go(1);
+  },
+  finish() {
+    this.close();
+    saveWorkout();
+  },
+  render() {
+    const st = this.current();
+    const ex = findExercise(st.name);
+    const set = trackState.data[st.name][st.si];
+    const last = lastEntryFor(st.name);
+    const ls = last && last.entry.sets[st.si];
+    const done = this.steps.filter((s) => trackState.data[s.name][s.si].done).length;
+    const exNo = st.ei + 1;
+    const isLast = this.i === this.steps.length - 1;
+    const cues = (ex.cues || []).map((c) => `<li>${c}</li>`).join("");
+    const root = document.getElementById("focus-root");
+    root.innerHTML = `
+      <div class="focus-bar">
+        <button class="focus-close" aria-label="Close">✕</button>
+        <div class="focus-counter">Exercise ${exNo}/${ROUTINE.days[trackState.dayIndex].exercises.length} · Set ${st.si + 1}/${st.total}</div>
+        <div class="focus-counter">${done}/${this.steps.length} ✓</div>
+      </div>
+      <div class="focus-track"><div class="focus-fill" style="width:${(this.i / this.steps.length) * 100}%"></div></div>
+      <div class="focus-body">
+        <h2 class="focus-name">${ex.name}</h2>
+        <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${ex.reps} · rest ${ex.rest || "—"} · RIR ${ex.rir || "—"}</div>
+        ${cues ? `<ol class="cue-list focus-cues">${cues}</ol>` : ""}
+        ${ex.videoId ? `<button class="link-btn focus-video-toggle">▶ Watch tutorial</button><div class="focus-video" hidden></div>` : ""}
+        <div class="focus-inputs">
+          <label>Weight<input type="number" inputmode="decimal" class="f-weight" placeholder="${ls && ls.weight ? ls.weight : "0"}" value="${set.weight}" /></label>
+          <label>Reps<input type="number" inputmode="numeric" class="f-reps" placeholder="${ls && ls.reps ? ls.reps : "0"}" value="${set.reps}" /></label>
+        </div>
+      </div>
+      <div class="focus-controls">
+        <button class="btn secondary focus-prev" ${this.i === 0 ? "disabled" : ""}>‹ Prev</button>
+        <button class="btn focus-next">${isLast ? "Finish & Save 🏁" : "Log set ›"}</button>
+      </div>`;
+  },
+};
 
 /* ---------- progress view ---------- */
 function allExerciseNames() {
@@ -599,6 +795,23 @@ function renderOverview() {
   }
   const dayHeads = ["M", "T", "W", "T", "F", "S", "S"].map((h) => `<div class="cal-head">${h}</div>`).join("");
 
+  // personal records wall (best estimated 1RM per exercise)
+  const recs = allExerciseNames()
+    .map((n) => ({ n, ...bestFromLog(n, log) }))
+    .filter((r) => r.e > 0)
+    .sort((a, b) => b.e - a.e);
+  const recsCard = recs.length
+    ? `<div class="card">
+        <div class="focus">🏆 Personal records · best est. 1RM</div>
+        ${recs
+          .map(
+            (r) =>
+              `<div class="history-item"><span>${r.n}</span><span><b style="color:var(--cyan)">${r.e}</b> · top ${r.top}</span></div>`
+          )
+          .join("")}
+      </div>`
+    : "";
+
   return `
     <div class="stat-row">
       <div class="stat"><div class="value">${streak}</div><div class="label">Week streak</div></div>
@@ -608,7 +821,8 @@ function renderOverview() {
     <div class="card">
       <div class="focus">Training calendar · last ${WEEKS} weeks</div>
       <div class="cal-grid">${dayHeads}${cells}</div>
-    </div>`;
+    </div>
+    ${recsCard}`;
 }
 
 function renderProgress() {
@@ -1089,6 +1303,40 @@ async function init() {
     else if (e.target.classList.contains("pause")) RestTimer.togglePause();
     else if (e.target.classList.contains("adj")) RestTimer.adjust(+e.target.dataset.d);
   });
+
+  // Focus Mode controls (delegated)
+  const focusRoot = document.getElementById("focus-root");
+  focusRoot.addEventListener("input", () => FocusMode.saveInputs());
+  focusRoot.addEventListener("click", (e) => {
+    if (e.target.closest(".focus-close")) FocusMode.close();
+    else if (e.target.closest(".focus-prev")) {
+      FocusMode.saveInputs();
+      FocusMode.go(-1);
+    } else if (e.target.closest(".focus-next")) FocusMode.logAndNext();
+    else if (e.target.closest(".focus-video-toggle")) {
+      const ex = findExercise(FocusMode.current().name);
+      const box = focusRoot.querySelector(".focus-video");
+      if (!box) return;
+      if (box.hidden) {
+        box.innerHTML = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${ex.videoId}" title="${ex.name} tutorial" loading="lazy" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
+        box.hidden = false;
+      } else {
+        box.hidden = true;
+        box.innerHTML = "";
+      }
+    }
+  });
+
+  // celebration dismiss
+  document.getElementById("celebrate-root").addEventListener("click", (e) => {
+    if (e.target.classList.contains("celebrate-close") || e.target.id === "celebrate-root")
+      document.getElementById("celebrate-root").hidden = true;
+  });
+
+  // PWA service worker (needs https; GitHub Pages qualifies)
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 
   document.getElementById("export-btn").addEventListener("click", exportData);
   document.getElementById("more-toggle").addEventListener("click", (e) => {

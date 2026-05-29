@@ -42,6 +42,27 @@ different YouTube ID (the part after `watch?v=`), or remove the field to fall
 back to the "search YouTube" button. There's a "Find more tutorials" link in
 every exercise card too.
 
+## Focus Mode
+
+On the **Track** tab, tap **▶ Start Focus Mode** for a distraction-free,
+one-set-at-a-time guided flow: it shows the current exercise, its cues and an
+optional tutorial video, takes your weight/reps, fires the rest timer, and
+advances to the next set. Finish the last set and it saves the session for you.
+
+## Install it as an app (PWA)
+
+The app is a installable PWA: on your phone use **Share → Add to Home Screen**
+(or your browser's Install prompt on desktop) to get a real icon and a
+full-screen, **offline-capable** app — a service worker caches the whole app,
+your routine, and your data, so it loads with no connection. (Embedded YouTube
+videos still need internet.)
+
+## Personal records
+
+Beat a previous best estimated-1RM or top weight on any lift and you get a
+confetti celebration on save. The **Progress** tab also shows a 🏆 records wall
+of your best est. 1RM per exercise.
+
 ## Themes
 
 Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,
