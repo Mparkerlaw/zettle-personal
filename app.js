@@ -339,9 +339,9 @@ function drawChart(points) {
   const yAt = (v) => pad.t + plotH - ((v - minY) / (maxY - minY)) * plotH;
 
   // grid + y labels
-  ctx.strokeStyle = "#2e333d";
-  ctx.fillStyle = "#9aa0aa";
-  ctx.font = "11px sans-serif";
+  ctx.strokeStyle = "rgba(120,170,255,0.12)";
+  ctx.fillStyle = "#8094b8";
+  ctx.font = "11px ui-monospace, monospace";
   ctx.lineWidth = 1;
   const ticks = 4;
   for (let i = 0; i <= ticks; i++) {
@@ -367,9 +367,18 @@ function drawChart(points) {
   });
   ctx.textAlign = "left";
 
-  // line
-  ctx.strokeStyle = "#4f8cff";
-  ctx.lineWidth = 2;
+  // neon gradient line for the stroke
+  const grad = ctx.createLinearGradient(pad.l, 0, W - pad.r, 0);
+  grad.addColorStop(0, "#22e0ff");
+  grad.addColorStop(1, "#9d6bff");
+
+  // line (with glow)
+  ctx.save();
+  ctx.shadowColor = "rgba(34,224,255,0.7)";
+  ctx.shadowBlur = 12;
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
   ctx.beginPath();
   points.forEach((p, i) => {
     const x = xAt(i),
@@ -377,20 +386,38 @@ function drawChart(points) {
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
+  ctx.restore();
 
   // area fill
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    const x = xAt(i),
+      y = yAt(p.value);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
   ctx.lineTo(xAt(points.length - 1), pad.t + plotH);
   ctx.lineTo(xAt(0), pad.t + plotH);
   ctx.closePath();
-  ctx.fillStyle = "rgba(79,140,255,0.12)";
+  const fill = ctx.createLinearGradient(0, pad.t, 0, pad.t + plotH);
+  fill.addColorStop(0, "rgba(34,224,255,0.28)");
+  fill.addColorStop(1, "rgba(157,107,255,0.02)");
+  ctx.fillStyle = fill;
   ctx.fill();
 
-  // dots
-  ctx.fillStyle = "#4f8cff";
+  // dots (glowing)
   points.forEach((p, i) => {
+    const x = xAt(i),
+      y = yAt(p.value);
     ctx.beginPath();
-    ctx.arc(xAt(i), yAt(p.value), 3.5, 0, Math.PI * 2);
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#04070f";
     ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#22e0ff";
+    ctx.shadowColor = "rgba(34,224,255,0.9)";
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
   });
 }
 
