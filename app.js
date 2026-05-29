@@ -238,7 +238,6 @@ function renderRoutine() {
       )
       .join("") +
     phases;
-  attachQuoteRollers(el);
 }
 
 function renderTodayCard() {
@@ -261,7 +260,8 @@ function renderTodayCard() {
     body = `<div class="today-day">${dow === 3 ? "Mobility & Recovery" : "Rest Day"}</div>
             <div class="focus">${rest}</div>`;
   }
-  const quote = typeof QUOTES !== "undefined" && QUOTES.length ? `<div class="today-quote workout-quote roller"></div>` : "";
+  const qh = quoteHTML();
+  const quote = qh ? `<div class="today-quote workout-quote">${qh}</div>` : "";
   return `<div class="card today-card">
     <div class="today-top"><span class="today-label">Today · ${WEEKDAYS[dow]}</span><span class="today-week">${weekLabel}</span></div>
     ${body}
@@ -269,82 +269,40 @@ function renderTodayCard() {
   </div>`;
 }
 
-/* ---------- rolling tickers (one shared clock so they fade in sync) ---------- */
-const ROLL_BASE = 1600; // ms per tick; periods below are in ticks
-let _rollerItems = [];
-let _rollerClock = null;
-let _rollerTick = 0;
-function stopRollers() {
-  if (_rollerClock) {
-    clearInterval(_rollerClock);
-    _rollerClock = null;
-  }
-  _rollerItems = [];
-  _rollerTick = 0;
+/* ---------- daily picks (one suggestion / quote per day, stable all day) ---------- */
+function dayIndex() {
+  const n = new Date();
+  return Math.floor(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) / 86400000);
 }
-function advanceRoller(r, fadeMs) {
-  if (r.items.length < 2) return;
-  r.el.style.opacity = 0;
-  setTimeout(() => {
-    r.el.innerHTML = r.items[r.i];
-    r.el.style.opacity = 1;
-  }, fadeMs);
+function dailyPick(arr, offset) {
+  if (!arr || !arr.length) return null;
+  return arr[(dayIndex() + (offset || 0)) % arr.length];
 }
-function rollEl(el, items, periodTicks) {
-  if (!el || !items || !items.length) return;
-  const r = { el, items, i: Math.floor(Math.random() * items.length), period: periodTicks || 4 };
-  el.innerHTML = items[r.i];
-  _rollerItems.push(r);
-  if (!_rollerClock) {
-    _rollerClock = setInterval(() => {
-      _rollerTick++;
-      _rollerItems.forEach((rr) => {
-        if (rr.items.length < 2 || _rollerTick % rr.period !== 0) return;
-        rr.i = (rr.i + 1) % rr.items.length;
-        advanceRoller(rr, 260);
-      });
-    }, ROLL_BASE);
-  }
-}
-// tap a ticker to jump to a fresh item immediately
-function shuffleRoller(el) {
-  const r = _rollerItems.find((x) => x.el === el);
-  if (!r || r.items.length < 2) return;
-  let n;
-  do {
-    n = Math.floor(Math.random() * r.items.length);
-  } while (n === r.i);
-  r.i = n;
-  advanceRoller(r, 120);
-}
-function fuelQuoteItems() {
-  return typeof FUEL_QUOTES !== "undefined"
-    ? FUEL_QUOTES.map((x) => `“${x.q}” <span class="fq-a">— ${x.a}</span>`)
-    : [];
-}
-function attachFuelRollers(scope, kind) {
-  if (!scope || typeof FUEL === "undefined" || !FUEL[kind]) return;
-  rollEl(scope.querySelector(".fuel-idea"), FUEL[kind].ideas, 2); // ~3.2s
-  rollEl(scope.querySelector(".fuel-quote"), fuelQuoteItems(), 4); // ~6.4s, in sync with the workout quote
+function fuelQuoteHTML() {
+  const fq = typeof FUEL_QUOTES !== "undefined" ? dailyPick(FUEL_QUOTES) : null;
+  return fq ? `<div class="fuel-quote">“${fq.q}” <span class="fq-a">— ${fq.a}</span></div>` : "";
 }
 
 /* ---------- fuel (pre/post workout nutrition) ---------- */
 function fuelCard(kind) {
   const f = typeof FUEL !== "undefined" && FUEL[kind];
   if (!f) return "";
+  // offset post by 1 so pre/post don't show the same line on the same day
+  const idea = dailyPick(f.ideas, kind === "post" ? 1 : 0);
   return `<div class="card fuel-card">
     <div class="fuel-head">
       <span class="fuel-emoji">${kind === "pre" ? "🍳" : "🥩"}</span>
       <div><div class="fuel-title">${f.title}</div><div class="focus" style="margin:0">${f.timing}</div></div>
     </div>
     <div class="fuel-tip">${f.tip}</div>
-    <div class="fuel-roll"><span class="fuel-roll-label">Try</span><span class="fuel-idea roller"></span></div>
-    <div class="fuel-quote roller"></div>
+    <div class="fuel-roll"><span class="fuel-roll-label">Today</span><span class="fuel-idea">${idea}</span></div>
+    ${fuelQuoteHTML()}
   </div>`;
 }
 function openFuel(kind) {
   const f = typeof FUEL !== "undefined" && FUEL[kind];
   if (!f) return;
+  const idea = dailyPick(f.ideas, kind === "post" ? 1 : 0);
   const root = document.getElementById("modal-root");
   const modal = root.querySelector(".modal");
   modal.innerHTML = `
@@ -353,14 +311,13 @@ function openFuel(kind) {
     <h2>${kind === "pre" ? "🍳 " : "🥩 "}${f.title}</h2>
     <div class="muscle-chips"><span class="chip">${f.timing}</span></div>
     <p class="fuel-tip">${f.tip}</p>
-    <div class="fuel-roll"><span class="fuel-roll-label">Try</span><span class="fuel-idea roller"></span></div>
+    <div class="fuel-roll"><span class="fuel-roll-label">Today</span><span class="fuel-idea">${idea}</span></div>
     <div class="how-title">More ideas</div>
     <ol class="cue-list">${f.ideas.map((i) => `<li>${i}</li>`).join("")}</ol>
-    <div class="fuel-quote roller" style="margin-bottom:18px"></div>
+    <div class="fuel-quote" style="margin-bottom:18px">${typeof FUEL_QUOTES !== "undefined" && dailyPick(FUEL_QUOTES) ? `“${dailyPick(FUEL_QUOTES).q}” <span class="fq-a">— ${dailyPick(FUEL_QUOTES).a}</span>` : ""}</div>
     <button class="btn full modal-close">Got it 👍</button>`;
   root.hidden = false;
   document.body.style.overflow = "hidden";
-  attachFuelRollers(modal, kind);
 }
 
 /* ---------- exercise detail modal ---------- */
@@ -402,10 +359,6 @@ function closeModal() {
   const root = document.getElementById("modal-root");
   root.hidden = true;
   document.body.style.overflow = "";
-  stopRollers();
-  // keep the Track tab's pre-workout roller alive if we're returning to it
-  const track = document.getElementById("view-track");
-  if (track.classList.contains("active")) attachFuelRollers(track, "pre");
 }
 
 /* ---------- rest timer ---------- */
@@ -531,19 +484,14 @@ function escapeHtml(s) {
 
 let trackState = { dayIndex: 0, data: {}, note: "", energy: 0 };
 
-/* motivational quotes that auto-roll through the list */
-function quoteItems() {
-  return typeof QUOTES !== "undefined"
-    ? QUOTES.map((x) => `“${x.q}” <span class="wq-a">— ${x.a}</span>`)
-    : [];
-}
-function attachQuoteRollers(scope) {
-  if (!scope) return;
-  scope.querySelectorAll(".workout-quote, .focus-quote").forEach((el) => rollEl(el, quoteItems(), 4)); // ~6.4s
+/* one motivational quote per day */
+function quoteHTML() {
+  const q = typeof QUOTES !== "undefined" ? dailyPick(QUOTES) : null;
+  return q ? `“${q.q}” <span class="wq-a">— ${q.a}</span>` : "";
 }
 function quoteCard() {
-  if (typeof QUOTES === "undefined" || !QUOTES.length) return "";
-  return `<div class="card quote-card"><div class="workout-quote roller"></div></div>`;
+  const h = quoteHTML();
+  return h ? `<div class="card quote-card"><div class="workout-quote">${h}</div></div>` : "";
 }
 
 function initTrackData(day) {
@@ -664,9 +612,6 @@ function renderTrack() {
     <button id="save-workout" class="btn full">Save workout</button>
   `;
   updateDayProgress();
-  stopRollers();
-  attachFuelRollers(el, "pre");
-  attachQuoteRollers(el);
 }
 
 function updateDayProgress() {
@@ -951,7 +896,7 @@ const FocusMode = {
       </div>
       <div class="focus-track"><div class="focus-fill" style="width:${(this.i / this.steps.length) * 100}%"></div></div>
       <div class="focus-body">
-        ${this.i === 0 && typeof QUOTES !== "undefined" && QUOTES.length ? `<div class="focus-quote roller"></div>` : ""}
+        ${this.i === 0 && quoteHTML() ? `<div class="focus-quote">${quoteHTML()}</div>` : ""}
         ${isLast && typeof FINAL_HYPE !== "undefined" && FINAL_HYPE.length ? `<div class="focus-hype">${FINAL_HYPE[Math.floor(Math.random() * FINAL_HYPE.length)]}</div>` : ""}
         <h2 class="focus-name">${ex.name}</h2>
         <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${ex.reps} · rest ${ex.rest || "—"} · RIR ${ex.rir || "—"}</div>
@@ -966,8 +911,6 @@ const FocusMode = {
         <button class="btn secondary focus-prev" ${this.i === 0 ? "disabled" : ""}>‹ Prev</button>
         <button class="btn focus-next">${isLast ? "Finish & Save 🏁" : "Log set ›"}</button>
       </div>`;
-    stopRollers();
-    attachQuoteRollers(root);
   },
 };
 
@@ -1777,7 +1720,6 @@ function handleReminderChange(e) {
 
 /* ---------- view switching + init ---------- */
 function switchView(name) {
-  stopRollers();
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === name));
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + name));
   if (name === "routine") renderRoutine();
@@ -1799,12 +1741,6 @@ async function init() {
     t.addEventListener("click", () => switchView(t.dataset.view))
   );
   document.getElementById("theme-btn").addEventListener("click", cycleTheme);
-
-  // tap any ticker (quote / food idea) to shuffle to a fresh one
-  document.addEventListener("click", (e) => {
-    const r = e.target.closest(".roller");
-    if (r) shuffleRoller(r);
-  });
 
   // routine: today CTA + reminders + open exercise detail
   document.getElementById("view-routine").addEventListener("click", (e) => {

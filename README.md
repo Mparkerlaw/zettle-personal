@@ -85,10 +85,10 @@ Recent sessions show up as a journal on the **Progress** tab.
 
 ## Workout quote
 
-Each session starts with a famous quote + author (top of the **Track** tab and
-the first screen of **Focus Mode**). It stays put through the session and
-re-rolls after you save. Edit or add your own in the `QUOTES` block at the
-bottom of `routine.js`.
+A famous quote + author shows on the **Today** card, the top of the **Track**
+tab, and the first screen of **Focus Mode**. It's one quote per day (changes
+daily, stable through the day). Edit or add your own in the `QUOTES` block at
+the bottom of `routine.js`.
 
 ## Timed notifications
 
@@ -106,9 +106,10 @@ Home Screen for the most reliable alerts.
 
 The **Track** tab shows a **pre-workout fuel card** before you lift, and after
 you save a session a **post-workout refuel reminder** pops up (Window 3, within
-60 min, protein first). The food ideas **auto-rotate** and an inspiring
-nutrition quote rolls alongside them. Edit the suggestions in `FUEL` and the
-quotes in `FUEL_QUOTES` at the bottom of `routine.js`.
+60 min, protein first). Each day shows **one** food suggestion and one
+nutrition quote (they change daily, stable through the day). Edit the
+suggestions in `FUEL` and the quotes in `FUEL_QUOTES` at the bottom of
+`routine.js`.
 
 ## Themes
 
