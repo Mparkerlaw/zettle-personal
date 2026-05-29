@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Workout Routine</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1 id="app-title">My Workout Routine</h1>
+    <nav class="tabs">
+      <button class="tab active" data-view="routine">Routine</button>
+      <button class="tab" data-view="track">Track</button>
+      <button class="tab" data-view="progress">Progress</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- ROUTINE VIEW -->
+    <section id="view-routine" class="view active"></section>
+
+    <!-- TRACK VIEW -->
+    <section id="view-track" class="view"></section>
+
+    <!-- PROGRESS VIEW -->
+    <section id="view-progress" class="view"></section>
+  </main>
+
+  <footer class="app-footer">
+    <span>Data is saved in your browser only.</span>
+    <button id="export-btn" class="link-btn">Export data</button>
+    <button id="import-btn" class="link-btn">Import data</button>
+    <input id="import-file" type="file" accept="application/json" hidden />
+  </footer>
+
+  <script src="routine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
