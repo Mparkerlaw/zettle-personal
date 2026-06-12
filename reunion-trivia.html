@@ -27,7 +27,7 @@
     overflow-x:hidden;
   }
   #confetti{position:fixed; inset:0; pointer-events:none; z-index:50;}
-  .screen{display:none; max-width:1060px; margin:0 auto; padding:34px 26px 60px; min-height:100vh;}
+  .screen{display:none; max-width:1180px; margin:0 auto; padding:28px 24px 60px; min-height:100vh;}
   .screen.active{display:block; animation:fadeUp .35s ease;}
   @keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
 
@@ -49,84 +49,84 @@
   .btn.ghost{background:transparent; color:var(--text); border:2px solid var(--card-border); box-shadow:none;}
   .btn.ghost:hover{border-color:var(--gold); color:var(--gold-soft); box-shadow:none;}
   .btn.small{padding:10px 20px; font-size:.95rem;}
-  .btn.good{background:var(--good); color:#06270f;}
-  .btn.bad{background:var(--bad); color:#fff;}
   .btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
   .center{text-align:center;}
-  .topbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
   .pill{background:var(--card); border:1px solid var(--card-border); border-radius:999px; padding:8px 18px; font-weight:700; font-size:.95rem;}
   .pill b{color:var(--gold-soft);}
 
   /* HOME */
   .homewrap{display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; gap:18px;}
   .home-emoji{font-size:3.4rem; text-align:center; letter-spacing:.2em;}
-  .howto{background:var(--card); border:1px solid var(--card-border); border-radius:20px; padding:22px 26px; max-width:640px; margin-top:10px;}
+  .howto{background:var(--card); border:1px solid var(--card-border); border-radius:20px; padding:22px 26px; max-width:680px; margin-top:10px;}
   .howto h3{color:var(--gold-soft); margin-bottom:10px; font-size:1.05rem; letter-spacing:.08em; text-transform:uppercase;}
   .howto ol{padding-left:22px; color:var(--muted); line-height:1.65; font-size:1.02rem;}
   .howto li b{color:var(--text);}
 
-  /* ROUND GRID */
-  .roundgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:18px; margin-top:8px;}
-  .roundcard{
-    position:relative; background:var(--card); border:1px solid var(--card-border); border-radius:22px;
-    padding:24px 22px; cursor:pointer; transition:transform .14s ease, border-color .14s ease; text-align:left; color:var(--text); font:inherit;
+  /* BOARD */
+  .boardswitch{display:flex; gap:10px; justify-content:center; margin-bottom:16px; flex-wrap:wrap;}
+  .boardswitch button{
+    font:inherit; font-weight:800; font-size:1.05rem; padding:12px 26px; border-radius:999px; cursor:pointer;
+    border:2px solid var(--card-border); background:var(--card); color:var(--text);
   }
-  .roundcard:hover{transform:translateY(-4px); border-color:var(--gold);}
-  .roundcard .remoji{font-size:2.3rem;}
-  .roundcard h3{font-size:1.3rem; margin:10px 0 6px;}
-  .roundcard p{color:var(--muted); font-size:.97rem; line-height:1.45;}
-  .roundcard .qcount{margin-top:12px; font-size:.85rem; color:var(--teal); font-weight:700; letter-spacing:.06em;}
-  .roundcard.done{opacity:.55;}
-  .donebadge{position:absolute; top:14px; right:16px; background:var(--good); color:#06270f; font-weight:800; font-size:.75rem; padding:4px 12px; border-radius:999px;}
-  .lightning-card{border:2px solid var(--gold); background:linear-gradient(140deg, rgba(197,179,88,.16), rgba(255,111,165,.08));}
-  .insider-card{border:2px dashed var(--teal);}
-  .who-card{border:2px dashed var(--pink);}
+  .boardswitch button.sel{background:var(--gold); border-color:var(--gold); color:#241c02;}
+  .board{display:grid; grid-template-columns:repeat(6,1fr); gap:10px;}
+  @media(max-width:760px){ .board{gap:6px;} }
+  .cathead{
+    background:linear-gradient(140deg, rgba(197,179,88,.22), rgba(197,179,88,.06));
+    border:1px solid var(--gold); border-radius:14px; padding:12px 6px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:86px; position:relative;
+  }
+  .cathead .ce{font-size:1.5rem;}
+  .cathead .ct{font-weight:900; font-size:clamp(.62rem,1.4vw,.95rem); line-height:1.2; text-transform:uppercase; letter-spacing:.04em;}
+  .cathead .edit{
+    position:absolute; top:6px; right:6px; background:none; border:none; cursor:pointer; font-size:.95rem; color:var(--teal);
+  }
+  .tile{
+    font:inherit; font-weight:900; font-size:clamp(1rem,2.6vw,1.9rem); color:var(--gold-soft);
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px; cursor:pointer;
+    min-height:74px; transition:transform .12s ease, border-color .12s ease;
+  }
+  .tile:hover:not(:disabled){transform:translateY(-3px); border-color:var(--gold);}
+  .tile:disabled{cursor:default; opacity:.18;}
+  .boardfoot{display:flex; justify-content:center; gap:14px; margin-top:20px; flex-wrap:wrap;}
 
-  /* ROUND INTRO / CONTESTANTS */
-  .callout{
-    text-align:center; font-size:clamp(1.9rem,4.5vw,3.1rem); font-weight:900; line-height:1.15;
-    margin:18px auto 8px; max-width:840px;
+  /* PLAYERS BAR */
+  .players{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px auto 4px; max-width:1000px;}
+  .player{
+    background:var(--card); border:1px solid var(--card-border); border-radius:999px; padding:9px 18px;
+    font-weight:800; font-size:1.05rem; display:flex; align-items:center; gap:10px;
   }
-  .icebreaker{
-    background:linear-gradient(120deg, rgba(77,217,192,.14), rgba(255,111,165,.1));
-    border:1px solid rgba(77,217,192,.4); border-radius:20px; padding:20px 26px; max-width:680px; margin:22px auto; text-align:center;
-  }
-  .icebreaker .label{color:var(--teal); font-weight:800; letter-spacing:.14em; text-transform:uppercase; font-size:.82rem; margin-bottom:8px;}
-  .icebreaker .q{font-size:1.35rem; font-weight:700;}
-  .nameentry{max-width:560px; margin:10px auto; display:flex; gap:10px;}
-  .nameentry input{
-    flex:1; font:inherit; font-size:1.1rem; padding:14px 20px; border-radius:999px;
+  .player .sc{color:var(--gold-soft);}
+  .player.clicky{cursor:pointer; border-color:var(--teal); transition:transform .1s ease;}
+  .player.clicky:hover{transform:scale(1.06); background:rgba(77,217,192,.18);}
+  .addplayer{display:flex; gap:8px; align-items:center;}
+  .addplayer input{
+    font:inherit; font-size:1rem; padding:9px 16px; border-radius:999px; width:190px;
     border:2px solid var(--card-border); background:rgba(0,0,0,.25); color:var(--text); outline:none;
   }
-  .nameentry input:focus{border-color:var(--gold);}
-  .chips{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-width:680px; margin:16px auto; min-height:44px;}
-  .chip{
-    background:var(--card); border:1px solid var(--gold); border-radius:999px; padding:9px 18px;
-    font-weight:700; font-size:1.05rem; display:flex; align-items:center; gap:10px;
-  }
-  .chip button{background:none; border:none; color:var(--pink); font-size:1.1rem; cursor:pointer; font-weight:900; line-height:1;}
-  .hint{text-align:center; color:var(--muted); font-size:.95rem;}
+  .addplayer input:focus{border-color:var(--gold);}
 
   /* QUESTION */
-  .qhead{display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:8px;}
-  .forwho{
-    text-align:center; margin:18px auto 6px; font-size:1.05rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; font-weight:700;
+  .dibs{
+    text-align:center; font-size:clamp(1.25rem,3vw,1.9rem); font-weight:900; color:var(--pink);
+    margin:6px auto 2px;
   }
-  .contestant-name{text-align:center; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; color:var(--teal); margin-bottom:18px;}
+  .icebreak-line{text-align:center; color:var(--teal); font-size:1rem; font-weight:700; margin-bottom:14px;}
   .qphoto{
-    display:block; max-height:36vh; max-width:min(92vw,640px); margin:0 auto 18px;
+    display:block; max-height:34vh; max-width:min(92vw,640px); margin:0 auto 16px;
     border-radius:18px; border:3px solid var(--card-border); object-fit:contain;
     box-shadow:0 18px 50px rgba(0,0,0,.5); background:#000;
   }
   .qtext{
     text-align:center; font-size:clamp(1.4rem,3.2vw,2.2rem); font-weight:800; line-height:1.3;
-    max-width:900px; margin:0 auto 14px;
+    max-width:900px; margin:0 auto 12px;
   }
-  .qprompt{text-align:center; color:var(--gold-soft); font-weight:800; letter-spacing:.18em; text-transform:uppercase; font-size:.95rem; margin-bottom:26px;}
-  .years{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:880px; margin:0 auto;}
+  .qprompt{text-align:center; color:var(--gold-soft); font-weight:800; letter-spacing:.18em; text-transform:uppercase; font-size:.95rem; margin-bottom:20px;}
+  .years{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; max-width:880px; margin:0 auto;}
   @media(max-width:680px){.years{grid-template-columns:repeat(2,1fr);}}
   .yearbtn{
-    font:inherit; font-size:clamp(1.5rem,3.2vw,2.2rem); font-weight:900; padding:24px 10px; cursor:pointer;
+    font:inherit; font-size:clamp(1.5rem,3.2vw,2.2rem); font-weight:900; padding:22px 10px; cursor:pointer;
     border-radius:22px; border:2px solid var(--card-border); background:var(--card); color:var(--text);
     transition:transform .12s ease, border-color .12s ease, background .2s ease;
   }
@@ -137,12 +137,19 @@
   .yearbtn.dim{opacity:.35;}
   @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.09);}100%{transform:scale(1);}}
   .judge{display:flex; gap:14px; justify-content:center; margin-top:6px; flex-wrap:wrap;}
-  .verdict{text-align:center; font-size:1.7rem; font-weight:900; margin-top:22px; min-height:2.2em;}
+  .verdict{text-align:center; font-size:1.6rem; font-weight:900; margin-top:18px; min-height:1.4em;}
   .verdict .pts{color:var(--gold-soft);}
   .fact{
-    text-align:center; color:var(--muted); font-size:1.12rem; max-width:720px; margin:8px auto 0; line-height:1.5; min-height:2em;
+    text-align:center; color:var(--muted); font-size:1.08rem; max-width:720px; margin:6px auto 0; line-height:1.5; min-height:1.6em;
   }
-  .keyhint{text-align:center; color:rgba(253,251,255,.35); font-size:.85rem; margin-top:26px;}
+  .awardbar{
+    display:none; margin-top:18px; padding:16px; border-radius:20px;
+    background:linear-gradient(120deg, rgba(77,217,192,.12), rgba(255,111,165,.08));
+    border:1px solid rgba(77,217,192,.4);
+  }
+  .awardbar.on{display:block;}
+  .awardbar .label{text-align:center; font-weight:800; letter-spacing:.1em; text-transform:uppercase; font-size:.9rem; color:var(--teal); margin-bottom:10px;}
+  .keyhint{text-align:center; color:rgba(253,251,255,.35); font-size:.85rem; margin-top:22px;}
 
   /* EDITORS */
   .editor{max-width:720px; margin:0 auto;}
@@ -186,8 +193,9 @@
   }
   .filewrap:hover{border-color:var(--gold);}
   .filewrap input{display:none;}
+  .hint{text-align:center; color:var(--muted); font-size:.95rem;}
 
-  /* ROUND END + AWARDS */
+  /* AWARDS */
   .scoreboard{max-width:560px; margin:24px auto; display:flex; flex-direction:column; gap:10px;}
   .scorerow{
     display:flex; justify-content:space-between; align-items:center; background:var(--card);
@@ -217,72 +225,51 @@
     <div>
       <div class="kicker">Oakleaf High Knights · Reunion Game Night</div>
       <h1>The Years We Ran<br>This School</h1>
-      <p class="sub">Trivia for the Classes of 2012–2015 — the first four classes to ever walk across that stage. Every answer is a year you were a Knight. You lived it; now prove you remember it. ⚔️</p>
+      <p class="sub">Jeopardy-style trivia for the Classes of 2012–2015 — the first four classes to ever walk across that stage. Every answer is a year you were a Knight. ⚔️</p>
       <div class="home-emoji">🎓 🛡️ 🏆</div>
     </div>
-    <button class="btn" onclick="goRounds()">Start the Show ▶</button>
+    <button class="btn" onclick="goBoard()">Open the Board ▶</button>
     <div class="howto">
       <h3>How to host it</h3>
       <ol>
-        <li><b>Pick a round</b> and read the call-out — “This round is for any moms!” — and wave them up.</li>
-        <li><b>Ask the icebreaker</b> so everyone hears what they've been up to since graduation.</li>
-        <li><b>Type their names</b>, then questions rotate between contestants. Tap the year they shout out.</li>
-        <li>Before the party: load yearbook photos into <b>🖼️ Guess Who</b> and write your own teacher / prom questions in <b>📝 Class Insiders</b>.</li>
-        <li>Points follow people across rounds. Finish with the <b>⚡ Lightning Round</b> (double points), then hit <b>Awards</b> to crown the champion. 🏆</li>
+        <li>Anyone can come up at any time — just pick a tile. Each category has a <b>“first dibs”</b> call-out (“this one's for the moms!”) to pull specific people up.</li>
+        <li>Read the question. They shout a year, you tap it. Then tap <b>who answered</b> to give them the points — names are added on the fly.</li>
+        <li><b>Board 2 is double points.</b> When the boards run dry, hit <b>⚡ Lightning</b> for 1,000-point bonus questions.</li>
+        <li>Before the party: load yearbook photos into <b>🖼️ Guess Who</b> (the ✎ on its column) and write teacher/prom questions in <b>📝 Class Insiders</b>.</li>
+        <li>End with <b>🏆 Awards</b> — the top score gets the championship certificate.</li>
       </ol>
     </div>
     <div class="center">
       <button class="btn ghost small" onclick="fetchQuestionPhotos(document.getElementById('photo-status'))">📥 Save question photos for offline</button>
       <div class="hint" id="photo-status" style="margin-top:10px;">Open this once on wifi before the party — photos download automatically and are kept for offline.</div>
     </div>
-    <button class="btn ghost small" id="btn-reset" onclick="resetGame()">Reset saved scores</button>
+    <button class="btn ghost small" id="btn-reset" onclick="resetGame()">Reset scores & board</button>
   </div>
 </section>
 
-<!-- ============ ROUND PICKER ============ -->
-<section class="screen" id="screen-rounds">
+<!-- ============ BOARD ============ -->
+<section class="screen" id="screen-board">
   <div class="topbar">
     <span class="pill">🛡️ Oakleaf Knights · Classes of <b>2012–2015</b></span>
-    <span class="pill" id="pill-players">Players: <b>0</b></span>
     <button class="btn small" onclick="goAwards()">🏆 Awards Ceremony</button>
   </div>
-  <div class="kicker">Choose a round</div>
-  <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);">Who's coming up next?</h1>
-  <div class="roundgrid" id="roundgrid"></div>
-</section>
-
-<!-- ============ ROUND INTRO ============ -->
-<section class="screen" id="screen-intro">
-  <div class="topbar">
-    <button class="btn ghost small" onclick="goRounds()">← Back to rounds</button>
-    <span class="pill" id="intro-pill"></span>
+  <div class="boardswitch" id="boardswitch"></div>
+  <div class="board" id="board"></div>
+  <div class="boardfoot">
+    <button class="btn ghost small" id="btn-lightning" onclick="openLightning()">⚡ Lightning bonus (1,000 pts)</button>
+    <button class="btn ghost small" onclick="show('screen-home')">🏠 Home</button>
   </div>
-  <div class="center" style="font-size:3.6rem;" id="intro-emoji"></div>
-  <div class="callout" id="intro-callout"></div>
-  <p class="sub" id="intro-desc"></p>
-  <div class="icebreaker">
-    <div class="label">🎤 Before we start — tell the room:</div>
-    <div class="q" id="intro-icebreaker"></div>
-  </div>
-  <div class="nameentry">
-    <input id="name-input" type="text" placeholder="Type a contestant's name + Enter" autocomplete="off">
-    <button class="btn small" onclick="addName()">Add</button>
-  </div>
-  <div class="chips" id="name-chips"></div>
-  <p class="hint" id="intro-hint">Add everyone who came up — questions rotate between them.</p>
-  <div class="center" style="margin-top:24px;">
-    <button class="btn" id="btn-start-round" onclick="startRound()" disabled>Let's Play ▶</button>
-  </div>
+  <div class="players" id="players-bar"></div>
 </section>
 
 <!-- ============ QUESTION ============ -->
 <section class="screen" id="screen-question">
-  <div class="qhead">
-    <span class="pill" id="q-roundname"></span>
-    <span class="pill" id="q-progress"></span>
+  <div class="topbar">
+    <span class="pill" id="q-cat"></span>
+    <span class="pill">Worth <b id="q-value"></b></span>
   </div>
-  <div class="forwho">This one's for</div>
-  <div class="contestant-name" id="q-contestant"></div>
+  <div class="dibs" id="q-dibs"></div>
+  <div class="icebreak-line" id="q-ice"></div>
   <img class="qphoto" id="q-photo" alt="" style="display:none;" onerror="this.style.display='none'">
   <div class="qtext" id="q-text"></div>
   <div class="qprompt" id="q-prompt">What year did it happen?</div>
@@ -290,30 +277,36 @@
   <div class="judge" id="q-judge"></div>
   <div class="verdict" id="q-verdict"></div>
   <div class="fact" id="q-fact"></div>
-  <div class="center" style="margin-top:18px;">
-    <button class="btn" id="btn-next" onclick="nextQuestion()" style="visibility:hidden;">Next ▶</button>
+  <div class="awardbar" id="awardbar">
+    <div class="label">Tap who answered it to award <span id="award-pts"></span> pts</div>
+    <div class="players" id="award-players"></div>
+    <div class="center" style="margin-top:10px;">
+      <button class="btn ghost small" onclick="closeQuestion()">😅 Nobody got it — back to board</button>
+    </div>
   </div>
-  <div class="keyhint" id="q-keyhint">Host keys: 1–4 to lock in an answer · Enter for next</div>
+  <div class="center" style="margin-top:18px;">
+    <button class="btn" id="btn-back" onclick="closeQuestion()" style="visibility:hidden;">Back to Board ▶</button>
+  </div>
+  <div class="keyhint" id="q-keyhint">Host keys: 1–4 to lock in the year they shout</div>
 </section>
 
 <!-- ============ INSIDER EDITOR ============ -->
 <section class="screen" id="screen-editor">
   <div class="topbar">
-    <button class="btn ghost small" onclick="goRounds()">← Back to rounds</button>
+    <button class="btn ghost small" onclick="goBoard()">← Back to board</button>
     <span class="pill">📝 Class Insiders · <b id="ed-count">0</b> questions</span>
   </div>
-  <div class="kicker">Write your own round</div>
+  <div class="kicker">Write your own category</div>
   <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);">Class Insiders 📝</h1>
-  <p class="sub">Only YOU know this stuff — teachers, prom themes, homecoming wins, cafeteria legends. Write a statement, pick the year it happened, and it plays exactly like the other rounds.</p>
+  <p class="sub">Only YOU know this stuff — teachers, prom themes, homecoming wins, cafeteria legends. Write a statement, pick the year it happened, and it fills the Insiders column on Board 2 (first 6 questions, lowest tile first).</p>
   <div class="editor">
     <p class="hint" style="text-align:left; margin:22px 0 8px;">The thing that happened (e.g. “Coach ___ shaved his head after the playoff win” or “THE senior prank”):</p>
     <textarea id="ed-q" placeholder="Type the question…"></textarea>
     <p class="hint" style="text-align:left; margin:14px 0 0;">What year did it happen?</p>
     <div class="yearpick" id="ed-years"></div>
     <input type="text" id="ed-fact" placeholder="Optional fun fact to read after the reveal…">
-    <div class="center" style="margin-top:18px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <div class="center" style="margin-top:18px;">
       <button class="btn small" onclick="addCustomQ()">＋ Add question</button>
-      <button class="btn small ghost" id="ed-play" onclick="playInsiders()">Play this round ▶</button>
     </div>
     <div class="qlist" id="ed-list"></div>
   </div>
@@ -322,12 +315,12 @@
 <!-- ============ GUESS WHO EDITOR ============ -->
 <section class="screen" id="screen-whoeditor">
   <div class="topbar">
-    <button class="btn ghost small" onclick="goRounds()">← Back to rounds</button>
+    <button class="btn ghost small" onclick="goBoard()">← Back to board</button>
     <span class="pill">🖼️ Guess Who · <b id="who-count">0</b> photos</span>
   </div>
   <div class="kicker">Yearbook edition</div>
   <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);">Guess Who 🖼️</h1>
-  <p class="sub">Load up yearbook headshots (snap them with your phone, crop to one face, and add them here). On game night the photo goes up huge on screen, the contestant guesses who it is, and you judge it.</p>
+  <p class="sub">Load up yearbook headshots (snap them with your phone, crop to one face, add them here). They fill the Guess Who column on Board 1 — first 6 photos, lowest tile first. The photo goes up huge, they name the Knight, you judge it.</p>
   <div class="editor">
     <label class="filewrap" for="who-file">
       <div style="font-size:2.2rem;">📷</div>
@@ -335,29 +328,14 @@
       <div class="hint">You can select multiple at once. They're resized and saved in this browser.</div>
       <input id="who-file" type="file" accept="image/*" multiple onchange="addWhoPhotos(this.files)">
     </label>
-    <div class="center" style="margin-bottom:10px;">
-      <button class="btn small ghost" id="who-play" onclick="playWho()">Play this round ▶</button>
-    </div>
     <div class="qlist" id="who-list"></div>
-  </div>
-</section>
-
-<!-- ============ ROUND END ============ -->
-<section class="screen" id="screen-roundend">
-  <div class="center" style="font-size:3.6rem; margin-top:30px;" id="re-emoji">🎉</div>
-  <h1 style="font-size:clamp(1.9rem,4.5vw,3rem);" id="re-title">Round complete!</h1>
-  <p class="sub" id="re-sub"></p>
-  <div class="scoreboard" id="re-scores"></div>
-  <div class="center" style="margin-top:20px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
-    <button class="btn" onclick="goRounds()">Next Round ▶</button>
-    <button class="btn ghost" onclick="goAwards()">🏆 Awards Ceremony</button>
   </div>
 </section>
 
 <!-- ============ AWARDS ============ -->
 <section class="screen" id="screen-awards">
   <div class="topbar">
-    <button class="btn ghost small" onclick="goRounds()">← Back to rounds</button>
+    <button class="btn ghost small" onclick="goBoard()">← Back to board</button>
   </div>
   <div class="kicker">Awards Ceremony</div>
   <div class="trophy">🏆</div>
@@ -366,7 +344,7 @@
   <div class="scoreboard" id="final-scores"></div>
   <div class="center" style="margin-top:24px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
     <button class="btn ghost" onclick="fireConfetti()">🎊 More confetti</button>
-    <button class="btn ghost" onclick="goRounds()">Keep playing</button>
+    <button class="btn ghost" onclick="goBoard()">Keep playing</button>
   </div>
 </section>
 
@@ -440,204 +418,191 @@ async function fetchQuestionPhotos(statusEl){
     : "⚠️ Couldn't reach Wikipedia — connect to the internet and tap again.";
 }
 
-// Quietly try to grab photos in the background whenever we're online.
 window.addEventListener("load", ()=>{
   if(navigator.onLine) fetchQuestionPhotos(document.getElementById("photo-status"));
 });
 
 /* ================= GAME DATA =================
-   Every answer is 2012, 2013, 2014, or 2015 — the Oakleaf years. */
+   Every answer is 2012, 2013, 2014, or 2015 — the Oakleaf years.
+   Questions are ordered easiest → hardest-ish; tile value follows order. */
 const YEARS = [2012, 2013, 2014, 2015];
 
-const ROUNDS = [
-  {
-    id:"knights", emoji:"⚔️", title:"Knights Pride",
-    callout:"📣 OPEN FLOOR — one rep from each class, 2012 through 2015, come on up and defend your year!",
-    desc:"Oakleaf history. You were literally there for all of this.",
-    icebreaker:"What class are you, and what's one thing your class did better than the other three?",
+const CATS = {
+  knights: {
+    emoji:"⚔️", title:"Knights Pride",
+    dibs:"📣 Open floor — any class, come defend your year!",
+    icebreaker:"What class are you, and what did your class do better than the other three?",
     questions:[
+      {q:"And the easy one first… the baby class of tonight's crew — the Class of 2015 — turned their tassels and closed out the era.", year:2015, fact:"A free 100. If they miss this one, take their diploma back."},
       {q:"Oakleaf history was made: the FIRST-EVER class walked across that graduation stage.", year:2012, img:"oakleaf", fact:"The Class of 2012 — some of you in this room — were the very first Oakleaf graduates ever. The school had only opened in August 2010."},
-      {q:"A freshman named Shaq Quarterman showed up on campus — the future first Oakleaf Knight ever drafted into the NFL.", year:2012, img:"quarterman", fact:"He finished his Oakleaf career with 412 tackles, starred at Miami, and the Jaguars drafted him in 2020 — the first Knight to make the league."},
-      {q:"Tiger Woods won The Players Championship just up the road at TPC Sawgrass.", year:2013, img:"tiger", fact:"May 2013 — his second Players title, 12 years after his first."},
       {q:"Oakleaf football went 12–1 and won the school's FIRST district title in history.", year:2014, fact:"The 2014 Knights, with junior Shaq Quarterman leading the defense — after the program started out 0-10 in its first season."},
+      {q:"A freshman named Shaq Quarterman showed up on campus — the future first Oakleaf Knight ever drafted into the NFL.", year:2012, img:"quarterman", fact:"He finished his Oakleaf career with 412 tackles, starred at Miami, and the Jaguars drafted him in 2020 — the first Knight to make the league."},
       {q:"Florida State's Jameis Winston won the Heisman Trophy and FSU fans were absolutely insufferable about it.", year:2013, img:"jameis", fact:"December 2013 — youngest Heisman winner ever at the time, then FSU won the national title weeks later."},
-      {q:"And finally… the baby class of tonight's crew — the Class of 2015 — turned their tassels and closed out the era.", year:2015, fact:"A free point. If they miss this one, take their diploma back."},
+      {q:"Tiger Woods won The Players Championship just up the road at TPC Sawgrass.", year:2013, img:"tiger", fact:"May 2013 — his second Players title, 12 years after his first."},
     ]
   },
-  {
-    id:"parents", emoji:"👶", title:"Moms & Dads",
-    callout:"📣 This round is for any MOMS and DADS in the building — come on up!",
-    desc:"Parenthood-era pop culture. If you've heard “Let It Go” 4,000 times, this is your moment.",
-    icebreaker:"How many kids do you have — names and ages?",
+  parents: {
+    emoji:"👶", title:"Moms & Dads",
+    dibs:"📣 First dibs: any MOMS and DADS in the building!",
+    icebreaker:"Before you answer — how many kids, names and ages?",
     questions:[
-      {q:"Pixar's “Brave” gave every future girl-mom a curly-haired archer to name their daughter after.", year:2012, img:"brave", fact:"June 2012 — Merida won Pixar an Oscar for it."},
       {q:"Disney's “Frozen” hit theaters and “Let It Go” took over every car ride in America.", year:2013, img:"frozen", fact:"November 2013 — it became the highest-grossing animated movie ever at the time."},
-      {q:"Prince George was born and the world camped outside a hospital for a baby announcement.", year:2013, img:"george", fact:"July 2013 — the royal baby watch was 24/7 news for weeks."},
-      {q:"“The LEGO Movie” dropped and got “Everything Is Awesome” stuck in all of our heads.", year:2014, img:"lego", fact:"February 2014 — and somehow it did NOT get a Best Animated Feature nomination."},
       {q:"Pixar's “Inside Out” made every grown adult cry about an imaginary friend named Bing Bong.", year:2015, img:"insideout", fact:"June 2015 — Joy, Sadness, and a whole lot of feelings."},
+      {q:"“The LEGO Movie” dropped and got “Everything Is Awesome” stuck in all of our heads.", year:2014, img:"lego", fact:"February 2014 — and somehow it did NOT get a Best Animated Feature nomination."},
+      {q:"Prince George was born and the world camped outside a hospital for a baby announcement.", year:2013, img:"george", fact:"July 2013 — the royal baby watch was 24/7 news for weeks."},
+      {q:"Pixar's “Brave” gave every future girl-mom a curly-haired archer to name their daughter after.", year:2012, img:"brave", fact:"June 2012 — Merida won Pixar an Oscar for it."},
       {q:"Princess Charlotte arrived, completing the royal-baby double.", year:2015, img:"charlotte", fact:"May 2015 — born at the same hospital wing as her brother George."},
     ]
   },
-  {
-    id:"married", emoji:"💍", title:"Put a Ring on It",
-    callout:"📣 Anyone MARRIED or ENGAGED — grab your person and come on up!",
-    desc:"Love-and-weddings edition, from your high school years.",
-    icebreaker:"How did you two meet? Give us the 10-second version!",
+  married: {
+    emoji:"💍", title:"Put a Ring on It",
+    dibs:"📣 First dibs: anyone MARRIED or ENGAGED!",
+    icebreaker:"Before you answer — how'd you meet your person? 10 seconds!",
     questions:[
-      {q:"Carly Rae Jepsen's “Call Me Maybe” was THE song of the summer — here's my number, so call me, maybe.", year:2012, img:"callmemaybe", fact:"It spent 9 weeks at #1 in summer 2012."},
-      {q:"Kanye proposed to Kim by renting out an entire baseball stadium with a 50-piece orchestra.", year:2013, fact:"October 2013, AT&T Park in San Francisco — on her 33rd birthday."},
-      {q:"Beyoncé shocked the world by surprise-dropping a whole album overnight, featuring “Drunk in Love.”", year:2013, img:"beyonce", fact:"December 2013 — no announcement, no promo, just Beyoncé."},
-      {q:"Kim and Kanye got married in a massively over-the-top wedding in Florence, Italy.", year:2014, fact:"May 2014 — the flower wall alone reportedly cost a fortune."},
-      {q:"John Legend's “All of Me” hit #1 and instantly became the first-dance song at every wedding you've attended since.", year:2014, img:"allofme", fact:"May 2014 — written for his wife Chrissy Teigen."},
       {q:"The Supreme Court made marriage equality the law of the land in all 50 states.", year:2015, img:"obergefell", fact:"June 26, 2015 — Obergefell v. Hodges."},
+      {q:"Carly Rae Jepsen's “Call Me Maybe” was THE song of the summer — here's my number, so call me, maybe.", year:2012, img:"callmemaybe", fact:"It spent 9 weeks at #1 in summer 2012."},
+      {q:"Kim and Kanye got married in a massively over-the-top wedding in Florence, Italy.", year:2014, fact:"May 2014 — the flower wall alone reportedly cost a fortune."},
+      {q:"John Legend's “All of Me” hit #1 and instantly became the first-dance song at every wedding since.", year:2014, img:"allofme", fact:"May 2014 — written for his wife Chrissy Teigen."},
+      {q:"Beyoncé shocked the world by surprise-dropping a whole album overnight, featuring “Drunk in Love.”", year:2013, img:"beyonce", fact:"December 2013 — no announcement, no promo, just Beyoncé."},
+      {q:"Kanye proposed to Kim by renting out an entire baseball stadium with a 50-piece orchestra.", year:2013, fact:"October 2013, AT&T Park in San Francisco — on her 33rd birthday."},
     ]
   },
-  {
-    id:"movers", emoji:"✈️", title:"The Ones Who Left",
-    callout:"📣 Anyone who MOVED AWAY from the area — welcome home, now come on up!",
-    desc:"A round about going far, far away. Space-and-travel themed, naturally.",
-    icebreaker:"Where do you live now, and what took you there?",
+  pets: {
+    emoji:"🐾", title:"Pet Parents",
+    dibs:"📣 First dibs: anyone with a DOG, CAT, or any creature at home!",
+    icebreaker:"Before you answer — pet's name, and show us a picture!",
+    questions:[
+      {q:"Pizza Rat dragged an entire slice down the NYC subway stairs and became an icon.", year:2015, img:"pizzarat", fact:"September 2015 — a true New York hero."},
+      {q:"Grumpy Cat went viral and became the most famous frown on the internet.", year:2012, img:"grumpy", fact:"September 2012 — her real name was Tardar Sauce."},
+      {q:"Flappy Bird was deleted from the App Store by its own creator at the height of its fame.", year:2014, img:"flappy", fact:"February 2014 — it was earning ~$50k a DAY in ads when he pulled it."},
+      {q:"The Doge meme took over. Much wow. Very year. So guess.", year:2013, img:"doge", fact:"Doge exploded in 2013 — Kabosu the Shiba Inu became a legend."},
+      {q:"Two llamas escaped in Arizona and America stopped working to watch the chase live.", year:2015, fact:"February 2015 — the Great Llama Chase happened the SAME WEEK as The Dress."},
+      {q:"Grumpy Cat got her own made-for-TV Christmas MOVIE. A cat. A movie deal.", year:2014, fact:"November 2014 — “Grumpy Cat's Worst Christmas Ever,” voiced by Aubrey Plaza."},
+    ]
+  },
+  internet: {
+    emoji:"📱", title:"Chronically Online",
+    dibs:"📣 First dibs: anyone whose screen time report is over FIVE hours!",
+    icebreaker:"Before you answer — what's the oldest photo still on your Instagram?",
+    questions:[
+      {q:"THE DRESS. Look at it. Blue and black or white and gold? Friendships ended over this.", year:2015, img:"dress", fact:"February 2015 — for the record, the actual dress was blue and black."},
+      {q:"“Gangnam Style” became the first video EVER to hit one billion views on YouTube.", year:2012, img:"gangnam", fact:"December 2012 — YouTube's view counter wasn't even built for numbers that big."},
+      {q:"The Ice Bucket Challenge had everyone from your neighbor to Bill Gates dumping freezing water on their heads.", year:2014, img:"icebucket", fact:"Summer 2014 — it raised over $115 million for ALS research."},
+      {q:"The Harlem Shake craze: 30 seconds of chaos, filmed in every gym, office, and locker room in America.", year:2013, fact:"February 2013 — thousands of versions were uploaded per day at its peak."},
+      {q:"Kim Kardashian tried to “break the internet” with THAT magazine cover.", year:2014, fact:"November 2014 — Paper Magazine's servers genuinely struggled."},
+      {q:"Vine launched — six seconds of video that changed comedy forever.", year:2013, img:"vine", fact:"January 2013 — RIP to a legend, gone too soon."},
+    ]
+  },
+  hometown: {
+    emoji:"🌴", title:"Duval 'Til We Die",
+    dibs:"📣 First dibs: anyone who STILL LIVES in the 904!",
+    icebreaker:"Before you answer — biggest change around town since we graduated?",
+    questions:[
+      {q:"The Jaguars drafted Blake Bortles 3rd overall and hope was alive in Duval.", year:2014, img:"bortles", fact:"May 2014 — out of UCF, just down I-95."},
+      {q:"The Jaguars unveiled their new logo and those two-tone gold-to-black helmets.", year:2013, img:"jagslogo", fact:"February 2013 — the gradient helmet remains one of the boldest looks in NFL history."},
+      {q:"EverBank Field unveiled the WORLD'S LARGEST scoreboards… and swimming pools in the end zone.", year:2014, img:"everbank", fact:"July 2014 — 362 feet of video board, a world record, plus actual wading pools."},
+      {q:"Shad Khan officially took over as owner of the Jaguars, mustache and all.", year:2012, img:"khan", fact:"January 2012 — he became the first minority owner of an NFL team."},
+      {q:"The Jacksonville Armada kicked off their first-ever season of pro soccer.", year:2015, img:"armada", fact:"2015 — their debut drew one of the biggest crowds in modern NASL history."},
+      {q:"One Spark, the giant crowdfunding festival, took over downtown Jacksonville for the first time.", year:2013, fact:"April 2013 — about 130,000 people came out over five days."},
+    ]
+  },
+  movers: {
+    emoji:"✈️", title:"The Ones Who Left",
+    dibs:"📣 First dibs: anyone who MOVED AWAY — welcome home!",
+    icebreaker:"Before you answer — where do you live now, and what took you there?",
     questions:[
       {q:"NASA's Curiosity rover stuck the landing on Mars — the ultimate “I'm moving away” story.", year:2012, img:"curiosity", fact:"August 2012 — the “seven minutes of terror” landing went perfectly."},
-      {q:"Felix Baumgartner jumped from the edge of space and broke the sound barrier with his BODY.", year:2012, img:"stratos", fact:"October 2012 — 24 miles up, livestreamed to 8 million people."},
+      {q:"Matt Damon got left behind on Mars and science'd his way home in “The Martian.”", year:2015, img:"martian", fact:"October 2015 — he grew potatoes in… well, you remember."},
       {q:"“Gravity” with Sandra Bullock had everyone terrified of space (and won 7 Oscars).", year:2013, img:"gravity", fact:"October 2013 — directed by Alfonso Cuarón."},
       {q:"“Interstellar” melted our brains with black holes, bookshelves, and that Hans Zimmer organ.", year:2014, img:"interstellar", fact:"November 2014 — “Murph!”"},
       {q:"NASA's New Horizons flew past Pluto and sent back the first close-up photos ever.", year:2015, img:"pluto", fact:"July 2015 — after a 9-year, 3-billion-mile trip."},
-      {q:"Matt Damon got left behind on Mars and science'd his way home in “The Martian.”", year:2015, img:"martian", fact:"October 2015 — he grew potatoes in… well, you remember."},
+      {q:"Felix Baumgartner jumped from the edge of space and broke the sound barrier with his BODY.", year:2012, img:"stratos", fact:"October 2012 — 24 miles up, livestreamed to 8 million people."},
     ]
   },
-  {
-    id:"bosses", emoji:"💼", title:"Bosses & Side Hustlers",
-    callout:"📣 Anyone who OWNS A BUSINESS or runs a side hustle — come on up!",
-    desc:"Money moves from your high school years.",
-    icebreaker:"Pitch us what you do — one sentence, make it good!",
+  bosses: {
+    emoji:"💼", title:"Bosses & Hustlers",
+    dibs:"📣 First dibs: anyone who OWNS A BUSINESS or runs a side hustle!",
+    icebreaker:"Before you answer — pitch us what you do, one sentence!",
     questions:[
-      {q:"Facebook bought Instagram for a billion dollars and everyone thought that was an insane price. It was not.", year:2012, img:"instagram", fact:"April 2012 — Instagram had just 13 employees at the time."},
-      {q:"Facebook went public in one of the biggest IPOs in history.", year:2012, fact:"May 2012 — valued at $104 billion on day one."},
-      {q:"“The Wolf of Wall Street” hit theaters and gave us three hours of Leo selling pens.", year:2013, img:"wolf", fact:"December 2013 — it set a record for profanity in a feature film."},
-      {q:"Elon Musk published his “Hyperloop” paper and everyone briefly believed we'd commute in tubes.", year:2013, img:"hyperloop", fact:"August 2013 — still waiting on that tube."},
-      {q:"Facebook bought WhatsApp for a jaw-dropping $19 BILLION.", year:2014, img:"whatsapp", fact:"February 2014 — one of the biggest tech deals ever."},
       {q:"The Apple Watch finally went on sale and wrists were never the same.", year:2015, img:"applewatch", fact:"April 2015 — Apple's first all-new product since the iPad."},
+      {q:"Facebook bought Instagram for a billion dollars and everyone thought that was an insane price. It was not.", year:2012, img:"instagram", fact:"April 2012 — Instagram had just 13 employees at the time."},
+      {q:"“The Wolf of Wall Street” hit theaters and gave us three hours of Leo selling pens.", year:2013, img:"wolf", fact:"December 2013 — it set a record for profanity in a feature film."},
+      {q:"Facebook bought WhatsApp for a jaw-dropping $19 BILLION.", year:2014, img:"whatsapp", fact:"February 2014 — one of the biggest tech deals ever."},
+      {q:"Facebook went public in one of the biggest IPOs in history.", year:2012, fact:"May 2012 — valued at $104 billion on day one."},
+      {q:"Elon Musk published his “Hyperloop” paper and everyone briefly believed we'd commute in tubes.", year:2013, img:"hyperloop", fact:"August 2013 — still waiting on that tube."},
     ]
   },
-  {
-    id:"pets", emoji:"🐾", title:"Pet Parents",
-    callout:"📣 Anyone with a DOG, CAT, or any creature at home — come on up!",
-    desc:"The golden age of animal internet, which happened to be while you were at Oakleaf.",
-    icebreaker:"What's your pet's name — and show us a picture on your phone!",
+  scholars: {
+    emoji:"🎓", title:"Degree Collectors",
+    dibs:"📣 First dibs: anyone who went on to college or got certified in anything!",
+    icebreaker:"Before you answer — what did you study, and do you actually use it?",
     questions:[
-      {q:"Grumpy Cat went viral and became the most famous frown on the internet.", year:2012, img:"grumpy", fact:"September 2012 — her real name was Tardar Sauce."},
-      {q:"The Doge meme took over. Much wow. Very year. So guess.", year:2013, img:"doge", fact:"Doge exploded in 2013 — Kabosu the Shiba Inu became a legend."},
-      {q:"Flappy Bird was deleted from the App Store by its own creator at the height of its fame.", year:2014, img:"flappy", fact:"February 2014 — it was earning ~$50k a DAY in ads when he pulled it."},
-      {q:"Grumpy Cat got her own made-for-TV Christmas MOVIE. A cat. A movie deal.", year:2014, fact:"November 2014 — “Grumpy Cat's Worst Christmas Ever,” voiced by Aubrey Plaza."},
-      {q:"Two llamas escaped in Arizona and America stopped working to watch the chase live.", year:2015, fact:"February 2015 — the Great Llama Chase happened the SAME WEEK as The Dress."},
-      {q:"Pizza Rat dragged an entire slice down the NYC subway stairs and became an icon.", year:2015, img:"pizzarat", fact:"September 2015 — a true New York hero."},
-    ]
-  },
-  {
-    id:"hometown", emoji:"🌴", title:"Duval 'Til We Die",
-    callout:"📣 Anyone who STILL LIVES in the 904 — never left, never will — come on up!",
-    desc:"Jacksonville and Jaguars happenings from your Oakleaf years. DUUUVAL!",
-    icebreaker:"What's the biggest change around town since we graduated?",
-    questions:[
-      {q:"Shad Khan officially took over as owner of the Jaguars, mustache and all.", year:2012, img:"khan", fact:"January 2012 — he became the first minority owner of an NFL team."},
-      {q:"The Jaguars unveiled their new logo and those two-tone gold-to-black helmets.", year:2013, img:"jagslogo", fact:"February 2013 — the gradient helmet remains one of the boldest looks in NFL history."},
-      {q:"One Spark, the giant crowdfunding festival, took over downtown Jacksonville for the first time.", year:2013, fact:"April 2013 — about 130,000 people came out over five days."},
-      {q:"The Jaguars drafted Blake Bortles 3rd overall and hope was alive in Duval.", year:2014, img:"bortles", fact:"May 2014 — out of UCF, just down I-95."},
-      {q:"EverBank Field unveiled the WORLD'S LARGEST scoreboards… and swimming pools in the end zone.", year:2014, img:"everbank", fact:"July 2014 — 362 feet of video board, a world record, plus actual wading pools."},
-      {q:"The Jacksonville Armada kicked off their first-ever season of pro soccer.", year:2015, img:"armada", fact:"2015 — their debut drew one of the biggest crowds in modern NASL history."},
-    ]
-  },
-  {
-    id:"internet", emoji:"📱", title:"Chronically Online",
-    callout:"📣 If your screen time report is over FIVE HOURS a day — be honest — come on up!",
-    desc:"The viral moments that defined the timeline while you were at Oakleaf.",
-    icebreaker:"What's the oldest photo still on your phone or Instagram?",
-    questions:[
-      {q:"“Gangnam Style” became the first video EVER to hit one billion views on YouTube.", year:2012, img:"gangnam", fact:"December 2012 — YouTube's view counter wasn't even built for numbers that big."},
-      {q:"Vine launched — six seconds of video that changed comedy forever.", year:2013, img:"vine", fact:"January 2013 — RIP to a legend, gone too soon."},
-      {q:"The Harlem Shake craze: 30 seconds of chaos, filmed in every gym, office, and locker room in America.", year:2013, fact:"February 2013 — thousands of versions were uploaded per day at its peak."},
-      {q:"The Ice Bucket Challenge had everyone from your neighbor to Bill Gates dumping freezing water on their heads.", year:2014, img:"icebucket", fact:"Summer 2014 — it raised over $115 million for ALS research."},
-      {q:"Kim Kardashian tried to “break the internet” with THAT magazine cover.", year:2014, fact:"November 2014 — Paper Magazine's servers genuinely struggled."},
-      {q:"THE DRESS. Look at it. Blue and black or white and gold? Friendships ended over this.", year:2015, img:"dress", fact:"February 2015 — for the record, the actual dress was blue and black."},
-    ]
-  },
-  {
-    id:"scholars", emoji:"🎓", title:"Degree Collectors",
-    callout:"📣 Anyone who went on to COLLEGE, grad school, or got certified in anything — come on up!",
-    desc:"For the ones who kept doing homework on purpose.",
-    icebreaker:"What did you study — and do you actually use it?",
-    questions:[
-      {q:"Scientists found the Higgs boson — the “God particle” your physics teacher wouldn't shut up about.", year:2012, img:"higgs", fact:"July 2012 — confirmed at CERN after a 48-year search."},
       {q:"The Mayan calendar “end of the world” came and went… and we all survived to laugh about it.", year:2012, img:"mayan", fact:"December 21, 2012 — doomsday parties happened worldwide. Nothing happened."},
-      {q:"“The Great Gatsby” hit theaters — required reading turned into a Leo-with-a-champagne-glass meme.", year:2013, img:"gatsby", fact:"May 2013 — Baz Luhrmann, Jay-Z soundtrack, English teachers everywhere conflicted."},
+      {q:"“Hamilton” opened on Broadway and suddenly everyone was rapping about the Federalist Papers.", year:2015, img:"hamilton", fact:"August 2015 — tickets became nearly impossible to get."},
       {q:"“Selfie” was crowned Word of the Year by Oxford Dictionaries.", year:2013, fact:"2013 — usage of the word had jumped 17,000% that year."},
       {q:"Malala Yousafzai became the youngest Nobel Peace Prize winner in history at age 17.", year:2014, img:"malala", fact:"October 2014 — for her fight for girls' education."},
-      {q:"“Hamilton” opened on Broadway and suddenly everyone was rapping about the Federalist Papers.", year:2015, img:"hamilton", fact:"August 2015 — tickets became nearly impossible to get."},
+      {q:"“The Great Gatsby” hit theaters — required reading turned into a Leo-with-a-champagne-glass meme.", year:2013, img:"gatsby", fact:"May 2013 — Baz Luhrmann, Jay-Z soundtrack, English teachers everywhere conflicted."},
+      {q:"Scientists found the Higgs boson — the “God particle” your physics teacher wouldn't shut up about.", year:2012, img:"higgs", fact:"July 2012 — confirmed at CERN after a 48-year search."},
     ]
   },
-  {
-    id:"weddings", emoji:"🕺", title:"Wedding Season Veterans",
-    callout:"📣 Anyone who's survived THREE OR MORE weddings since graduation — come on up!",
-    desc:"Dance-floor anthems from the Oakleaf years. You've definitely done these moves in a banquet hall.",
-    icebreaker:"How many weddings have you been to since graduation — and which one was the best?",
+  weddings: {
+    emoji:"🕺", title:"Wedding Season Vets",
+    dibs:"📣 First dibs: anyone who's survived 3+ weddings since graduation!",
+    icebreaker:"Before you answer — how many weddings since graduation, and which was best?",
     questions:[
-      {q:"Gotye's “Somebody That I Used to Know” was inescapable — now you're just a yearbook that I used to know.", year:2012, img:"gotye", fact:"It was Billboard's #1 song of the entire year, 2012."},
-      {q:"“Blurred Lines” was the song of the summer, for better or worse.", year:2013, img:"blurred", fact:"Summer 2013 — 12 weeks at #1."},
-      {q:"Miley Cyrus's twerk-heavy VMA performance broke the internet and launched a thousand think pieces.", year:2013, fact:"August 2013 — the foam finger heard 'round the world."},
-      {q:"Pharrell's “Happy” sat at #1 forever and played at literally every event on Earth.", year:2014, img:"happy", fact:"It was the best-selling song of 2014 — clap along if you feel like a room without a roof."},
-      {q:"“Uptown Funk” took over and gave every wedding DJ an automatic floor-filler.", year:2015, img:"uptown", fact:"It opened 2015 with 14 straight weeks at #1 — don't believe me, just watch."},
       {q:"“Watch Me (Whip / Nae Nae)” had every wedding, gym class, and family cookout doing the same dance.", year:2015, img:"whip", fact:"Silentó released it in 2015 — now watch me bob, bob, bob…"},
+      {q:"“Uptown Funk” took over and gave every wedding DJ an automatic floor-filler.", year:2015, img:"uptown", fact:"It opened 2015 with 14 straight weeks at #1 — don't believe me, just watch."},
+      {q:"Pharrell's “Happy” sat at #1 forever and played at literally every event on Earth.", year:2014, img:"happy", fact:"It was the best-selling song of 2014 — clap along if you feel like a room without a roof."},
+      {q:"Gotye's “Somebody That I Used to Know” was inescapable — now you're just a yearbook that I used to know.", year:2012, img:"gotye", fact:"It was Billboard's #1 song of the entire year, 2012."},
+      {q:"Miley Cyrus's twerk-heavy VMA performance broke the internet and launched a thousand think pieces.", year:2013, fact:"August 2013 — the foam finger heard 'round the world."},
+      {q:"“Blurred Lines” was the song of the summer, for better or worse.", year:2013, img:"blurred", fact:"Summer 2013 — 12 weeks at #1."},
     ]
   },
-  {
-    id:"lightning", emoji:"⚡", title:"Lightning Round · FINALE", lightning:true,
-    callout:"📣 FINAL ROUND — top scorers, rivals, or ANYONE brave enough — come on up! Every question is worth DOUBLE.",
-    desc:"Eight rapid-fire questions. Two points each. This is where champions are made.",
-    icebreaker:"In one word: how would your high school self describe your life now?",
-    questions:[
-      {q:"The London Summer Olympics — the Queen “parachuted” in with James Bond.", year:2012, img:"olympics", fact:"The opening ceremony stunt with Daniel Craig is still legendary."},
-      {q:"“The Avengers” assembled on screen for the very first time.", year:2012, img:"avengers", fact:"May 2012 — shawarma scene and all."},
-      {q:"Pope Francis was elected — the first pope from the Americas.", year:2013, img:"pope", fact:"March 2013, after Benedict XVI became the first pope to resign in ~600 years."},
-      {q:"“What Does the Fox Say” asked the question nobody needed answered. Ring-ding-ding-ding.", year:2013, img:"fox", fact:"September 2013 — Ylvis never escaped it."},
-      {q:"Ellen's celebrity-packed Oscars selfie became the most retweeted post ever (at the time).", year:2014, img:"ellen", fact:"March 2014 — it briefly crashed Twitter."},
-      {q:"Taylor Swift dropped “1989” and “Shake It Off” — and officially went full pop.", year:2014, img:"taylor", fact:"October 2014 — 1989 sold 1.28 million copies in its first week."},
-      {q:"Adele said “Hello” after years of silence and shattered every streaming record.", year:2015, img:"hello", fact:"October 2015 — first song ever to hit a million US downloads in a week."},
-      {q:"“Star Wars: The Force Awakens” brought lightsabers back to theaters.", year:2015, img:"starwars", fact:"December 2015 — it became the highest-grossing film ever in the US."},
-    ]
-  },
-];
-
-const INSIDER_META = {
-  id:"insider", emoji:"📝", title:"Class Insiders",
-  callout:"📣 SUPERFANS ONLY — if you think you remember EVERYTHING about Oakleaf, come on up!",
-  desc:"Written by your hosts. Real Oakleaf deep cuts — no Googling your way out of this one.",
-  icebreaker:"What's your single favorite memory from your time at Oakleaf?",
 };
 
-const WHO_META = {
-  id:"who", emoji:"🖼️", title:"Guess Who · Yearbook Edition", whoRound:true,
-  callout:"📣 Think you still know every FACE in that yearbook? Come on up and prove it!",
-  desc:"A yearbook photo goes up on screen. Name that Knight. Host has final judgement — partial credit is between you and your conscience.",
-  icebreaker:"Who from our class have you completely lost touch with but think about?",
+const FINALS = [
+  {q:"The London Summer Olympics — the Queen “parachuted” in with James Bond.", year:2012, img:"olympics", fact:"The opening ceremony stunt with Daniel Craig is still legendary."},
+  {q:"“The Avengers” assembled on screen for the very first time.", year:2012, img:"avengers", fact:"May 2012 — shawarma scene and all."},
+  {q:"Pope Francis was elected — the first pope from the Americas.", year:2013, img:"pope", fact:"March 2013, after Benedict XVI became the first pope to resign in ~600 years."},
+  {q:"“What Does the Fox Say” asked the question nobody needed answered. Ring-ding-ding-ding.", year:2013, img:"fox", fact:"September 2013 — Ylvis never escaped it."},
+  {q:"Ellen's celebrity-packed Oscars selfie became the most retweeted post ever (at the time).", year:2014, img:"ellen", fact:"March 2014 — it briefly crashed Twitter."},
+  {q:"Taylor Swift dropped “1989” and “Shake It Off” — and officially went full pop.", year:2014, img:"taylor", fact:"October 2014 — 1989 sold 1.28 million copies in its first week."},
+  {q:"Adele said “Hello” after years of silence and shattered every streaming record.", year:2015, img:"hello", fact:"October 2015 — first song ever to hit a million US downloads in a week."},
+  {q:"“Star Wars: The Force Awakens” brought lightsabers back to theaters.", year:2015, img:"starwars", fact:"December 2015 — it became the highest-grossing film ever in the US."},
+];
+
+const BOARDS = [
+  {name:"Board 1", mult:1, cats:["knights","parents","married","pets","internet","who"]},
+  {name:"Board 2 · DOUBLE ⚡", mult:2, cats:["hometown","movers","bosses","scholars","weddings","insider"]},
+];
+const ROWS = 6;
+
+const WHO_CAT = {
+  emoji:"🖼️", title:"Guess Who",
+  dibs:"📣 Anyone who thinks they still know every FACE in that yearbook!",
+  icebreaker:"Before you answer — who from our class have you totally lost touch with?",
+};
+const INSIDER_CAT = {
+  emoji:"📝", title:"Class Insiders",
+  dibs:"📣 Oakleaf SUPERFANS only — deep cuts ahead!",
+  icebreaker:"Before you answer — your single favorite Oakleaf memory?",
 };
 
 /* ================= STATE ================= */
 const STORAGE_KEY = "oakleafReunionTrivia";
-let state = { scores:{}, doneRounds:[], custom:[], who:[] };
-try {
-  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  if (saved && saved.scores) state = saved;
-  if (!state.custom) state.custom = [];
-  if (!state.who) state.who = [];
-} catch(e){}
-
+let state = null;
+try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e){}
+if(!state || state.v !== 2){
+  state = { v:2, players:{}, used:{}, finalUsed:0,
+            custom:(state && state.custom)||[], who:(state && state.who)||[] };
+}
 function save(){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   catch(e){ alert("Storage is full — try removing a couple of Guess Who photos."); }
 }
 
-let current = null; // {round, names:[], qIndex, answered, roundScores:{}}
+let boardIdx = 0;
+let current = null; // {q, pts, cat, isWho, key}
 
 /* ================= NAVIGATION ================= */
 function show(id){
@@ -646,60 +611,262 @@ function show(id){
   window.scrollTo(0,0);
 }
 
-function goRounds(){
-  const grid = document.getElementById("roundgrid");
-  grid.innerHTML = "";
-  ROUNDS.forEach(r=>{
-    if(r.lightning) return; // lightning goes last
-    grid.appendChild(roundCard(r));
-  });
-
-  // Guess Who card
-  const whoDone = state.doneRounds.includes("who");
-  const whoCard = document.createElement("button");
-  whoCard.className = "roundcard who-card" + (whoDone ? " done" : "");
-  whoCard.onclick = openWhoEditor;
-  whoCard.innerHTML = `
-    ${whoDone ? '<span class="donebadge">PLAYED ✓</span>' : ''}
-    <div class="remoji">🖼️</div>
-    <h3>Guess Who <span style="font-size:.8em; color:var(--pink);">· yearbook edition</span></h3>
-    <p>Yearbook headshots up on the big screen — name that Knight!</p>
-    <div class="qcount">${state.who.length} photo${state.who.length===1?"":"s"} loaded · tap to add/play</div>`;
-  grid.appendChild(whoCard);
-
-  // Custom insider round card
-  const done = state.doneRounds.includes("insider");
-  const card = document.createElement("button");
-  card.className = "roundcard insider-card" + (done ? " done" : "");
-  card.onclick = openEditor;
-  card.innerHTML = `
-    ${done ? '<span class="donebadge">PLAYED ✓</span>' : ''}
-    <div class="remoji">📝</div>
-    <h3>Class Insiders <span style="font-size:.8em; color:var(--teal);">· write your own</span></h3>
-    <p>Teachers, prom themes, the senior prank — add your own Oakleaf deep cuts before the party.</p>
-    <div class="qcount">${state.custom.length} question${state.custom.length===1?"":"s"} written · tap to add/play</div>`;
-  grid.appendChild(card);
-
-  const lightning = ROUNDS.find(r=>r.lightning);
-  grid.appendChild(roundCard(lightning));
-
-  document.getElementById("pill-players").innerHTML =
-    `Players: <b>${Object.keys(state.scores).length}</b>`;
-  show("screen-rounds");
+/* ================= BOARD ================= */
+function catMeta(id){
+  if(id==="who") return WHO_CAT;
+  if(id==="insider") return INSIDER_CAT;
+  return CATS[id];
+}
+function catQuestions(id){
+  if(id==="who") return state.who.filter(p=>p.name && p.name.trim()).slice(0,ROWS).map(p=>({who:p}));
+  if(id==="insider") return state.custom.slice(0,ROWS);
+  return CATS[id].questions;
 }
 
-function roundCard(r){
-  const done = state.doneRounds.includes(r.id);
-  const card = document.createElement("button");
-  card.className = "roundcard" + (done ? " done" : "") + (r.lightning ? " lightning-card" : "");
-  card.onclick = ()=>openIntro(r);
-  card.innerHTML = `
-    ${done ? '<span class="donebadge">PLAYED ✓</span>' : ''}
-    <div class="remoji">${r.emoji}</div>
-    <h3>${r.title}</h3>
-    <p>${r.callout.replace("📣 ","")}</p>
-    <div class="qcount">${r.questions.length} questions${r.lightning ? " · 2 pts each" : ""}</div>`;
-  return card;
+function goBoard(){
+  const sw = document.getElementById("boardswitch");
+  sw.innerHTML = "";
+  BOARDS.forEach((b,i)=>{
+    const btn = document.createElement("button");
+    btn.textContent = b.name;
+    btn.className = i===boardIdx ? "sel" : "";
+    btn.onclick = ()=>{ boardIdx = i; goBoard(); };
+    sw.appendChild(btn);
+  });
+
+  const board = BOARDS[boardIdx];
+  const grid = document.getElementById("board");
+  grid.innerHTML = "";
+
+  board.cats.forEach(cid=>{
+    const meta = catMeta(cid);
+    const head = document.createElement("div");
+    head.className = "cathead";
+    head.innerHTML = `<div class="ce">${meta.emoji}</div><div class="ct">${meta.title}</div>`;
+    if(cid==="who" || cid==="insider"){
+      const ed = document.createElement("button");
+      ed.className = "edit";
+      ed.textContent = "✎";
+      ed.title = "Add your own";
+      ed.onclick = (e)=>{ e.stopPropagation(); cid==="who" ? openWhoEditor() : openEditor(); };
+      head.appendChild(ed);
+    }
+    grid.appendChild(head);
+  });
+
+  for(let row=0; row<ROWS; row++){
+    board.cats.forEach(cid=>{
+      const qs = catQuestions(cid);
+      const key = `${boardIdx}:${cid}:${row}`;
+      const pts = (row+1)*100*board.mult;
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      const used = state.used[key];
+      const exists = row < qs.length;
+      tile.disabled = used || !exists;
+      tile.textContent = used ? "" : (exists ? pts : "·");
+      if(!exists) tile.title = cid==="who" ? "Add more photos via ✎" : (cid==="insider" ? "Write more questions via ✎" : "");
+      tile.onclick = ()=>openTile(cid, row, pts, key);
+      grid.appendChild(tile);
+    });
+  }
+
+  const remaining = FINALS.length - state.finalUsed;
+  const lb = document.getElementById("btn-lightning");
+  lb.disabled = remaining<=0;
+  lb.textContent = remaining>0 ? `⚡ Lightning bonus (1,000 pts) · ${remaining} left` : "⚡ Lightning — all used!";
+
+  renderPlayersBar();
+  show("screen-board");
+}
+
+function renderPlayersBar(){
+  const bar = document.getElementById("players-bar");
+  bar.innerHTML = "";
+  Object.entries(state.players).sort((a,b)=>b[1]-a[1]).forEach(([n,p])=>{
+    const el = document.createElement("span");
+    el.className = "player";
+    el.innerHTML = `${n} <span class="sc">${p.toLocaleString()}</span>`;
+    bar.appendChild(el);
+  });
+  const add = document.createElement("span");
+  add.className = "addplayer";
+  const inp = document.createElement("input");
+  inp.placeholder = "＋ Add player…";
+  inp.onkeydown = (e)=>{
+    if(e.key==="Enter" && inp.value.trim()){
+      addPlayer(inp.value);
+      inp.value = "";
+      renderPlayersBar();
+    }
+  };
+  add.appendChild(inp);
+  bar.appendChild(add);
+}
+
+function addPlayer(name){
+  name = name.trim().replace(/\s+/g," ");
+  if(!name) return null;
+  const existing = Object.keys(state.players).find(n=>n.toLowerCase()===name.toLowerCase());
+  if(existing) return existing;
+  state.players[name] = 0;
+  save();
+  return name;
+}
+
+/* ================= QUESTION ================= */
+function openTile(cid, row, pts, key){
+  const qs = catQuestions(cid);
+  const q = qs[row];
+  if(!q) return;
+  const meta = catMeta(cid);
+  current = { q, pts, key, isWho: cid==="who", awarded:false, answered:false };
+  document.getElementById("q-cat").textContent = `${meta.emoji} ${meta.title}`;
+  document.getElementById("q-value").textContent = pts.toLocaleString() + " pts";
+  document.getElementById("q-dibs").textContent = meta.dibs;
+  document.getElementById("q-ice").textContent = "🎤 " + meta.icebreaker;
+  renderQuestionBody();
+  show("screen-question");
+}
+
+function openLightning(){
+  if(state.finalUsed >= FINALS.length) return;
+  const q = FINALS[state.finalUsed];
+  current = { q, pts:1000, key:null, isWho:false, isFinal:true, awarded:false, answered:false };
+  document.getElementById("q-cat").textContent = "⚡ Lightning Bonus";
+  document.getElementById("q-value").textContent = "1,000 pts";
+  document.getElementById("q-dibs").textContent = "📣 ANYONE brave enough — this one's worth a thousand!";
+  document.getElementById("q-ice").textContent = "🎤 One word: how would your high-school self describe your life now?";
+  renderQuestionBody();
+  show("screen-question");
+}
+
+function renderQuestionBody(){
+  const q = current.q;
+  document.getElementById("q-verdict").textContent = "";
+  document.getElementById("q-fact").textContent = "";
+  document.getElementById("q-judge").innerHTML = "";
+  document.getElementById("awardbar").classList.remove("on");
+  document.getElementById("btn-back").style.visibility = "hidden";
+  const yearsWrap = document.getElementById("q-years");
+  yearsWrap.innerHTML = "";
+  const photo = document.getElementById("q-photo");
+
+  if(current.isWho){
+    photo.src = q.who.img;
+    photo.style.display = "block";
+    document.getElementById("q-text").textContent = "Name that Knight!";
+    document.getElementById("q-prompt").textContent = "Who is this?";
+    document.getElementById("q-keyhint").textContent = "Host: hit Reveal when they've locked in a guess";
+    const reveal = document.createElement("button");
+    reveal.className = "btn";
+    reveal.textContent = "Reveal 👀";
+    reveal.onclick = ()=>{
+      current.answered = true;
+      document.getElementById("q-judge").innerHTML = "";
+      document.getElementById("q-verdict").innerHTML = `It's <span class="pts">${escapeHtml(q.who.name)}</span>!`;
+      if(q.who.hint) document.getElementById("q-fact").textContent = "💡 " + q.who.hint;
+      showAwardBar();
+    };
+    document.getElementById("q-judge").appendChild(reveal);
+    return;
+  }
+
+  const embedded = q.img && IMGS[q.img];
+  photo.style.display = embedded ? "block" : "none";
+  if(embedded) photo.src = IMGS[q.img];
+  document.getElementById("q-text").textContent = q.q;
+  document.getElementById("q-prompt").textContent = "What year did it happen?";
+  document.getElementById("q-keyhint").textContent = "Host keys: 1–4 to lock in the year they shout";
+
+  YEARS.forEach((y)=>{
+    const b = document.createElement("button");
+    b.className = "yearbtn";
+    b.textContent = y;
+    b.onclick = ()=>answer(y, b);
+    yearsWrap.appendChild(b);
+  });
+}
+
+function answer(year, btn){
+  if(current.answered) return;
+  current.answered = true;
+  const q = current.q;
+  const right = year === q.year;
+
+  document.querySelectorAll("#q-years .yearbtn").forEach(b=>{
+    b.disabled = true;
+    const y = parseInt(b.textContent,10);
+    if(y === q.year) b.classList.add("correct");
+    else if(b === btn) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  document.getElementById("q-verdict").innerHTML = right
+    ? `✅ Correct — <span class="pts">${q.year}</span>!`
+    : `❌ So close! It was <b>${q.year}</b>.`;
+  document.getElementById("q-fact").textContent = "💡 " + q.fact;
+  if(right) burstConfetti(60);
+  showAwardBar();
+}
+
+function showAwardBar(){
+  const bar = document.getElementById("awardbar");
+  document.getElementById("award-pts").textContent = current.pts.toLocaleString();
+  const wrap = document.getElementById("award-players");
+  wrap.innerHTML = "";
+  Object.keys(state.players).forEach(n=>{
+    wrap.appendChild(awardChip(n));
+  });
+  const add = document.createElement("span");
+  add.className = "addplayer";
+  const inp = document.createElement("input");
+  inp.placeholder = "＋ New player…";
+  inp.onkeydown = (e)=>{
+    if(e.key==="Enter" && inp.value.trim()){
+      const n = addPlayer(inp.value);
+      if(n) awardTo(n);
+    }
+  };
+  add.appendChild(inp);
+  wrap.appendChild(add);
+  bar.classList.add("on");
+}
+
+function awardChip(n){
+  const el = document.createElement("span");
+  el.className = "player clicky";
+  el.innerHTML = `${escapeHtml(n)} <span class="sc">+${current.pts.toLocaleString()}</span>`;
+  el.onclick = ()=>awardTo(n);
+  return el;
+}
+
+function awardTo(name){
+  if(current.awarded) return;
+  current.awarded = true;
+  state.players[name] = (state.players[name]||0) + current.pts;
+  save();
+  document.getElementById("awardbar").classList.remove("on");
+  document.getElementById("q-verdict").innerHTML +=
+    ` <span class="pts">🎉 +${current.pts.toLocaleString()} for ${escapeHtml(name)}</span>`;
+  burstConfetti(90);
+  document.getElementById("btn-back").style.visibility = "visible";
+}
+
+function closeQuestion(){
+  if(current){
+    if(current.key) state.used[current.key] = true;
+    if(current.isFinal) state.finalUsed++;
+    save();
+  }
+  current = null;
+  goBoard();
+}
+
+function escapeHtml(s){
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
 }
 
 /* ================= GUESS WHO EDITOR ================= */
@@ -735,7 +902,6 @@ function addWhoPhotos(files){
 
 function renderWhoList(){
   document.getElementById("who-count").textContent = state.who.length;
-  document.getElementById("who-play").disabled = state.who.length===0;
   const list = document.getElementById("who-list");
   list.innerHTML = "";
   state.who.forEach((p,i)=>{
@@ -760,14 +926,6 @@ function renderWhoList(){
     row.appendChild(img); row.appendChild(fields); row.appendChild(del);
     list.appendChild(row);
   });
-}
-
-function playWho(){
-  const ready = state.who.filter(p=>p.name.trim());
-  if(ready.length===0){ alert("Add at least one photo with a name filled in!"); return; }
-  if(ready.length < state.who.length &&
-     !confirm(`${state.who.length-ready.length} photo(s) have no name yet and will be skipped. Play anyway?`)) return;
-  openIntro({ ...WHO_META, questions: ready.map(p=>({who:p})) });
 }
 
 /* ================= INSIDER EDITOR ================= */
@@ -809,15 +967,8 @@ function addCustomQ(){
   document.getElementById("ed-q").focus();
 }
 
-function removeCustomQ(i){
-  state.custom.splice(i,1);
-  save();
-  renderEdList();
-}
-
 function renderEdList(){
   document.getElementById("ed-count").textContent = state.custom.length;
-  document.getElementById("ed-play").disabled = state.custom.length===0;
   const list = document.getElementById("ed-list");
   list.innerHTML = "";
   state.custom.forEach((item,i)=>{
@@ -830,229 +981,15 @@ function renderEdList(){
     yr.textContent = item.year;
     const del = document.createElement("button");
     del.textContent = "✕";
-    del.onclick = ()=>removeCustomQ(i);
+    del.onclick = ()=>{ state.custom.splice(i,1); save(); renderEdList(); };
     row.appendChild(span); row.appendChild(yr); row.appendChild(del);
     list.appendChild(row);
   });
 }
 
-function playInsiders(){
-  if(state.custom.length===0) return;
-  openIntro({ ...INSIDER_META, questions: state.custom });
-}
-
-/* ================= ROUND INTRO ================= */
-function openIntro(r){
-  current = { round:r, names:[], qIndex:0, answered:false, roundScores:{} };
-  document.getElementById("intro-emoji").textContent = r.emoji;
-  document.getElementById("intro-callout").textContent = r.callout;
-  document.getElementById("intro-desc").textContent = r.desc;
-  document.getElementById("intro-icebreaker").textContent = r.icebreaker;
-  document.getElementById("intro-pill").innerHTML =
-    `${r.title} · <b>${r.questions.length} Qs${r.lightning ? " · DOUBLE PTS" : ""}</b>`;
-  renderChips();
-  show("screen-intro");
-  document.getElementById("name-input").focus();
-}
-
-function addName(){
-  const input = document.getElementById("name-input");
-  const name = input.value.trim().replace(/\s+/g," ");
-  if(!name) return;
-  const exists = current.names.some(n=>n.toLowerCase()===name.toLowerCase());
-  if(!exists) current.names.push(name);
-  input.value = "";
-  input.focus();
-  renderChips();
-}
-
-function removeName(i){
-  current.names.splice(i,1);
-  renderChips();
-}
-
-function renderChips(){
-  const wrap = document.getElementById("name-chips");
-  wrap.innerHTML = "";
-  current.names.forEach((n,i)=>{
-    const c = document.createElement("span");
-    c.className = "chip";
-    const txt = document.createTextNode(n + " ");
-    const x = document.createElement("button");
-    x.textContent = "✕";
-    x.onclick = ()=>removeName(i);
-    c.appendChild(txt); c.appendChild(x);
-    wrap.appendChild(c);
-  });
-  document.getElementById("btn-start-round").disabled = current.names.length===0;
-}
-
-/* ================= GAMEPLAY ================= */
-function startRound(){
-  if(current.names.length===0) return;
-  current.qIndex = 0;
-  current.roundScores = {};
-  current.names.forEach(n=>current.roundScores[n]=0);
-  renderQuestion();
-  show("screen-question");
-}
-
-function currentContestant(){
-  return current.names[current.qIndex % current.names.length];
-}
-
-function renderQuestion(){
-  const r = current.round;
-  const q = r.questions[current.qIndex];
-  current.answered = false;
-  document.getElementById("q-roundname").textContent = `${r.emoji} ${r.title}`;
-  document.getElementById("q-progress").innerHTML =
-    `Question <b>${current.qIndex+1}</b> / ${r.questions.length}`;
-  document.getElementById("q-contestant").textContent = currentContestant();
-  document.getElementById("q-verdict").textContent = "";
-  document.getElementById("q-fact").textContent = "";
-  document.getElementById("btn-next").style.visibility = "hidden";
-  document.getElementById("q-judge").innerHTML = "";
-  const yearsWrap = document.getElementById("q-years");
-  yearsWrap.innerHTML = "";
-  const photo = document.getElementById("q-photo");
-
-  if(r.whoRound){
-    photo.src = q.who.img;
-    photo.style.display = "block";
-    document.getElementById("q-text").textContent = "Name that Knight!";
-    document.getElementById("q-prompt").textContent = "Who is this?";
-    document.getElementById("q-keyhint").textContent = "Host: hit Reveal when they've locked in a guess";
-    const reveal = document.createElement("button");
-    reveal.className = "btn";
-    reveal.textContent = "Reveal 👀";
-    reveal.onclick = ()=>revealWho(q);
-    document.getElementById("q-judge").appendChild(reveal);
-    return;
-  }
-
-  const embedded = q.img && IMGS[q.img];
-  photo.style.display = embedded ? "block" : "none";
-  if(embedded) photo.src = IMGS[q.img];
-  document.getElementById("q-text").textContent = q.q;
-  document.getElementById("q-prompt").textContent = "What year did it happen?";
-  document.getElementById("q-keyhint").textContent = "Host keys: 1–4 to lock in an answer · Enter for next";
-
-  YEARS.forEach((y)=>{
-    const b = document.createElement("button");
-    b.className = "yearbtn";
-    b.textContent = y;
-    b.onclick = ()=>answer(y, b);
-    yearsWrap.appendChild(b);
-  });
-}
-
-function revealWho(q){
-  document.getElementById("q-verdict").innerHTML =
-    `It's <span class="pts">${q.who.name}</span>!`;
-  if(q.who.hint) document.getElementById("q-fact").textContent = "💡 " + q.who.hint;
-  const judge = document.getElementById("q-judge");
-  judge.innerHTML = "";
-  const yes = document.createElement("button");
-  yes.className = "btn good";
-  yes.textContent = "✓ They got it (+1)";
-  yes.onclick = ()=>judgeWho(true);
-  const no = document.createElement("button");
-  no.className = "btn bad";
-  no.textContent = "✗ Not quite";
-  no.onclick = ()=>judgeWho(false);
-  judge.appendChild(yes); judge.appendChild(no);
-}
-
-function judgeWho(correct){
-  if(current.answered) return;
-  current.answered = true;
-  const name = currentContestant();
-  if(correct){
-    state.scores[name] = (state.scores[name]||0) + 1;
-    current.roundScores[name] += 1;
-    burstConfetti(60);
-  } else {
-    if(!(name in state.scores)) state.scores[name] = state.scores[name]||0;
-  }
-  save();
-  document.getElementById("q-judge").innerHTML = "";
-  document.getElementById("q-verdict").innerHTML += correct
-    ? ` <span class="pts">✅ +1 for ${name}</span>` : " ❌";
-  document.getElementById("btn-next").style.visibility = "visible";
-  document.getElementById("btn-next").textContent =
-    current.qIndex + 1 >= current.round.questions.length ? "Finish Round 🏁" : "Next ▶";
-}
-
-function answer(year, btn){
-  if(current.answered) return;
-  current.answered = true;
-  const r = current.round;
-  const q = r.questions[current.qIndex];
-  const name = currentContestant();
-  const pts = r.lightning ? 2 : 1;
-  const right = year === q.year;
-
-  document.querySelectorAll("#q-years .yearbtn").forEach(b=>{
-    b.disabled = true;
-    const y = parseInt(b.textContent,10);
-    if(y === q.year) b.classList.add("correct");
-    else if(b === btn) b.classList.add("wrong");
-    else b.classList.add("dim");
-  });
-
-  if(right){
-    state.scores[name] = (state.scores[name]||0) + pts;
-    current.roundScores[name] += pts;
-    document.getElementById("q-verdict").innerHTML =
-      `✅ Correct! <span class="pts">+${pts} point${pts>1?"s":""} for ${name}</span>`;
-    burstConfetti(60);
-  } else {
-    if(!(name in state.scores)) state.scores[name] = state.scores[name]||0;
-    document.getElementById("q-verdict").innerHTML =
-      `❌ So close! It was <b>${q.year}</b>.`;
-  }
-  save();
-  document.getElementById("q-fact").textContent = "💡 " + q.fact;
-  document.getElementById("btn-next").style.visibility = "visible";
-  document.getElementById("btn-next").textContent =
-    current.qIndex + 1 >= r.questions.length ? "Finish Round 🏁" : "Next ▶";
-}
-
-function nextQuestion(){
-  current.qIndex++;
-  if(current.qIndex >= current.round.questions.length){
-    endRound();
-  } else {
-    renderQuestion();
-  }
-}
-
-function endRound(){
-  const r = current.round;
-  if(!state.doneRounds.includes(r.id)) state.doneRounds.push(r.id);
-  save();
-  document.getElementById("re-emoji").textContent = r.emoji;
-  document.getElementById("re-title").textContent = `${r.title} — complete!`;
-  document.getElementById("re-sub").textContent = "Give it up for our contestants! 👏 Here's how this round went:";
-  const board = document.getElementById("re-scores");
-  board.innerHTML = "";
-  const rows = Object.entries(current.roundScores).sort((a,b)=>b[1]-a[1]);
-  rows.forEach(([n,p],i)=>{
-    const total = state.scores[n]||0;
-    const div = document.createElement("div");
-    div.className = "scorerow" + (i===0 && p>0 ? " first" : "");
-    div.innerHTML = `<span>${i===0 && p>0 ? "⭐ " : ""}${n}</span>
-                     <span class="pts">+${p} this round · ${total} total</span>`;
-    board.appendChild(div);
-  });
-  show("screen-roundend");
-  burstConfetti(120);
-}
-
 /* ================= AWARDS ================= */
 function goAwards(){
-  const entries = Object.entries(state.scores).sort((a,b)=>b[1]-a[1]);
+  const entries = Object.entries(state.players).sort((a,b)=>b[1]-a[1]);
   const cert = document.getElementById("certificate");
   const board = document.getElementById("final-scores");
   board.innerHTML = "";
@@ -1060,17 +997,17 @@ function goAwards(){
   if(entries.length === 0){
     cert.innerHTML = `<div class="ctitle">Certificate of Achievement</div>
       <div class="cname">…nobody yet!</div>
-      <div class="cbody">Play a round or two, then come back to crown a champion.</div>`;
+      <div class="cbody">Play a few tiles, then come back to crown a champion.</div>`;
   } else {
     const topScore = entries[0][1];
     const champs = entries.filter(([,p])=>p===topScore).map(([n])=>n);
     const dateStr = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
     cert.innerHTML = `
       <div class="ctitle">✦ Certificate of Achievement ✦</div>
-      <div class="cname">${champs.join(" & ")}</div>
+      <div class="cname">${champs.map(escapeHtml).join(" & ")}</div>
       <div class="caward">${champs.length>1 ? "Co-Champions" : "Champion"} · Oakleaf Knights Reunion Trivia</div>
       <div class="cbody">For proving, beyond all reasonable doubt, total mastery of the years 2012–2015
-        with a winning score of <b>${topScore} point${topScore===1?"":"s"}</b>.<br>
+        with a winning score of <b>${topScore.toLocaleString()} points</b>.<br>
         The Classes of 2012–2015 salute you. Once a Knight, always a Knight. ⚔️</div>
       <div class="cdate">Awarded this night · ${dateStr}</div>`;
 
@@ -1078,7 +1015,7 @@ function goAwards(){
     entries.forEach(([n,p],i)=>{
       const div = document.createElement("div");
       div.className = "scorerow" + (i===0 ? " first" : "");
-      div.innerHTML = `<span>${medals[i]||"🎖️"} ${n}</span><span class="pts">${p} pts</span>`;
+      div.innerHTML = `<span>${medals[i]||"🎖️"} ${escapeHtml(n)}</span><span class="pts">${p.toLocaleString()} pts</span>`;
       board.appendChild(div);
     });
   }
@@ -1087,31 +1024,19 @@ function goAwards(){
 }
 
 function resetGame(){
-  if(!confirm("Reset all scores and round history? (Your Guess Who photos and Class Insider questions will be kept.)")) return;
-  state = { scores:{}, doneRounds:[], custom: state.custom, who: state.who };
+  if(!confirm("Reset all scores and re-open every tile? (Your Guess Who photos and Class Insider questions will be kept.)")) return;
+  state = { v:2, players:{}, used:{}, finalUsed:0, custom:state.custom, who:state.who };
   save();
-  goRounds();
+  goBoard();
 }
 
 /* ================= KEYBOARD ================= */
 document.addEventListener("keydown",(e)=>{
   const qActive = document.getElementById("screen-question").classList.contains("active");
-  if(qActive && current && !current.round.whoRound){
-    if(!current.answered && ["1","2","3","4"].includes(e.key)){
-      const btn = document.querySelectorAll("#q-years .yearbtn")[parseInt(e.key,10)-1];
-      if(btn) btn.click();
-    } else if(current.answered && (e.key==="Enter" || e.key===" ")){
-      e.preventDefault();
-      nextQuestion();
-    }
-  }
-  if(qActive && current && current.round.whoRound && current.answered && (e.key==="Enter" || e.key===" ")){
-    e.preventDefault();
-    nextQuestion();
-  }
-  const introActive = document.getElementById("screen-intro").classList.contains("active");
-  if(introActive && e.key==="Enter" && document.activeElement===document.getElementById("name-input")){
-    addName();
+  if(qActive && current && !current.isWho && !current.answered && ["1","2","3","4"].includes(e.key)
+     && document.activeElement.tagName !== "INPUT"){
+    const btn = document.querySelectorAll("#q-years .yearbtn")[parseInt(e.key,10)-1];
+    if(btn) btn.click();
   }
 });
 
