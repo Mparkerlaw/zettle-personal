@@ -232,7 +232,7 @@
     <div class="howto">
       <h3>How to host it</h3>
       <ol>
-        <li>Anyone can come up at any time — just pick a tile. Each category has a <b>“first dibs”</b> call-out (“this one's for the moms!”) to pull specific people up.</li>
+        <li>Pick a tile and read the call-out — each category is <b>locked to its group</b> (“MOMS & PARENTS-TO-BE ONLY!”), so only they can come up and answer it. Knights Pride, Guess Who, and Lightning are open to everyone.</li>
         <li>Read the question. They shout a year, you tap it. Then tap <b>who answered</b> to give them the points — names are added on the fly.</li>
         <li><b>Board 2 is double points.</b> When the boards run dry, hit <b>⚡ Lightning</b> for 1,000-point bonus questions.</li>
         <li>Before the party: load yearbook photos into <b>🖼️ Guess Who</b> (the ✎ on its column) and write teacher/prom questions in <b>📝 Class Insiders</b>.</li>
@@ -328,6 +328,11 @@
       <div class="hint">You can select multiple at once. They're resized and saved in this browser.</div>
       <input id="who-file" type="file" accept="image/*" multiple onchange="addWhoPhotos(this.files)">
     </label>
+    <div class="center" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn small ghost" onclick="exportPack()">⬇ Export photos & questions</button>
+      <label class="btn small ghost" style="cursor:pointer;">⬆ Import pack<input type="file" accept=".json,application/json" style="display:none" onchange="importPack(this.files[0])"></label>
+    </div>
+    <p class="hint" style="margin-top:10px;">Tip: tag photos on your <b>phone</b> (where the pics are), Export, send the file to the laptop, then Import there. Typing a name autocompletes from the senior portrait roster.</p>
     <div class="qlist" id="who-list"></div>
   </div>
 </section>
@@ -430,7 +435,7 @@ const YEARS = [2012, 2013, 2014, 2015];
 const CATS = {
   knights: {
     emoji:"⚔️", title:"Knights Pride",
-    dibs:"📣 Open floor — any class, come defend your year!",
+    dibs:"📣 OPEN TO EVERY CLASS — come defend your year!",
     icebreaker:"What class are you, and what did your class do better than the other three?",
     questions:[
       {q:"And the easy one first… the baby class of tonight's crew — the Class of 2015 — turned their tassels and closed out the era.", year:2015, fact:"A free 100. If they miss this one, take their diploma back."},
@@ -443,7 +448,7 @@ const CATS = {
   },
   parents: {
     emoji:"👶", title:"Moms & Dads",
-    dibs:"📣 First dibs: any MOMS and DADS in the building!",
+    dibs:"📣 MOMS, DADS & PARENTS-TO-BE ONLY — nobody else touches this category!",
     icebreaker:"Before you answer — how many kids, names and ages?",
     questions:[
       {q:"Disney's “Frozen” hit theaters and “Let It Go” took over every car ride in America.", year:2013, img:"frozen", fact:"November 2013 — it became the highest-grossing animated movie ever at the time."},
@@ -456,7 +461,7 @@ const CATS = {
   },
   married: {
     emoji:"💍", title:"Put a Ring on It",
-    dibs:"📣 First dibs: anyone MARRIED or ENGAGED!",
+    dibs:"📣 MARRIED & ENGAGED ONLY — show us the ring on your way up!",
     icebreaker:"Before you answer — how'd you meet your person? 10 seconds!",
     questions:[
       {q:"The Supreme Court made marriage equality the law of the land in all 50 states.", year:2015, img:"obergefell", fact:"June 26, 2015 — Obergefell v. Hodges."},
@@ -469,7 +474,7 @@ const CATS = {
   },
   pets: {
     emoji:"🐾", title:"Pet Parents",
-    dibs:"📣 First dibs: anyone with a DOG, CAT, or any creature at home!",
+    dibs:"📣 PET PARENTS ONLY — dog, cat, or any creature counts!",
     icebreaker:"Before you answer — pet's name, and show us a picture!",
     questions:[
       {q:"Pizza Rat dragged an entire slice down the NYC subway stairs and became an icon.", year:2015, img:"pizzarat", fact:"September 2015 — a true New York hero."},
@@ -482,7 +487,7 @@ const CATS = {
   },
   internet: {
     emoji:"📱", title:"Chronically Online",
-    dibs:"📣 First dibs: anyone whose screen time report is over FIVE hours!",
+    dibs:"📣 PHONE ADDICTS ONLY — 5+ hours of screen time, be honest!",
     icebreaker:"Before you answer — what's the oldest photo still on your Instagram?",
     questions:[
       {q:"THE DRESS. Look at it. Blue and black or white and gold? Friendships ended over this.", year:2015, img:"dress", fact:"February 2015 — for the record, the actual dress was blue and black."},
@@ -495,7 +500,7 @@ const CATS = {
   },
   hometown: {
     emoji:"🌴", title:"Duval 'Til We Die",
-    dibs:"📣 First dibs: anyone who STILL LIVES in the 904!",
+    dibs:"📣 904 RESIDENTS ONLY — still local, never leaving!",
     icebreaker:"Before you answer — biggest change around town since we graduated?",
     questions:[
       {q:"The Jaguars drafted Blake Bortles 3rd overall and hope was alive in Duval.", year:2014, img:"bortles", fact:"May 2014 — out of UCF, just down I-95."},
@@ -508,7 +513,7 @@ const CATS = {
   },
   movers: {
     emoji:"✈️", title:"The Ones Who Left",
-    dibs:"📣 First dibs: anyone who MOVED AWAY — welcome home!",
+    dibs:"📣 MOVED-AWAY KNIGHTS ONLY — welcome home, now earn it!",
     icebreaker:"Before you answer — where do you live now, and what took you there?",
     questions:[
       {q:"NASA's Curiosity rover stuck the landing on Mars — the ultimate “I'm moving away” story.", year:2012, img:"curiosity", fact:"August 2012 — the “seven minutes of terror” landing went perfectly."},
@@ -521,7 +526,7 @@ const CATS = {
   },
   bosses: {
     emoji:"💼", title:"Bosses & Hustlers",
-    dibs:"📣 First dibs: anyone who OWNS A BUSINESS or runs a side hustle!",
+    dibs:"📣 BUSINESS OWNERS & SIDE HUSTLERS ONLY — entrepreneurs to the front!",
     icebreaker:"Before you answer — pitch us what you do, one sentence!",
     questions:[
       {q:"The Apple Watch finally went on sale and wrists were never the same.", year:2015, img:"applewatch", fact:"April 2015 — Apple's first all-new product since the iPad."},
@@ -534,7 +539,7 @@ const CATS = {
   },
   scholars: {
     emoji:"🎓", title:"Degree Collectors",
-    dibs:"📣 First dibs: anyone who went on to college or got certified in anything!",
+    dibs:"📣 DEGREE & CERTIFICATE HOLDERS ONLY — college, trade school, anything counts!",
     icebreaker:"Before you answer — what did you study, and do you actually use it?",
     questions:[
       {q:"The Mayan calendar “end of the world” came and went… and we all survived to laugh about it.", year:2012, img:"mayan", fact:"December 21, 2012 — doomsday parties happened worldwide. Nothing happened."},
@@ -547,7 +552,7 @@ const CATS = {
   },
   weddings: {
     emoji:"🕺", title:"Wedding Season Vets",
-    dibs:"📣 First dibs: anyone who's survived 3+ weddings since graduation!",
+    dibs:"📣 WEDDING VETERANS ONLY — 3+ weddings survived since graduation!",
     icebreaker:"Before you answer — how many weddings since graduation, and which was best?",
     questions:[
       {q:"“Watch Me (Whip / Nae Nae)” had every wedding, gym class, and family cookout doing the same dance.", year:2015, img:"whip", fact:"Silentó released it in 2015 — now watch me bob, bob, bob…"},
@@ -579,9 +584,34 @@ const ROWS = 6;
 
 const WHO_CAT = {
   emoji:"🖼️", title:"Guess Who",
-  dibs:"📣 Anyone who thinks they still know every FACE in that yearbook!",
+  dibs:"📣 OPEN TO EVERYONE — who still knows every face in that yearbook?",
   icebreaker:"Before you answer — who from our class have you totally lost touch with?",
 };
+
+/* Senior portrait roster (from the yearbook) — powers the answer autocomplete
+   in the Guess Who editor. */
+const ROSTER = [
+  "Emily Achord","Elisabeth Adkins","Kayla Agens","Megan Agens","Deanna Agustin",
+  "Arthur Amaya","Jessica Anderson","Tyler Andrae","Kevin Arana","Alexia Arias",
+  "Correll Armont","Marycarmen Arvelo-Roman","Saembyeol Bak","Kaylee Baker","Myah Baker",
+  "Kachtia Barber","Keith Barje","Jeremy Barnett","Chloe Ann Barron","Bernard Batanes",
+  "Tierra Bell","Jada-Marie Bennett","Trevor Bercich","Dremond Bethel","Robert Bingham",
+  "Shawn Blair","Luis Blanco","Jovante'z Bonner","Michael Booker-Allen","Christopher Bordis",
+  "Jeremy Boykins","Jerod Boykins","Cory Bradley","Angela Brandenburg","Chardae Brazzell",
+  "Cameron Brecht","Leanagie Brewer","Curtisha Briley","Jazzmon Brooken","Avery Brown",
+  "Elijah Brown","Mary Brown","Takerra Brown","Matthew Burch","Gary Burwell",
+  "Audreana Bussey","Brandon Butler","Malcolm Campbell","Malik Campbell","Amia Carter",
+  "Brittney Cass","Katiana Celestin","Thomas Ceparano","Clayton Chandler","Amber Chatman",
+  "Darius Chavies","Hsufeng Cheng","Austin Chipoletti","D'Andre Clark","Bridgit Coates",
+  "Catherine Coder","Desiree Colon","Charniela Colquitt","Angel Conte","Anthony Conte",
+  "Kaylib Cooper","Christian Corsiatto-Conti","Kayla Costlow","Brooklyn Covington","Thereza Craig",
+  "Katrina Cruz","Miranda Cummings","Kevin Cumpa","Austin Cunillera","Sabrina Cunillera",
+  "Joshua Curtis","Christopher D'Addario","Michalla D'Alessandro","Jonathan Dagnan","Chelci Dahl",
+  "Alexa Daneault","Alexis Davis","Chloe Davis","Janessa Davis","Kyle Davis",
+  "Mikayla Davis","Morgan Davis","Erick Dejesus","Amber Dejno","Lorenzo Brix Del Rosario",
+  "Tiffany Delk","Erika Diaz","Kaylyn Diaz","Cole Dillon","Sheppard Dillon",
+  "Tyler Dopp","Jasmin Doster","Jordan Duchene","Andrew Dunahugh","Ashley Dunbar",
+];
 const INSIDER_CAT = {
   emoji:"📝", title:"Class Insiders",
   dibs:"📣 Oakleaf SUPERFANS only — deep cuts ahead!",
@@ -693,6 +723,7 @@ function renderPlayersBar(){
   add.className = "addplayer";
   const inp = document.createElement("input");
   inp.placeholder = "＋ Add player…";
+  inp.setAttribute("list","yearbook-roster");
   inp.onkeydown = (e)=>{
     if(e.key==="Enter" && inp.value.trim()){
       addPlayer(inp.value);
@@ -822,6 +853,7 @@ function showAwardBar(){
   add.className = "addplayer";
   const inp = document.createElement("input");
   inp.placeholder = "＋ New player…";
+  inp.setAttribute("list","yearbook-roster");
   inp.onkeydown = (e)=>{
     if(e.key==="Enter" && inp.value.trim()){
       const n = addPlayer(inp.value);
@@ -870,6 +902,48 @@ function escapeHtml(s){
 }
 
 /* ================= GUESS WHO EDITOR ================= */
+// Autocomplete list from the senior portrait roster
+(function(){
+  const dl = document.createElement("datalist");
+  dl.id = "yearbook-roster";
+  ROSTER.forEach(n=>{
+    const o = document.createElement("option");
+    o.value = n;
+    dl.appendChild(o);
+  });
+  document.body.appendChild(dl);
+})();
+
+function exportPack(){
+  const pack = { oakleafTriviaPack:1, who:state.who, custom:state.custom };
+  const blob = new Blob([JSON.stringify(pack)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "oakleaf-trivia-pack.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importPack(file){
+  if(!file) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const pack = JSON.parse(fr.result);
+      if(!pack.oakleafTriviaPack) throw new Error("not a pack");
+      const nWho = (pack.who||[]).length, nQ = (pack.custom||[]).length;
+      if(!confirm(`Import ${nWho} Guess Who photo(s) and ${nQ} Insider question(s)? They'll be added to what's already here.`)) return;
+      state.who = state.who.concat(pack.who||[]);
+      state.custom = state.custom.concat(pack.custom||[]);
+      save();
+      renderWhoList();
+    }catch(e){
+      alert("That file doesn't look like an exported trivia pack.");
+    }
+  };
+  fr.readAsText(file);
+}
+
 function openWhoEditor(){
   renderWhoList();
   show("screen-whoeditor");
@@ -913,6 +987,7 @@ function renderWhoList(){
     fields.className = "fields";
     const name = document.createElement("input");
     name.type = "text"; name.placeholder = "Who is this? (the answer)";
+    name.setAttribute("list","yearbook-roster");
     name.value = p.name;
     name.oninput = ()=>{ p.name = name.value; save(); };
     const hint = document.createElement("input");
