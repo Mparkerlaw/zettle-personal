@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oakleaf Reunion Trivia · Classes of 2012–2015</title>
+<title>Oakleaf Knights Reunion Trivia · Classes of 2012–2015</title>
 <style>
   :root{
-    --bg1:#1a103c; --bg2:#3b1a5e; --bg3:#10092b;
-    --gold:#f5c84c; --gold-soft:#ffe9a8;
+    --bg1:#15120a; --bg2:#2b2410; --bg3:#0c0a05;
+    --gold:#c5b358; --gold-soft:#f0e3a1;
     --teal:#4dd9c0; --pink:#ff6fa5;
     --card:rgba(255,255,255,.07);
     --card-border:rgba(255,255,255,.14);
@@ -20,7 +20,7 @@
     font-family:'Avenir Next','Segoe UI',system-ui,-apple-system,sans-serif;
     color:var(--text);
     background:radial-gradient(1200px 800px at 80% -10%, var(--bg2), transparent 60%),
-               radial-gradient(1000px 700px at -10% 110%, #14224d, transparent 55%),
+               radial-gradient(1000px 700px at -10% 110%, #1f1a0a, transparent 55%),
                linear-gradient(160deg, var(--bg1), var(--bg3));
     background-attachment:fixed;
     min-height:100%;
@@ -33,18 +33,18 @@
 
   .kicker{letter-spacing:.32em; text-transform:uppercase; font-size:.8rem; color:var(--teal); font-weight:700; text-align:center;}
   h1{font-size:clamp(2.3rem,6vw,4.2rem); text-align:center; line-height:1.06; margin:.35em 0 .15em;
-     background:linear-gradient(120deg, var(--gold-soft), var(--gold) 45%, #ff9d5c);
+     background:linear-gradient(120deg, var(--gold-soft), var(--gold) 45%, #d8a23c);
      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
-  .sub{text-align:center; color:var(--muted); font-size:1.12rem; max-width:620px; margin:0 auto;}
+  .sub{text-align:center; color:var(--muted); font-size:1.12rem; max-width:660px; margin:0 auto;}
 
   .btn{
     display:inline-block; border:none; cursor:pointer; font:inherit; font-weight:800;
-    border-radius:999px; padding:16px 34px; font-size:1.15rem; color:#241302;
+    border-radius:999px; padding:16px 34px; font-size:1.15rem; color:#241c02;
     background:linear-gradient(120deg, var(--gold-soft), var(--gold));
-    box-shadow:0 8px 26px rgba(245,200,76,.35);
+    box-shadow:0 8px 26px rgba(197,179,88,.35);
     transition:transform .12s ease, box-shadow .12s ease;
   }
-  .btn:hover{transform:translateY(-2px); box-shadow:0 12px 32px rgba(245,200,76,.45);}
+  .btn:hover{transform:translateY(-2px); box-shadow:0 12px 32px rgba(197,179,88,.45);}
   .btn:active{transform:translateY(1px);}
   .btn.ghost{background:transparent; color:var(--text); border:2px solid var(--card-border); box-shadow:none;}
   .btn.ghost:hover{border-color:var(--gold); color:var(--gold-soft); box-shadow:none;}
@@ -53,13 +53,13 @@
   .center{text-align:center;}
   .topbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap;}
   .pill{background:var(--card); border:1px solid var(--card-border); border-radius:999px; padding:8px 18px; font-weight:700; font-size:.95rem;}
-  .pill b{color:var(--gold);}
+  .pill b{color:var(--gold-soft);}
 
   /* HOME */
   .homewrap{display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; gap:18px;}
   .home-emoji{font-size:3.4rem; text-align:center; letter-spacing:.2em;}
   .howto{background:var(--card); border:1px solid var(--card-border); border-radius:20px; padding:22px 26px; max-width:640px; margin-top:10px;}
-  .howto h3{color:var(--gold); margin-bottom:10px; font-size:1.05rem; letter-spacing:.08em; text-transform:uppercase;}
+  .howto h3{color:var(--gold-soft); margin-bottom:10px; font-size:1.05rem; letter-spacing:.08em; text-transform:uppercase;}
   .howto ol{padding-left:22px; color:var(--muted); line-height:1.65; font-size:1.02rem;}
   .howto li b{color:var(--text);}
 
@@ -76,7 +76,8 @@
   .roundcard .qcount{margin-top:12px; font-size:.85rem; color:var(--teal); font-weight:700; letter-spacing:.06em;}
   .roundcard.done{opacity:.55;}
   .donebadge{position:absolute; top:14px; right:16px; background:var(--good); color:#06270f; font-weight:800; font-size:.75rem; padding:4px 12px; border-radius:999px;}
-  .lightning-card{border:2px solid var(--gold); background:linear-gradient(140deg, rgba(245,200,76,.14), rgba(255,111,165,.08));}
+  .lightning-card{border:2px solid var(--gold); background:linear-gradient(140deg, rgba(197,179,88,.16), rgba(255,111,165,.08));}
+  .insider-card{border:2px dashed var(--teal);}
 
   /* ROUND INTRO / CONTESTANTS */
   .callout{
@@ -113,7 +114,7 @@
     text-align:center; font-size:clamp(1.5rem,3.4vw,2.4rem); font-weight:800; line-height:1.3;
     max-width:900px; margin:0 auto 14px; min-height:2.6em;
   }
-  .qprompt{text-align:center; color:var(--gold); font-weight:800; letter-spacing:.18em; text-transform:uppercase; font-size:.95rem; margin-bottom:26px;}
+  .qprompt{text-align:center; color:var(--gold-soft); font-weight:800; letter-spacing:.18em; text-transform:uppercase; font-size:.95rem; margin-bottom:26px;}
   .years{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:880px; margin:0 auto;}
   @media(max-width:680px){.years{grid-template-columns:repeat(2,1fr);}}
   .yearbtn{
@@ -128,11 +129,36 @@
   .yearbtn.dim{opacity:.35;}
   @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.09);}100%{transform:scale(1);}}
   .verdict{text-align:center; font-size:1.7rem; font-weight:900; margin-top:26px; min-height:2.2em;}
-  .verdict .pts{color:var(--gold);}
+  .verdict .pts{color:var(--gold-soft);}
   .fact{
     text-align:center; color:var(--muted); font-size:1.12rem; max-width:720px; margin:8px auto 0; line-height:1.5; min-height:3em;
   }
   .keyhint{text-align:center; color:rgba(253,251,255,.35); font-size:.85rem; margin-top:26px;}
+
+  /* INSIDER EDITOR */
+  .editor{max-width:720px; margin:0 auto;}
+  .editor textarea{
+    width:100%; font:inherit; font-size:1.1rem; padding:14px 18px; border-radius:16px; resize:vertical; min-height:84px;
+    border:2px solid var(--card-border); background:rgba(0,0,0,.25); color:var(--text); outline:none;
+  }
+  .editor textarea:focus, .editor input:focus{border-color:var(--gold);}
+  .editor input[type=text]{
+    width:100%; font:inherit; font-size:1rem; padding:12px 18px; border-radius:999px;
+    border:2px solid var(--card-border); background:rgba(0,0,0,.25); color:var(--text); outline:none; margin-top:12px;
+  }
+  .yearpick{display:flex; gap:10px; margin:14px 0; flex-wrap:wrap;}
+  .yearpick button{
+    font:inherit; font-weight:800; font-size:1.1rem; padding:12px 22px; border-radius:14px; cursor:pointer;
+    border:2px solid var(--card-border); background:var(--card); color:var(--text);
+  }
+  .yearpick button.sel{background:var(--gold); border-color:var(--gold); color:#241c02;}
+  .qlist{margin-top:26px; display:flex; flex-direction:column; gap:10px;}
+  .qitem{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:14px 18px;
+  }
+  .qitem .qy{color:var(--gold-soft); font-weight:900; white-space:nowrap;}
+  .qitem button{background:none; border:none; color:var(--pink); font-size:1.2rem; cursor:pointer; font-weight:900;}
 
   /* ROUND END + AWARDS */
   .scoreboard{max-width:560px; margin:24px auto; display:flex; flex-direction:column; gap:10px;}
@@ -140,8 +166,8 @@
     display:flex; justify-content:space-between; align-items:center; background:var(--card);
     border:1px solid var(--card-border); border-radius:16px; padding:14px 22px; font-size:1.2rem; font-weight:700;
   }
-  .scorerow .pts{color:var(--gold); font-weight:900;}
-  .scorerow.first{border-color:var(--gold); background:linear-gradient(120deg, rgba(245,200,76,.18), rgba(245,200,76,.05)); font-size:1.35rem;}
+  .scorerow .pts{color:var(--gold-soft); font-weight:900;}
+  .scorerow.first{border-color:var(--gold); background:linear-gradient(120deg, rgba(197,179,88,.2), rgba(197,179,88,.05)); font-size:1.35rem;}
   .certificate{
     max-width:720px; margin:30px auto; padding:44px 38px; text-align:center; border-radius:8px;
     background:linear-gradient(160deg, #fffdf4, #fbf0cf);
@@ -162,10 +188,10 @@
 <section class="screen active" id="screen-home">
   <div class="homewrap">
     <div>
-      <div class="kicker">Oakleaf Reunion · Game Night</div>
+      <div class="kicker">Oakleaf High Knights · Reunion Game Night</div>
       <h1>The Years We Ran<br>This School</h1>
-      <p class="sub">Trivia for the Classes of 2012–2015. Every answer is a year you were at Oakleaf — you lived it, now prove you remember it.</p>
-      <div class="home-emoji">🎓 🏆 📣</div>
+      <p class="sub">Trivia for the Classes of 2012–2015 — the first four classes to ever walk across that stage. Every answer is a year you were a Knight. You lived it; now prove you remember it. ⚔️</p>
+      <div class="home-emoji">🎓 🛡️ 🏆</div>
     </div>
     <button class="btn" onclick="goRounds()">Start the Show ▶</button>
     <div class="howto">
@@ -174,6 +200,7 @@
         <li><b>Pick a round</b> and read the call-out — “This round is for any moms!” — and wave them up.</li>
         <li><b>Ask the icebreaker</b> so everyone hears what they've been up to since graduation.</li>
         <li><b>Type their names</b>, then questions rotate between contestants. Tap the year they shout out.</li>
+        <li>Add your own teacher / prom / homecoming questions in the <b>📝 Class Insiders</b> round before the party.</li>
         <li>Points follow people across rounds. Finish with the <b>⚡ Lightning Round</b> (double points), then hit <b>Awards</b> to crown the champion. 🏆</li>
       </ol>
     </div>
@@ -184,7 +211,7 @@
 <!-- ============ ROUND PICKER ============ -->
 <section class="screen" id="screen-rounds">
   <div class="topbar">
-    <span class="pill">🎓 Oakleaf · Classes of <b>2012–2015</b></span>
+    <span class="pill">🛡️ Oakleaf Knights · Classes of <b>2012–2015</b></span>
     <span class="pill" id="pill-players">Players: <b>0</b></span>
     <button class="btn small" onclick="goAwards()">🏆 Awards Ceremony</button>
   </div>
@@ -236,6 +263,29 @@
   <div class="keyhint">Host keys: 1–4 to lock in an answer · Enter for next</div>
 </section>
 
+<!-- ============ INSIDER EDITOR ============ -->
+<section class="screen" id="screen-editor">
+  <div class="topbar">
+    <button class="btn ghost small" onclick="goRounds()">← Back to rounds</button>
+    <span class="pill">📝 Class Insiders · <b id="ed-count">0</b> questions</span>
+  </div>
+  <div class="kicker">Write your own round</div>
+  <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);">Class Insiders 📝</h1>
+  <p class="sub">Only YOU know this stuff — teachers, prom themes, homecoming wins, cafeteria legends. Write a statement, pick the year it happened, and it plays exactly like the other rounds.</p>
+  <div class="editor">
+    <p class="hint" style="text-align:left; margin:22px 0 8px;">The thing that happened (e.g. “Coach ___ shaved his head after the playoff win” or “THE senior prank”):</p>
+    <textarea id="ed-q" placeholder="Type the question…"></textarea>
+    <p class="hint" style="text-align:left; margin:14px 0 0;">What year did it happen?</p>
+    <div class="yearpick" id="ed-years"></div>
+    <input type="text" id="ed-fact" placeholder="Optional fun fact to read after the reveal…">
+    <div class="center" style="margin-top:18px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn small" onclick="addCustomQ()">＋ Add question</button>
+      <button class="btn small ghost" id="ed-play" onclick="playInsiders()">Play this round ▶</button>
+    </div>
+    <div class="qlist" id="ed-list"></div>
+  </div>
+</section>
+
 <!-- ============ ROUND END ============ -->
 <section class="screen" id="screen-roundend">
   <div class="center" style="font-size:3.6rem; margin-top:30px;" id="re-emoji">🎉</div>
@@ -271,15 +321,31 @@ const YEARS = [2012, 2013, 2014, 2015];
 
 const ROUNDS = [
   {
+    id:"knights", emoji:"⚔️", title:"Knights Pride",
+    callout:"📣 OPEN FLOOR — one rep from each class, 2012 through 2015, come on up and defend your year!",
+    desc:"Oakleaf history. You were literally there for all of this.",
+    icebreaker:"What class are you, and what's one thing your class did better than the other three?",
+    questions:[
+      {q:"Oakleaf history was made: the FIRST-EVER class walked across that graduation stage.", year:2012, fact:"The Class of 2012 — some of you in this room — were the very first Oakleaf graduates ever. The school had only opened in August 2010."},
+      {q:"A freshman named Shaq Quarterman showed up on campus — the future first Oakleaf Knight ever drafted into the NFL.", year:2012, fact:"He finished his Oakleaf career with 412 tackles, starred at Miami, and the Jaguars drafted him in 2020 — the first Knight to make the league."},
+      {q:"Tiger Woods won The Players Championship just up the road at TPC Sawgrass.", year:2013, fact:"May 2013 — his second Players title, 12 years after his first."},
+      {q:"Oakleaf football went 12–1 and won the school's FIRST district title in history.", year:2014, fact:"The 2014 Knights, with junior Shaq Quarterman leading the defense — after the program started out 0-10 in its first season."},
+      {q:"Florida State's Jameis Winston won the Heisman Trophy and FSU fans were absolutely insufferable about it.", year:2013, fact:"December 2013 — youngest Heisman winner ever at the time, then FSU won the national title weeks later."},
+      {q:"And finally… the baby class of tonight's crew — the Class of 2015 — turned their tassels and closed out the era.", year:2015, fact:"A free point. If they miss this one, take their diploma back."},
+    ]
+  },
+  {
     id:"parents", emoji:"👶", title:"Moms & Dads",
     callout:"📣 This round is for any MOMS and DADS in the building — come on up!",
     desc:"Parenthood-era pop culture. If you've heard “Let It Go” 4,000 times, this is your moment.",
     icebreaker:"How many kids do you have — names and ages?",
     questions:[
+      {q:"Pixar's “Brave” gave every future girl-mom a curly-haired archer to name their daughter after.", year:2012, fact:"June 2012 — Merida won Pixar an Oscar for it."},
       {q:"Disney's “Frozen” hit theaters and “Let It Go” took over every car ride in America.", year:2013, fact:"November 2013 — it became the highest-grossing animated movie ever at the time."},
+      {q:"Prince George was born and the world camped outside a hospital for a baby announcement.", year:2013, fact:"July 2013 — the royal baby watch was 24/7 news for weeks."},
       {q:"“The LEGO Movie” dropped and got “Everything Is Awesome” stuck in all of our heads.", year:2014, fact:"February 2014 — and somehow it did NOT get a Best Animated Feature nomination."},
       {q:"Pixar's “Inside Out” made every grown adult cry about an imaginary friend named Bing Bong.", year:2015, fact:"June 2015 — Joy, Sadness, and a whole lot of feelings."},
-      {q:"Prince George was born and the world camped outside a hospital for a baby announcement.", year:2013, fact:"July 2013 — the royal baby watch was 24/7 news for weeks."},
+      {q:"Princess Charlotte arrived, completing the royal-baby double.", year:2015, fact:"May 2015 — born at the same hospital wing as her brother George."},
     ]
   },
   {
@@ -289,21 +355,25 @@ const ROUNDS = [
     icebreaker:"How did you two meet? Give us the 10-second version!",
     questions:[
       {q:"Carly Rae Jepsen's “Call Me Maybe” was THE song of the summer — here's my number, so call me, maybe.", year:2012, fact:"It spent 9 weeks at #1 in summer 2012."},
+      {q:"Kanye proposed to Kim by renting out an entire baseball stadium with a 50-piece orchestra.", year:2013, fact:"October 2013, AT&T Park in San Francisco — on her 33rd birthday."},
       {q:"Beyoncé shocked the world by surprise-dropping a whole album overnight, featuring “Drunk in Love.”", year:2013, fact:"December 2013 — no announcement, no promo, just Beyoncé."},
-      {q:"Kim Kardashian and Kanye West got married in a massively over-the-top wedding in Florence, Italy.", year:2014, fact:"May 2014 — the flower wall alone reportedly cost a fortune."},
+      {q:"Kim and Kanye got married in a massively over-the-top wedding in Florence, Italy.", year:2014, fact:"May 2014 — the flower wall alone reportedly cost a fortune."},
+      {q:"John Legend's “All of Me” hit #1 and instantly became the first-dance song at every wedding you've attended since.", year:2014, fact:"May 2014 — written for his wife Chrissy Teigen."},
       {q:"The Supreme Court made marriage equality the law of the land in all 50 states.", year:2015, fact:"June 26, 2015 — Obergefell v. Hodges."},
     ]
   },
   {
     id:"movers", emoji:"✈️", title:"The Ones Who Left",
     callout:"📣 Anyone who MOVED AWAY from the area — welcome home, now come on up!",
-    desc:"A round about going far, far away. Space-travel themed, naturally.",
+    desc:"A round about going far, far away. Space-and-travel themed, naturally.",
     icebreaker:"Where do you live now, and what took you there?",
     questions:[
       {q:"NASA's Curiosity rover stuck the landing on Mars — the ultimate “I'm moving away” story.", year:2012, fact:"August 2012 — the “seven minutes of terror” landing went perfectly."},
+      {q:"Felix Baumgartner jumped from the edge of space and broke the sound barrier with his BODY.", year:2012, fact:"October 2012 — 24 miles up, livestreamed to 8 million people."},
       {q:"“Gravity” with Sandra Bullock had everyone terrified of space (and won 7 Oscars).", year:2013, fact:"October 2013 — directed by Alfonso Cuarón."},
       {q:"“Interstellar” melted our brains with black holes, bookshelves, and that Hans Zimmer organ.", year:2014, fact:"November 2014 — “Murph!”"},
       {q:"NASA's New Horizons flew past Pluto and sent back the first close-up photos ever.", year:2015, fact:"July 2015 — after a 9-year, 3-billion-mile trip."},
+      {q:"Matt Damon got left behind on Mars and science'd his way home in “The Martian.”", year:2015, fact:"October 2015 — he grew potatoes in… well, you remember."},
     ]
   },
   {
@@ -312,8 +382,10 @@ const ROUNDS = [
     desc:"Money moves from your high school years.",
     icebreaker:"Pitch us what you do — one sentence, make it good!",
     questions:[
+      {q:"Facebook bought Instagram for a billion dollars and everyone thought that was an insane price. It was not.", year:2012, fact:"April 2012 — Instagram had just 13 employees at the time."},
       {q:"Facebook went public in one of the biggest IPOs in history.", year:2012, fact:"May 2012 — valued at $104 billion on day one."},
       {q:"“The Wolf of Wall Street” hit theaters and gave us three hours of Leo selling pens.", year:2013, fact:"December 2013 — it set a record for profanity in a feature film."},
+      {q:"Elon Musk published his “Hyperloop” paper and everyone briefly believed we'd commute in tubes.", year:2013, fact:"August 2013 — still waiting on that tube."},
       {q:"Facebook bought WhatsApp for a jaw-dropping $19 BILLION.", year:2014, fact:"February 2014 — one of the biggest tech deals ever."},
       {q:"The Apple Watch finally went on sale and wrists were never the same.", year:2015, fact:"April 2015 — Apple's first all-new product since the iPad."},
     ]
@@ -327,18 +399,36 @@ const ROUNDS = [
       {q:"Grumpy Cat went viral and became the most famous frown on the internet.", year:2012, fact:"September 2012 — her real name was Tardar Sauce."},
       {q:"The Doge meme took over. Much wow. Very year. So guess.", year:2013, fact:"Doge exploded in 2013 — Kabosu the Shiba Inu became a legend."},
       {q:"Flappy Bird was deleted from the App Store by its own creator at the height of its fame.", year:2014, fact:"February 2014 — it was earning ~$50k a DAY in ads when he pulled it."},
+      {q:"Grumpy Cat got her own made-for-TV Christmas MOVIE. A cat. A movie deal.", year:2014, fact:"November 2014 — “Grumpy Cat's Worst Christmas Ever,” voiced by Aubrey Plaza."},
+      {q:"Two llamas escaped in Arizona and America stopped working to watch the chase live.", year:2015, fact:"February 2015 — the Great Llama Chase happened the SAME WEEK as The Dress."},
       {q:"Pizza Rat dragged an entire slice down the NYC subway stairs and became an icon.", year:2015, fact:"September 2015 — a true New York hero."},
     ]
   },
   {
-    id:"hometown", emoji:"🏠", title:"Hometown Heroes",
-    callout:"📣 Anyone who STILL LIVES in the area — never left, never will — come on up!",
-    desc:"The viral crazes that swept the nation while you held it down at home.",
+    id:"hometown", emoji:"🌴", title:"Duval 'Til We Die",
+    callout:"📣 Anyone who STILL LIVES in the 904 — never left, never will — come on up!",
+    desc:"Jacksonville and Jaguars happenings from your Oakleaf years. DUUUVAL!",
     icebreaker:"What's the biggest change around town since we graduated?",
     questions:[
+      {q:"Shad Khan officially took over as owner of the Jaguars, mustache and all.", year:2012, fact:"January 2012 — he became the first minority owner of an NFL team."},
+      {q:"The Jaguars unveiled their new logo and those two-tone gold-to-black helmets.", year:2013, fact:"February 2013 — the gradient helmet remains one of the boldest looks in NFL history."},
+      {q:"One Spark, the giant crowdfunding festival, took over downtown Jacksonville for the first time.", year:2013, fact:"April 2013 — about 130,000 people came out over five days."},
+      {q:"The Jaguars drafted Blake Bortles 3rd overall and hope was alive in Duval.", year:2014, fact:"May 2014 — out of UCF, just down I-95."},
+      {q:"EverBank Field unveiled the WORLD'S LARGEST scoreboards… and swimming pools in the end zone.", year:2014, fact:"July 2014 — 362 feet of video board, a world record, plus actual wading pools."},
+      {q:"The Jacksonville Armada kicked off their first-ever season of pro soccer.", year:2015, fact:"2015 — their debut drew one of the biggest crowds in modern NASL history."},
+    ]
+  },
+  {
+    id:"internet", emoji:"📱", title:"Chronically Online",
+    callout:"📣 If your screen time report is over FIVE HOURS a day — be honest — come on up!",
+    desc:"The viral moments that defined the timeline while you were at Oakleaf.",
+    icebreaker:"What's the oldest photo still on your phone or Instagram?",
+    questions:[
       {q:"“Gangnam Style” became the first video EVER to hit one billion views on YouTube.", year:2012, fact:"December 2012 — YouTube's view counter wasn't even built for numbers that big."},
+      {q:"Vine launched — six seconds of video that changed comedy forever.", year:2013, fact:"January 2013 — RIP to a legend, gone too soon."},
       {q:"The Harlem Shake craze: 30 seconds of chaos, filmed in every gym, office, and locker room in America.", year:2013, fact:"February 2013 — thousands of versions were uploaded per day at its peak."},
       {q:"The Ice Bucket Challenge had everyone from your neighbor to Bill Gates dumping freezing water on their heads.", year:2014, fact:"Summer 2014 — it raised over $115 million for ALS research."},
+      {q:"Kim Kardashian tried to “break the internet” with THAT magazine cover.", year:2014, fact:"November 2014 — Paper Magazine's servers genuinely struggled."},
       {q:"THE DRESS. Blue and black or white and gold? Friendships ended over this.", year:2015, fact:"February 2015 — for the record, the actual dress was blue and black."},
     ]
   },
@@ -348,7 +438,9 @@ const ROUNDS = [
     desc:"For the ones who kept doing homework on purpose.",
     icebreaker:"What did you study — and do you actually use it?",
     questions:[
+      {q:"Scientists found the Higgs boson — the “God particle” your physics teacher wouldn't shut up about.", year:2012, fact:"July 2012 — confirmed at CERN after a 48-year search."},
       {q:"The Mayan calendar “end of the world” came and went… and we all survived to laugh about it.", year:2012, fact:"December 21, 2012 — doomsday parties happened worldwide. Nothing happened."},
+      {q:"“The Great Gatsby” hit theaters — required reading turned into a Leo-with-a-champagne-glass meme.", year:2013, fact:"May 2013 — Baz Luhrmann, Jay-Z soundtrack, English teachers everywhere conflicted."},
       {q:"“Selfie” was crowned Word of the Year by Oxford Dictionaries.", year:2013, fact:"2013 — usage of the word had jumped 17,000% that year."},
       {q:"Malala Yousafzai became the youngest Nobel Peace Prize winner in history at age 17.", year:2014, fact:"October 2014 — for her fight for girls' education."},
       {q:"“Hamilton” opened on Broadway and suddenly everyone was rapping about the Federalist Papers.", year:2015, fact:"August 2015 — tickets became nearly impossible to get."},
@@ -358,22 +450,26 @@ const ROUNDS = [
     id:"weddings", emoji:"🕺", title:"Wedding Season Veterans",
     callout:"📣 Anyone who's survived THREE OR MORE weddings since graduation — come on up!",
     desc:"Dance-floor anthems from the Oakleaf years. You've definitely done these moves in a banquet hall.",
-    icebreaker:"How many weddings have you been to since graduation — and what's the best one?",
+    icebreaker:"How many weddings have you been to since graduation — and which one was the best?",
     questions:[
       {q:"Gotye's “Somebody That I Used to Know” was inescapable — now you're just a yearbook that I used to know.", year:2012, fact:"It was Billboard's #1 song of the entire year, 2012."},
+      {q:"“Blurred Lines” was the song of the summer, for better or worse.", year:2013, fact:"Summer 2013 — 12 weeks at #1."},
       {q:"Miley Cyrus's twerk-heavy VMA performance broke the internet and launched a thousand think pieces.", year:2013, fact:"August 2013 — the foam finger heard 'round the world."},
       {q:"Pharrell's “Happy” sat at #1 forever and played at literally every event on Earth.", year:2014, fact:"It was the best-selling song of 2014 — clap along if you feel like a room without a roof."},
+      {q:"“Uptown Funk” took over and gave every wedding DJ an automatic floor-filler.", year:2015, fact:"It opened 2015 with 14 straight weeks at #1 — don't believe me, just watch."},
       {q:"“Watch Me (Whip / Nae Nae)” had every wedding, gym class, and family cookout doing the same dance.", year:2015, fact:"Silentó released it in 2015 — now watch me bob, bob, bob…"},
     ]
   },
   {
     id:"lightning", emoji:"⚡", title:"Lightning Round · FINALE", lightning:true,
     callout:"📣 FINAL ROUND — top scorers, rivals, or ANYONE brave enough — come on up! Every question is worth DOUBLE.",
-    desc:"Six rapid-fire questions. Two points each. This is where champions are made.",
+    desc:"Eight rapid-fire questions. Two points each. This is where champions are made.",
     icebreaker:"In one word: how would your high school self describe your life now?",
     questions:[
       {q:"The London Summer Olympics — the Queen “parachuted” in with James Bond.", year:2012, fact:"The opening ceremony stunt with Daniel Craig is still legendary."},
+      {q:"“The Avengers” assembled on screen for the very first time.", year:2012, fact:"May 2012 — shawarma scene and all."},
       {q:"Pope Francis was elected — the first pope from the Americas.", year:2013, fact:"March 2013, after Benedict XVI became the first pope to resign in ~600 years."},
+      {q:"“What Does the Fox Say” asked the question nobody needed answered. Ring-ding-ding-ding.", year:2013, fact:"September 2013 — Ylvis never escaped it."},
       {q:"Ellen's celebrity-packed Oscars selfie became the most retweeted post ever (at the time).", year:2014, fact:"March 2014 — it briefly crashed Twitter."},
       {q:"Taylor Swift dropped “1989” and “Shake It Off” — and officially went full pop.", year:2014, fact:"October 2014 — 1989 sold 1.28 million copies in its first week."},
       {q:"Adele said “Hello” after years of silence and shattered every streaming record.", year:2015, fact:"October 2015 — first song ever to hit a million US downloads in a week."},
@@ -382,12 +478,20 @@ const ROUNDS = [
   },
 ];
 
+const INSIDER_META = {
+  id:"insider", emoji:"📝", title:"Class Insiders",
+  callout:"📣 SUPERFANS ONLY — if you think you remember EVERYTHING about Oakleaf, come on up!",
+  desc:"Written by your hosts. Real Oakleaf deep cuts — no Googling your way out of this one.",
+  icebreaker:"What's your single favorite memory from your time at Oakleaf?",
+};
+
 /* ================= STATE ================= */
 const STORAGE_KEY = "oakleafReunionTrivia";
-let state = { scores:{}, doneRounds:[] };
+let state = { scores:{}, doneRounds:[], custom:[] };
 try {
   const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
   if (saved && saved.scores) state = saved;
+  if (!state.custom) state.custom = [];
 } catch(e){}
 
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -405,26 +509,118 @@ function goRounds(){
   const grid = document.getElementById("roundgrid");
   grid.innerHTML = "";
   ROUNDS.forEach(r=>{
-    const done = state.doneRounds.includes(r.id);
-    const card = document.createElement("button");
-    card.className = "roundcard" + (done ? " done" : "") + (r.lightning ? " lightning-card" : "");
-    card.onclick = ()=>openIntro(r.id);
-    card.innerHTML = `
-      ${done ? '<span class="donebadge">PLAYED ✓</span>' : ''}
-      <div class="remoji">${r.emoji}</div>
-      <h3>${r.title}</h3>
-      <p>${r.callout.replace("📣 ","")}</p>
-      <div class="qcount">${r.questions.length} questions${r.lightning ? " · 2 pts each" : ""}</div>`;
-    grid.appendChild(card);
+    if(r.lightning) return; // lightning goes last
+    grid.appendChild(roundCard(r));
   });
+
+  // Custom insider round card
+  const done = state.doneRounds.includes("insider");
+  const card = document.createElement("button");
+  card.className = "roundcard insider-card" + (done ? " done" : "");
+  card.onclick = openEditor;
+  card.innerHTML = `
+    ${done ? '<span class="donebadge">PLAYED ✓</span>' : ''}
+    <div class="remoji">📝</div>
+    <h3>Class Insiders <span style="font-size:.8em; color:var(--teal);">· write your own</span></h3>
+    <p>Teachers, prom themes, the senior prank — add your own Oakleaf deep cuts before the party.</p>
+    <div class="qcount">${state.custom.length} question${state.custom.length===1?"":"s"} written · tap to add/play</div>`;
+  grid.appendChild(card);
+
+  const lightning = ROUNDS.find(r=>r.lightning);
+  grid.appendChild(roundCard(lightning));
+
   document.getElementById("pill-players").innerHTML =
     `Players: <b>${Object.keys(state.scores).length}</b>`;
   show("screen-rounds");
 }
 
+function roundCard(r){
+  const done = state.doneRounds.includes(r.id);
+  const card = document.createElement("button");
+  card.className = "roundcard" + (done ? " done" : "") + (r.lightning ? " lightning-card" : "");
+  card.onclick = ()=>openIntro(r);
+  card.innerHTML = `
+    ${done ? '<span class="donebadge">PLAYED ✓</span>' : ''}
+    <div class="remoji">${r.emoji}</div>
+    <h3>${r.title}</h3>
+    <p>${r.callout.replace("📣 ","")}</p>
+    <div class="qcount">${r.questions.length} questions${r.lightning ? " · 2 pts each" : ""}</div>`;
+  return card;
+}
+
+/* ================= INSIDER EDITOR ================= */
+let edYear = null;
+function openEditor(){
+  edYear = null;
+  document.getElementById("ed-q").value = "";
+  document.getElementById("ed-fact").value = "";
+  renderEdYears();
+  renderEdList();
+  show("screen-editor");
+  document.getElementById("ed-q").focus();
+}
+
+function renderEdYears(){
+  const wrap = document.getElementById("ed-years");
+  wrap.innerHTML = "";
+  YEARS.forEach(y=>{
+    const b = document.createElement("button");
+    b.textContent = y;
+    b.className = edYear===y ? "sel" : "";
+    b.onclick = ()=>{ edYear=y; renderEdYears(); };
+    wrap.appendChild(b);
+  });
+}
+
+function addCustomQ(){
+  const q = document.getElementById("ed-q").value.trim();
+  const fact = document.getElementById("ed-fact").value.trim();
+  if(!q){ alert("Type the question first!"); return; }
+  if(!edYear){ alert("Pick the year it happened!"); return; }
+  state.custom.push({q, year:edYear, fact: fact || "An Oakleaf deep cut — only the real ones knew."});
+  save();
+  edYear = null;
+  document.getElementById("ed-q").value = "";
+  document.getElementById("ed-fact").value = "";
+  renderEdYears();
+  renderEdList();
+  document.getElementById("ed-q").focus();
+}
+
+function removeCustomQ(i){
+  state.custom.splice(i,1);
+  save();
+  renderEdList();
+}
+
+function renderEdList(){
+  document.getElementById("ed-count").textContent = state.custom.length;
+  document.getElementById("ed-play").disabled = state.custom.length===0;
+  const list = document.getElementById("ed-list");
+  list.innerHTML = "";
+  state.custom.forEach((item,i)=>{
+    const row = document.createElement("div");
+    row.className = "qitem";
+    const span = document.createElement("span");
+    span.textContent = item.q;
+    const yr = document.createElement("span");
+    yr.className = "qy";
+    yr.textContent = item.year;
+    const del = document.createElement("button");
+    del.textContent = "✕";
+    del.onclick = ()=>removeCustomQ(i);
+    row.appendChild(span); row.appendChild(yr); row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function playInsiders(){
+  if(state.custom.length===0) return;
+  openIntro({ ...INSIDER_META, questions: state.custom });
+}
+
 /* ================= ROUND INTRO ================= */
-function openIntro(roundId){
-  const r = ROUNDS.find(x=>x.id===roundId);
+function openIntro(r){
   current = { round:r, names:[], qIndex:0, answered:false, roundScores:{} };
   document.getElementById("intro-emoji").textContent = r.emoji;
   document.getElementById("intro-callout").textContent = r.callout;
@@ -459,7 +655,11 @@ function renderChips(){
   current.names.forEach((n,i)=>{
     const c = document.createElement("span");
     c.className = "chip";
-    c.innerHTML = `${n} <button onclick="removeName(${i})" aria-label="remove">✕</button>`;
+    const txt = document.createTextNode(n + " ");
+    const x = document.createElement("button");
+    x.textContent = "✕";
+    x.onclick = ()=>removeName(i);
+    c.appendChild(txt); c.appendChild(x);
     wrap.appendChild(c);
   });
   document.getElementById("btn-start-round").disabled = current.names.length===0;
@@ -494,7 +694,7 @@ function renderQuestion(){
 
   const wrap = document.getElementById("q-years");
   wrap.innerHTML = "";
-  YEARS.forEach((y,i)=>{
+  YEARS.forEach((y)=>{
     const b = document.createElement("button");
     b.className = "yearbtn";
     b.textContent = y;
@@ -587,10 +787,10 @@ function goAwards(){
     cert.innerHTML = `
       <div class="ctitle">✦ Certificate of Achievement ✦</div>
       <div class="cname">${champs.join(" & ")}</div>
-      <div class="caward">${champs.length>1 ? "Co-Champions" : "Champion"} · Oakleaf Reunion Trivia</div>
+      <div class="caward">${champs.length>1 ? "Co-Champions" : "Champion"} · Oakleaf Knights Reunion Trivia</div>
       <div class="cbody">For proving, beyond all reasonable doubt, total mastery of the years 2012–2015
         with a winning score of <b>${topScore} point${topScore===1?"":"s"}</b>.<br>
-        The Classes of 2012–2015 salute you.</div>
+        The Classes of 2012–2015 salute you. Once a Knight, always a Knight. ⚔️</div>
       <div class="cdate">Awarded this night · ${dateStr}</div>`;
 
     const medals = ["🥇","🥈","🥉"];
@@ -606,8 +806,8 @@ function goAwards(){
 }
 
 function resetGame(){
-  if(!confirm("Reset all scores and round history?")) return;
-  state = { scores:{}, doneRounds:[] };
+  if(!confirm("Reset all scores and round history? (Your custom Class Insider questions will be kept.)")) return;
+  state = { scores:{}, doneRounds:[], custom: state.custom };
   save();
   goRounds();
 }
@@ -637,7 +837,7 @@ let pieces = [];
 function sizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
 sizeCanvas();
 addEventListener("resize", sizeCanvas);
-const COLORS = ["#f5c84c","#4dd9c0","#ff6fa5","#ffe9a8","#8ab6ff","#3ddc84"];
+const COLORS = ["#c5b358","#f0e3a1","#4dd9c0","#ff6fa5","#8ab6ff","#3ddc84"];
 function burstConfetti(n){
   for(let i=0;i<n;i++){
     pieces.push({
