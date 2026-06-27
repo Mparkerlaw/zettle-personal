@@ -121,6 +121,10 @@ your tracking history stays unified across both (each exercise keeps one
 identity under the hood). Each gym swap is editable via the `gym: {...}` field
 on each exercise in `routine.js`.
 
+Each saved session records which equipment you used, so you can train home some
+days and at the gym others — the **Progress** journal and per-exercise history
+tag each session 🏠 Home or 🏋️ Gym.
+
 ## Themes
 
 Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,

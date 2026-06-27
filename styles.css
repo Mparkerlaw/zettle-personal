@@ -122,6 +122,7 @@ main, .app-header, .app-footer { position: relative; z-index: 1; }
 
 /* alternate-equipment hint */
 .equip-alt { color: var(--violet) !important; opacity: 0.95; }
+.equip-tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; color: var(--cyan); border: 1px solid rgba(var(--c1-rgb), 0.32); border-radius: 999px; padding: 1px 7px; margin-left: 4px; white-space: nowrap; }
 .equip-alt-line { color: var(--muted); font-size: 0.82rem; margin: 2px 0 10px; letter-spacing: 0.02em; }
 
 .app-header h1 {

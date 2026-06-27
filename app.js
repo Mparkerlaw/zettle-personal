@@ -38,6 +38,9 @@ function activeViewName() {
   const t = document.querySelector(".tab.active");
   return t ? t.dataset.view : "routine";
 }
+function equipTag(m) {
+  return m ? `<span class="equip-tag">${m === "gym" ? "🏋️ Gym" : "🏠 Home"}</span>` : "";
+}
 function refreshActiveView() {
   const n = activeViewName();
   if (n === "routine") renderRoutine();
@@ -791,6 +794,7 @@ function saveWorkout() {
     entries,
     note: trackState.note || "",
     energy: trackState.energy || 0,
+    equip: getMode(), // record whether this session was Home or Gym
   });
   saveLog(log);
   trackState.data = initTrackData(day);
@@ -1008,7 +1012,7 @@ function seriesFor(name) {
       topWeight = Math.max(topWeight, s.weight);
       volume += s.weight * s.reps;
     });
-    if (best > 0) points.push({ date: w.date, e1rm: Math.round(best), topWeight, volume });
+    if (best > 0) points.push({ date: w.date, e1rm: Math.round(best), topWeight, volume, equip: w.equip });
   });
   return points.sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -1089,7 +1093,7 @@ function renderOverview() {
           .map(
             (w) =>
               `<div class="journal-item">
-                 <div class="j-head"><span>${fmtDate(w.date)} · ${w.day}</span><span class="j-energy">${w.energy ? ENERGY_EMOJI[w.energy - 1] : ""}</span></div>
+                 <div class="j-head"><span>${fmtDate(w.date)} · ${w.day} ${equipTag(w.equip)}</span><span class="j-energy">${w.energy ? ENERGY_EMOJI[w.energy - 1] : ""}</span></div>
                  ${w.note ? `<div class="j-note">${escapeHtml(w.note)}</div>` : ""}
                </div>`
           )
@@ -1160,7 +1164,7 @@ function renderProgressBody(name) {
         .reverse()
         .map(
           (p) =>
-            `<div class="history-item"><span class="date">${fmtDate(p.date)}</span><span>top ${p.topWeight} · e1RM ${p.e1rm} · vol ${Math.round(p.volume)}</span></div>`
+            `<div class="history-item"><span class="date">${p.equip ? (p.equip === "gym" ? "🏋️ " : "🏠 ") : ""}${fmtDate(p.date)}</span><span>top ${p.topWeight} · e1RM ${p.e1rm} · vol ${Math.round(p.volume)}</span></div>`
         )
         .join("")}
     </div>`;
