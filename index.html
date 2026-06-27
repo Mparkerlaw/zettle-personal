@@ -20,9 +20,15 @@
   <header class="app-header">
     <div class="header-top">
       <h1 id="app-title">My Workout Routine</h1>
-      <button id="theme-btn" class="theme-btn" title="Change theme">
-        <span class="theme-dot"></span><span id="theme-name">Aurora</span>
-      </button>
+      <div class="header-controls">
+        <div class="equip-toggle" id="equip-toggle">
+          <button data-mode="home" class="equip-opt">🏠 Home</button>
+          <button data-mode="gym" class="equip-opt">🏋️ Gym</button>
+        </div>
+        <button id="theme-btn" class="theme-btn" title="Change theme">
+          <span class="theme-dot"></span><span id="theme-name">Aurora</span>
+        </button>
+      </div>
     </div>
     <nav class="tabs">
       <button class="tab active" data-view="routine">Routine</button>

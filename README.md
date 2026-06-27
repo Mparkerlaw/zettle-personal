@@ -111,6 +111,16 @@ nutrition quote (they change daily, stable through the day). Edit the
 suggestions in `FUEL` and the quotes in `FUEL_QUOTES` at the bottom of
 `routine.js`.
 
+## Home / Gym mode
+
+A **🏠 Home / 🏋️ Gym** toggle in the header switches every exercise between the
+kettlebell/band version and a full-gym equivalent (barbell/dumbbell/machine/
+cable) — names, form cues, and tutorial videos all swap, on the Routine list,
+exercise detail, Track, and Focus Mode. Sets/reps/rest/RIR stay the same, and
+your tracking history stays unified across both (each exercise keeps one
+identity under the hood). Each gym swap is editable via the `gym: {...}` field
+on each exercise in `routine.js`.
+
 ## Themes
 
 Tap the pill in the top-right to cycle color schemes — **Aurora**, **Solar**,

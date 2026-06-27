@@ -108,7 +108,21 @@ main, .app-header, .app-footer { position: relative; z-index: 1; }
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
 }
-.header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.header-controls { display: flex; align-items: center; gap: 8px; }
+
+/* equipment mode toggle */
+.equip-toggle { display: inline-flex; background: var(--surface-solid); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+.equip-opt {
+  background: none; border: none; color: var(--muted); cursor: pointer; font-family: inherit;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px 11px; border-radius: 999px; transition: all 0.18s; white-space: nowrap;
+}
+.equip-opt.active { color: #04070f; background: linear-gradient(135deg, var(--cyan), var(--violet)); box-shadow: 0 0 14px rgba(var(--c1-rgb), 0.45); }
+
+/* alternate-equipment hint */
+.equip-alt { color: var(--violet) !important; opacity: 0.95; }
+.equip-alt-line { color: var(--muted); font-size: 0.82rem; margin: 2px 0 10px; letter-spacing: 0.02em; }
 
 .app-header h1 {
   margin: 0;

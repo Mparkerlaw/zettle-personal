@@ -10,6 +10,7 @@ const WEEK_KEY = "programWeek";
 const BODY_KEY = "bodyLog";
 const START_KEY = "programStart"; // ISO date the program began
 const WEEKMODE_KEY = "weekMode"; // "auto" (by date) | "manual"
+const EQUIP_KEY = "equipMode"; // "home" (kettlebell/band) | "gym"
 const THEMES = ["aurora", "solar", "matrix", "vapor"];
 const THEME_LABELS = { aurora: "Aurora", solar: "Solar", matrix: "Matrix", vapor: "Vapor" };
 
@@ -19,6 +20,62 @@ const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 function todaysDayIndex() {
   const d = SCHEDULE[new Date().getDay()];
   return d == null ? null : d;
+}
+
+/* ---------- equipment mode (home kettlebell/band vs gym) ---------- */
+function getMode() {
+  return localStorage.getItem(EQUIP_KEY) === "gym" ? "gym" : "home";
+}
+function setMode(m) {
+  localStorage.setItem(EQUIP_KEY, m === "gym" ? "gym" : "home");
+  mirrorToIDB();
+}
+function syncEquipToggle() {
+  const m = getMode();
+  document.querySelectorAll("#equip-toggle .equip-opt").forEach((b) => b.classList.toggle("active", b.dataset.mode === m));
+}
+function activeViewName() {
+  const t = document.querySelector(".tab.active");
+  return t ? t.dataset.view : "routine";
+}
+function refreshActiveView() {
+  const n = activeViewName();
+  if (n === "routine") renderRoutine();
+  else if (n === "track") renderTrack();
+  else if (n === "progress") renderProgress();
+  else if (n === "body") renderBody();
+}
+// Resolve an exercise's display fields for the current mode.
+// The home name stays the canonical key for storage/history; only the
+// displayed name/muscles/cues/video change in gym mode.
+function exView(ex) {
+  const g = ex.gym;
+  if (getMode() === "gym" && g) {
+    return {
+      name: g.name || ex.name,
+      muscles: g.muscles || ex.muscles,
+      cues: g.cues || ex.cues,
+      videoId: g.videoId || ex.videoId,
+      video: g.name || ex.video || ex.name,
+      reps: ex.reps,
+      sets: ex.sets,
+      rest: ex.rest,
+      rir: ex.rir,
+      note: ex.note,
+    };
+  }
+  return {
+    name: ex.name,
+    muscles: ex.muscles,
+    cues: ex.cues,
+    videoId: ex.videoId,
+    video: ex.video || ex.name,
+    reps: ex.reps,
+    sets: ex.sets,
+    rest: ex.rest,
+    rir: ex.rir,
+    note: ex.note,
+  };
 }
 
 // ----- backup / durability -----
@@ -220,16 +277,19 @@ function renderRoutine() {
         <p class="focus">${day.focus || ""}</p>
         ${day.exercises
           .map((ex) => {
+            const v = exView(ex);
             const meta = exMeta(ex);
+            const alt = altLabel(ex);
             return `
           <div class="exercise-row clickable" data-ex="${encodeURIComponent(ex.name)}">
             <span class="left">
               <span>
-                <span class="name">${ex.name}</span>
+                <span class="name">${v.name}</span>
+                ${alt ? `<span class="note equip-alt">${alt}</span>` : ""}
                 ${meta ? `<span class="note">${meta}</span>` : ""}
               </span>
             </span>
-            <span class="scheme">${ex.sets} × ${ex.reps}</span>
+            <span class="scheme">${v.sets} × ${v.reps}</span>
             <span class="chev">›</span>
           </div>`;
           })
@@ -320,36 +380,45 @@ function openFuel(kind) {
   document.body.style.overflow = "hidden";
 }
 
+// small label showing the *other* equipment variant for reference
+function altLabel(ex) {
+  if (!ex.gym) return "";
+  return getMode() === "gym" ? "🏠 " + ex.name : "🏋️ " + ex.gym.name;
+}
+
 /* ---------- exercise detail modal ---------- */
 function openExercise(name) {
   const ex = findExercise(name);
   if (!ex) return;
+  const v = exView(ex);
+  const alt = altLabel(ex);
   const root = document.getElementById("modal-root");
   const modal = root.querySelector(".modal");
-  const cues = (ex.cues || []).map((c) => `<li>${c}</li>`).join("");
+  const cues = (v.cues || []).map((c) => `<li>${c}</li>`).join("");
   modal.innerHTML = `
     <div class="grip"></div>
     <button class="modal-close" aria-label="Close">✕</button>
-    <h2>${ex.name}</h2>
-    ${ex.muscles ? `<div class="muscle-chips">${ex.muscles.split(",").map((m) => `<span class="chip">${m.trim()}</span>`).join("")}</div>` : ""}
+    <h2>${v.name}</h2>
+    ${alt ? `<div class="equip-alt-line">${getMode() === "gym" ? "Home version" : "Gym version"}: ${alt.replace(/^.. /, "")}</div>` : ""}
+    ${v.muscles ? `<div class="muscle-chips">${v.muscles.split(",").map((m) => `<span class="chip">${m.trim()}</span>`).join("")}</div>` : ""}
     <div class="meta-grid">
-      <div class="meta-box"><div class="v">${ex.sets} × ${ex.reps}</div><div class="l">Sets × Reps</div></div>
-      <div class="meta-box"><div class="v">${ex.rest || "—"}</div><div class="l">Rest</div></div>
-      <div class="meta-box"><div class="v">${ex.rir || "—"}</div><div class="l">RIR</div></div>
+      <div class="meta-box"><div class="v">${v.sets} × ${v.reps}</div><div class="l">Sets × Reps</div></div>
+      <div class="meta-box"><div class="v">${v.rest || "—"}</div><div class="l">Rest</div></div>
+      <div class="meta-box"><div class="v">${v.rir || "—"}</div><div class="l">RIR</div></div>
     </div>
     ${cues ? `<div class="how-title">How to do it</div><ol class="cue-list">${cues}</ol>` : ""}
     ${
-      ex.videoId
+      v.videoId
         ? `<div class="how-title">Video tutorial</div>
            <div class="video-wrap">
-             <iframe src="https://www.youtube.com/embed/${ex.videoId}" title="${ex.name} tutorial"
+             <iframe src="https://www.youtube.com/embed/${v.videoId}" title="${v.name} tutorial"
                      loading="lazy" allowfullscreen
                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
            </div>`
         : ""
     }
-    <a class="yt-btn" href="${ytSearchUrl(ex)}" target="_blank" rel="noopener">
-      <span class="yt-play">▶</span> ${ex.videoId ? "Find more tutorials" : "Watch how-to on YouTube"}
+    <a class="yt-btn" href="${ytSearchUrl(v)}" target="_blank" rel="noopener">
+      <span class="yt-play">▶</span> ${v.videoId ? "Find more tutorials" : "Watch how-to on YouTube"}
     </a>
   `;
   root.hidden = false;
@@ -573,13 +642,16 @@ function renderTrack() {
               .join(", ")
           : "No history yet";
         const sets = trackState.data[ex.name];
+        const v = exView(ex);
+        const alt = altLabel(ex);
         return `
         <div class="card">
           <div class="track-ex-head" data-ex="${encodeURIComponent(ex.name)}">
-            <h2 style="font-size:1.05rem">${ex.name}</h2>
+            <h2 style="font-size:1.05rem">${v.name}</h2>
             <span class="info-pill">How-to ›</span>
           </div>
-          <div class="focus">Target: ${effectiveSets(ex, wk)} × ${ex.reps}${ex.rest ? " · rest " + ex.rest : ""}</div>
+          ${alt ? `<div class="note equip-alt">${alt}</div>` : ""}
+          <div class="focus">Target: ${effectiveSets(ex, wk)} × ${v.reps}${v.rest ? " · rest " + v.rest : ""}</div>
           <div class="last-time">${lastTxt}</div>
           <div class="set-head"><span>Set</span><span>Weight</span><span>Reps</span><span></span></div>
           ${sets
@@ -886,7 +958,8 @@ const FocusMode = {
     const done = this.steps.filter((s) => trackState.data[s.name][s.si].done).length;
     const exNo = st.ei + 1;
     const isLast = this.i === this.steps.length - 1;
-    const cues = (ex.cues || []).map((c) => `<li>${c}</li>`).join("");
+    const v = exView(ex);
+    const cues = (v.cues || []).map((c) => `<li>${c}</li>`).join("");
     const root = document.getElementById("focus-root");
     root.innerHTML = `
       <div class="focus-bar">
@@ -898,10 +971,10 @@ const FocusMode = {
       <div class="focus-body">
         ${this.i === 0 && quoteHTML() ? `<div class="focus-quote">${quoteHTML()}</div>` : ""}
         ${isLast && typeof FINAL_HYPE !== "undefined" && FINAL_HYPE.length ? `<div class="focus-hype">${FINAL_HYPE[Math.floor(Math.random() * FINAL_HYPE.length)]}</div>` : ""}
-        <h2 class="focus-name">${ex.name}</h2>
-        <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${ex.reps} · rest ${ex.rest || "—"} · RIR ${ex.rir || "—"}</div>
+        <h2 class="focus-name">${v.name}</h2>
+        <div class="focus-meta">${set.done ? "✓ logged · " : ""}Target ${v.reps} · rest ${v.rest || "—"} · RIR ${v.rir || "—"}</div>
         ${cues ? `<ol class="cue-list focus-cues">${cues}</ol>` : ""}
-        ${ex.videoId ? `<button class="link-btn focus-video-toggle">▶ Watch tutorial</button><div class="focus-video" hidden></div>` : ""}
+        ${v.videoId ? `<button class="link-btn focus-video-toggle">▶ Watch tutorial</button><div class="focus-video" hidden></div>` : ""}
         <div class="focus-inputs">
           <label>Weight<input type="number" inputmode="decimal" class="f-weight" placeholder="${ls && ls.weight ? ls.weight : "0"}" value="${set.weight}" /></label>
           <label>Reps<input type="number" inputmode="numeric" class="f-reps" placeholder="${ls && ls.reps ? ls.reps : "0"}" value="${set.reps}" /></label>
@@ -1247,6 +1320,7 @@ function buildExport() {
       programWeek: parseInt(localStorage.getItem(WEEK_KEY), 10) || 1,
       programStart: localStorage.getItem(START_KEY) || null,
       weekMode: localStorage.getItem(WEEKMODE_KEY) || "manual",
+      equipMode: getMode(),
       lastBackupDate: localStorage.getItem(BACKUP_DATE_KEY) || null,
       lastBackupAt: localStorage.getItem(LAST_BACKUP_AT) || null,
       lastICloudBackup: localStorage.getItem(ICLOUD_KEY) || null,
@@ -1272,6 +1346,7 @@ async function maybeRestoreFromIDB() {
       if (s.programWeek != null) localStorage.setItem(WEEK_KEY, String(s.programWeek));
       if (s.programStart) localStorage.setItem(START_KEY, s.programStart);
       if (s.weekMode) localStorage.setItem(WEEKMODE_KEY, s.weekMode);
+      if (s.equipMode) localStorage.setItem(EQUIP_KEY, s.equipMode);
       if (s.lastBackupDate) localStorage.setItem(BACKUP_DATE_KEY, s.lastBackupDate);
       if (s.lastBackupAt) localStorage.setItem(LAST_BACKUP_AT, s.lastBackupAt);
       if (s.lastICloudBackup) localStorage.setItem(ICLOUD_KEY, s.lastICloudBackup);
@@ -1427,6 +1502,10 @@ function applyImport(text) {
       localStorage.setItem(WEEKMODE_KEY, settings.weekMode || "manual");
     } else if (settings.programWeek != null) {
       setWeek(settings.programWeek);
+    }
+    if (settings.equipMode) {
+      localStorage.setItem(EQUIP_KEY, settings.equipMode);
+      syncEquipToggle();
     }
   }
   return log.length;
@@ -1742,6 +1821,16 @@ async function init() {
   );
   document.getElementById("theme-btn").addEventListener("click", cycleTheme);
 
+  // equipment mode toggle (home kettlebell/band vs gym)
+  syncEquipToggle();
+  document.getElementById("equip-toggle").addEventListener("click", (e) => {
+    const b = e.target.closest(".equip-opt");
+    if (!b) return;
+    setMode(b.dataset.mode);
+    syncEquipToggle();
+    refreshActiveView();
+  });
+
   // routine: today CTA + reminders + open exercise detail
   document.getElementById("view-routine").addEventListener("click", (e) => {
     if (e.target.id === "notif-enable") {
@@ -1807,11 +1896,11 @@ async function init() {
       FocusMode.go(-1);
     } else if (e.target.closest(".focus-next")) FocusMode.logAndNext();
     else if (e.target.closest(".focus-video-toggle")) {
-      const ex = findExercise(FocusMode.current().name);
+      const v = exView(findExercise(FocusMode.current().name));
       const box = focusRoot.querySelector(".focus-video");
       if (!box) return;
       if (box.hidden) {
-        box.innerHTML = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${ex.videoId}" title="${ex.name} tutorial" loading="lazy" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
+        box.innerHTML = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${v.videoId}" title="${v.name} tutorial" loading="lazy" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
         box.hidden = false;
       } else {
         box.hidden = true;
