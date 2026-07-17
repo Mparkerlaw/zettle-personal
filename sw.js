@@ -1,6 +1,6 @@
 /* Service worker: cache the app shell so it works fully offline.
    Bump CACHE when you change any cached file to force an update. */
-const CACHE = "foundation-v16";
+const CACHE = "foundation-v17";
 const ASSETS = [
   "./",
   "./index.html",
