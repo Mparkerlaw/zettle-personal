@@ -254,37 +254,49 @@ function exMeta(ex) {
 
 function renderRoutine() {
   const el = document.getElementById("view-routine");
+  const dow = new Date().getDay();
+  const di = todaysDayIndex();
+  const qh = quoteHTML();
+
+  const todayBlock =
+    di != null
+      ? `<div class="today-begin">
+           <div class="today-label">Today · ${WEEKDAYS[dow]}</div>
+           <div class="today-course">${ROUTINE.days[di].name}</div>
+           <div class="today-focus">${ROUTINE.days[di].focus || ""}</div>
+           <button class="btn today-start" data-day="${di}">Begin Workout ▶</button>
+         </div>`
+      : `<div class="today-begin">
+           <div class="today-label">Today · ${WEEKDAYS[dow]}</div>
+           <div class="today-course">${dow === 3 ? "Mobility & Recovery" : "Rest Day"}</div>
+           <div class="today-focus">Full recovery — eat, sleep, hit your fuel windows.</div>
+         </div>`;
+
   el.innerHTML =
-    renderTodayCard() +
-    renderRemindersCard() +
-    (ROUTINE.subtitle ? `<p class="focus" style="margin-top:-4px">${ROUTINE.subtitle}</p>` : "") +
+    (qh ? `<p class="menu-quote">${qh}</p>` : "") +
+    todayBlock +
     ROUTINE.days
-      .map(
-        (day) => `
-      <div class="card">
-        <h2>${day.name}</h2>
-        <p class="focus">${day.focus || ""}</p>
-        ${day.exercises
+      .map((day, idx) => {
+        const items = day.exercises
           .map((ex) => {
             const v = exView(ex);
-            const meta = exMeta(ex);
             const alt = altLabel(ex);
+            const desc = [v.muscles, ex.note].filter(Boolean).join(" · ");
             return `
-          <div class="exercise-row clickable" data-ex="${encodeURIComponent(ex.name)}">
-            <span class="left">
-              <span>
-                <span class="name">${v.name}</span>
-                ${alt ? `<span class="note equip-alt">${alt}</span>` : ""}
-                ${meta ? `<span class="note">${meta}</span>` : ""}
-              </span>
-            </span>
-            <span class="scheme">${v.sets} × ${v.reps}</span>
-            <span class="chev">›</span>
+          <div class="menu-item clickable" data-ex="${encodeURIComponent(ex.name)}">
+            <div class="mi-head"><span class="mi-name">${v.name}</span><span class="mi-leader"></span><span class="mi-price">${v.sets} × ${v.reps}</span></div>
+            ${desc ? `<div class="mi-desc">${desc}</div>` : ""}
+            ${alt ? `<div class="mi-alt">${alt}</div>` : ""}
           </div>`;
           })
-          .join("")}
-      </div>`
-      )
+          .join("");
+        return `
+      <div class="course">
+        <div class="course-title"><span>${day.name}${idx === di ? " · Today" : ""}</span></div>
+        <div class="course-sub">${day.focus || ""}</div>
+        ${items}
+      </div>`;
+      })
       .join("");
 }
 
@@ -586,20 +598,13 @@ function renderTrack() {
       .join("");
 
   el.innerHTML = `
-    ${quoteCard()}
-    <div class="card phase-card">
-      <div class="phase-top">
-        <div>
-          <div class="rest-label">Program ${wk === 0 ? "" : "· Week " + wk}</div>
-          <div class="phase-name">${ph.name} phase</div>
-        </div>
+    <div class="card week-card">
+      <div class="week-row">
+        <span class="week-label">${wk === 0 ? "Deload week" : "Program · Week " + wk}</span>
         <select id="week-select" class="week-select" ${auto ? "disabled" : ""}>${weekOpts}</select>
       </div>
-      <div class="focus" style="margin:10px 0 0">Target RIR this phase: <b style="color:var(--cyan)">${ph.rir}</b>${
-        ph.deload ? " · half the sets, same weight" : ""
-      }</div>
       <label class="auto-week">
-        <input type="checkbox" id="auto-week" ${auto ? "checked" : ""}/> <span>Auto-advance by date</span>
+        <input type="checkbox" id="auto-week" ${auto ? "checked" : ""}/> <span>Auto by date</span>
         <input type="date" id="start-date" value="${startDate}" ${auto ? "" : "disabled"} />
       </label>
     </div>
@@ -1585,7 +1590,8 @@ function renderBody() {
               .join("")}
           </div>`
         : `<div class="empty">No bodyweight logged yet.<br>You're training to grow — track the goal here.</div>`
-    }`;
+    }
+    ${renderRemindersCard()}`;
   if (body.length) drawChart(body.map((b) => ({ date: b.date, value: b.weight })), "body-chart");
 }
 function logBodyweight() {
@@ -1733,7 +1739,7 @@ async function enableNotifications() {
   } else {
     toast("Notifications blocked");
   }
-  renderRoutine();
+  renderBody();
 }
 
 function renderRemindersCard() {
@@ -1808,8 +1814,6 @@ async function init() {
   document.querySelectorAll(".tab").forEach((t) =>
     t.addEventListener("click", () => switchView(t.dataset.view))
   );
-  document.getElementById("theme-btn").addEventListener("click", cycleTheme);
-
   // equipment mode toggle (home kettlebell/band vs gym)
   syncEquipToggle();
   document.getElementById("equip-toggle").addEventListener("click", (e) => {
@@ -1820,12 +1824,8 @@ async function init() {
     refreshActiveView();
   });
 
-  // routine: today CTA + reminders + open exercise detail
+  // menu (routine): today CTA + open exercise detail
   document.getElementById("view-routine").addEventListener("click", (e) => {
-    if (e.target.id === "notif-enable") {
-      enableNotifications();
-      return;
-    }
     const start = e.target.closest(".today-start");
     if (start) {
       trackState.dayIndex = +start.dataset.day;
@@ -1833,10 +1833,12 @@ async function init() {
       switchView("track");
       return;
     }
-    const row = e.target.closest(".exercise-row.clickable");
+    const row = e.target.closest(".menu-item.clickable");
     if (row && row.dataset.ex) openExercise(decodeURIComponent(row.dataset.ex));
   });
-  document.getElementById("view-routine").addEventListener("change", handleReminderChange);
+
+  // body tab hosts reminders now
+  document.getElementById("view-body").addEventListener("change", handleReminderChange);
 
   const track = document.getElementById("view-track");
   track.addEventListener("input", handleTrackInput);
@@ -1901,6 +1903,7 @@ async function init() {
   // body tab: log bodyweight
   document.getElementById("view-body").addEventListener("click", (e) => {
     if (e.target.id === "bw-save") logBodyweight();
+    else if (e.target.id === "notif-enable") enableNotifications();
   });
 
   // celebration dismiss
