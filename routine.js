@@ -165,13 +165,6 @@ const ROUTINE = {
       ],
     },
   ],
-
-  // Reference info shown on the Routine tab (purely informational).
-  phases: [
-    { name: "Foundation", weeks: "1–3", sets: "3 sets", rir: "3–4", focus: "Learn movements, build mind-muscle connection, nail form" },
-    { name: "Volume", weeks: "4–6", sets: "3–4 sets", rir: "2–3", focus: "Add a 4th set on compounds, increase reps within range" },
-    { name: "Intensity", weeks: "7–8", sets: "4 sets", rir: "1–2", focus: "Push closer to failure, add tempo/pauses, heavier loads" },
-  ],
 };
 
 /* =============================================================

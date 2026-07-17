@@ -254,22 +254,6 @@ function exMeta(ex) {
 
 function renderRoutine() {
   const el = document.getElementById("view-routine");
-  const activeIdx = phaseForWeek(getWeek()).idx;
-  const phases = ROUTINE.phases
-    ? `<div class="card">
-        <h2 style="font-size:1.05rem">Progression Phases</h2>
-        ${ROUTINE.phases
-          .map(
-            (p, i) =>
-              `<div class="exercise-row ${i === activeIdx ? "phase-active" : ""}">
-                 <span class="left"><span><span class="name">${p.name}${i === activeIdx ? " ← you are here" : ""}</span><span class="note">Weeks ${p.weeks} · ${p.focus}</span></span></span>
-                 <span class="scheme">${p.sets} · RIR ${p.rir}</span>
-               </div>`
-          )
-          .join("")}
-      </div>`
-    : "";
-
   el.innerHTML =
     renderTodayCard() +
     renderRemindersCard() +
@@ -301,8 +285,7 @@ function renderRoutine() {
           .join("")}
       </div>`
       )
-      .join("") +
-    phases;
+      .join("");
 }
 
 function renderTodayCard() {
