@@ -4,6 +4,12 @@ A simple, offline web app for the "Foundation" 8-week hypertrophy program
 (kettlebells + bands, 4 days/week). Built with plain HTML/CSS/JS — no build
 step, no install, no internet required.
 
+## Program
+
+The leg days are a **6-day glute block** (Glute 1–6, scheduled Mon–Sat), with
+**Upper A** and **Upper B** kept as optional pickable days. Edit any of it in
+`routine.js`.
+
 ## Run it
 
 Just open `index.html` in any browser (double-click it, or drag it into a

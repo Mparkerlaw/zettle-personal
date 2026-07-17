@@ -14,8 +14,10 @@ const EQUIP_KEY = "equipMode"; // "home" (kettlebell/band) | "gym"
 const THEMES = ["aurora", "solar", "matrix", "vapor"];
 const THEME_LABELS = { aurora: "Aurora", solar: "Solar", matrix: "Matrix", vapor: "Vapor" };
 
-// Weekly schedule: JS getDay() (Sun=0..Sat=6) -> day index in ROUTINE.days
-const SCHEDULE = { 1: 0, 2: 1, 4: 2, 5: 3 }; // Mon→Upper A, Tue→Lower A, Thu→Upper B, Fri→Lower B
+// Weekly schedule: JS getDay() (Sun=0..Sat=6) -> day index in ROUTINE.days.
+// Days array order: 0 Upper A, 1 Glute 1, 2 Glute 2, 3 Glute 3, 4 Upper B, 5 Glute 4, 6 Glute 5, 7 Glute 6.
+// The 6-day glute block runs Mon–Sat; upper days stay available in the picker.
+const SCHEDULE = { 1: 1, 2: 2, 3: 3, 4: 5, 5: 6, 6: 7 };
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function todaysDayIndex() {
   const d = SCHEDULE[new Date().getDay()];
