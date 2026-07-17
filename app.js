@@ -261,13 +261,15 @@ function renderRoutine() {
   const todayBlock =
     di != null
       ? `<div class="today-begin">
+           <div class="chef-label">✦ Chef's Selection ✦</div>
            <div class="today-label">Today · ${WEEKDAYS[dow]}</div>
            <div class="today-course">${ROUTINE.days[di].name}</div>
            <div class="today-focus">${ROUTINE.days[di].focus || ""}</div>
            <button class="btn today-start" data-day="${di}">Begin Workout ▶</button>
          </div>`
       : `<div class="today-begin">
-           <div class="today-label">Today · ${WEEKDAYS[dow]}</div>
+           <div class="chef-label">✦ Today ✦</div>
+           <div class="today-label">${WEEKDAYS[dow]}</div>
            <div class="today-course">${dow === 3 ? "Mobility & Recovery" : "Rest Day"}</div>
            <div class="today-focus">Full recovery — eat, sleep, hit your fuel windows.</div>
          </div>`;
@@ -275,6 +277,7 @@ function renderRoutine() {
   el.innerHTML =
     (qh ? `<p class="menu-quote">${qh}</p>` : "") +
     todayBlock +
+    `<div class="menu-flourish">❦</div>` +
     ROUTINE.days
       .map((day, idx) => {
         const items = day.exercises
@@ -1810,6 +1813,8 @@ async function init() {
 
   document.getElementById("app-title").textContent = ROUTINE.title || "My Workout Routine";
   document.title = ROUTINE.title || "Workout";
+  const tagEl = document.getElementById("app-tagline");
+  if (tagEl && ROUTINE.subtitle) tagEl.textContent = ROUTINE.subtitle;
 
   document.querySelectorAll(".tab").forEach((t) =>
     t.addEventListener("click", () => switchView(t.dataset.view))

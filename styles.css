@@ -41,7 +41,22 @@ body {
 
 .scanlines { display: none; } /* removed for a calm fine-dining look */
 
-main, .app-header, .app-footer { position: relative; z-index: 1; }
+/* subtle linen weave behind everything */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.6;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(201, 169, 110, 0.022) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(201, 169, 110, 0.022) 0 1px, transparent 1px 4px);
+}
+
+main, .app-header, .app-footer, .tabs { position: relative; z-index: 1; }
+
+/* masthead tagline */
+.masthead-tagline {
+  margin: 4px 0 0; font-family: var(--serif); font-style: italic;
+  font-size: 0.82rem; color: var(--muted); letter-spacing: 0.02em;
+}
 
 /* ---------- header (restaurant masthead) ---------- */
 .app-header {
@@ -91,38 +106,46 @@ main, .app-header, .app-footer { position: relative; z-index: 1; }
   opacity: 0.7;
 }
 
-.tabs { display: flex; gap: 6px; justify-content: center; border-top: 1px solid rgba(201, 169, 110, 0.12); padding-top: 4px; }
+/* bottom tab bar (app-like) */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; justify-content: space-around; gap: 2px;
+  background: rgba(16, 14, 11, 0.97);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  padding: 6px 6px calc(4px + env(safe-area-inset-bottom));
+}
 .tab {
   flex: 1;
-  max-width: 130px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
   background: none;
   border: none;
   color: var(--muted);
-  padding: 12px 8px 14px;
+  padding: 8px 4px 6px;
   font-family: var(--sans);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
   position: relative;
   transition: color 0.2s;
 }
+.tab-glyph { font-size: 1.15rem; line-height: 1; opacity: 0.85; }
 .tab::after {
   content: "";
   position: absolute;
-  left: 22%; right: 22%; bottom: 0;
-  height: 1px;
+  left: 30%; right: 30%; top: 0;
+  height: 2px;
   background: var(--cyan);
   transform: scaleX(0);
   transition: transform 0.25s ease;
-  box-shadow: var(--glow-cyan);
 }
 .tab:hover { color: var(--text); }
-.tab.active { color: var(--text); }
+.tab.active { color: var(--cyan); }
 .tab.active::after { transform: scaleX(1); }
 
-main { max-width: 760px; margin: 0 auto; padding: 20px 16px 0; }
+main { max-width: 760px; margin: 0 auto; padding: 20px 16px calc(96px + env(safe-area-inset-bottom)); }
 
 .view { display: none; }
 .view.active { display: block; animation: fadeUp 0.4s ease both; }
@@ -177,6 +200,8 @@ main { max-width: 760px; margin: 0 auto; padding: 20px 16px 0; }
   border: 1px solid var(--border); border-radius: var(--radius);
   background: linear-gradient(180deg, rgba(201,169,110,0.05), transparent);
 }
+.chef-label { font-family: var(--sans); font-size: 0.62rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--violet); margin-bottom: 8px; }
+.menu-flourish { text-align: center; color: var(--violet); opacity: 0.6; font-size: 1.1rem; margin: 6px 0 4px; }
 .today-label { font-family: var(--sans); font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cyan); }
 .today-course { font-family: var(--serif); font-size: 1.7rem; font-weight: 600; margin: 6px 0 2px; }
 .today-focus { color: var(--muted); font-style: italic; font-size: 0.86rem; margin-bottom: 16px; }

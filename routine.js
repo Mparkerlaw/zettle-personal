@@ -17,8 +17,8 @@
    ============================================================= */
 
 const ROUTINE = {
-  title: "The Foundation",
-  subtitle: "6-day Glute block (Mon–Sat) + optional Upper A / Upper B days",
+  title: "The Foundry",
+  subtitle: "Strength Kitchen · Glutes Mon–Sat, Upper à la carte",
   days: [
     {
       name: "Upper A",

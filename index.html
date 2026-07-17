@@ -9,7 +9,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Foundation" />
+  <meta name="apple-mobile-web-app-title" content="The Foundry" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="icon" href="icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
@@ -18,6 +18,7 @@
   <header class="app-header">
     <div class="header-top">
       <h1 id="app-title">My Workout Routine</h1>
+      <p id="app-tagline" class="masthead-tagline"></p>
       <div class="header-controls">
         <div class="equip-toggle" id="equip-toggle">
           <button data-mode="home" class="equip-opt">🏠 Home</button>
@@ -25,12 +26,6 @@
         </div>
       </div>
     </div>
-    <nav class="tabs">
-      <button class="tab active" data-view="routine">Menu</button>
-      <button class="tab" data-view="track">Log</button>
-      <button class="tab" data-view="progress">Progress</button>
-      <button class="tab" data-view="body">Body</button>
-    </nav>
   </header>
 
   <div id="nudge-banner" class="nudge-banner" hidden></div>
@@ -59,6 +54,13 @@
     <div class="modal-backdrop"></div>
     <div class="modal" role="dialog" aria-modal="true"></div>
   </div>
+
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab active" data-view="routine"><span class="tab-glyph">☰</span>Menu</button>
+    <button class="tab" data-view="track"><span class="tab-glyph">✎</span>Log</button>
+    <button class="tab" data-view="progress"><span class="tab-glyph">◷</span>Progress</button>
+    <button class="tab" data-view="body"><span class="tab-glyph">☗</span>Body</button>
+  </nav>
 
   <!-- Floating rest timer -->
   <div id="rest-timer" class="rest-timer" hidden></div>
